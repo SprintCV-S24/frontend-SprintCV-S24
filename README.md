@@ -1,4 +1,4 @@
-## Back-end Repo
+## Front-end Repo
 
 # What is the project?
 
