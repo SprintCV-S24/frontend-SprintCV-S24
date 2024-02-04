@@ -5,7 +5,10 @@ import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useAuth } from "../../AuthContext";
 import FormError from "./FormError";
-
+import backgroundImage from '../../assets/login-background.jpeg';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 interface FormValues {
   email: string;
 }
@@ -49,25 +52,27 @@ const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Forgot Password</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" {...register("email")} />
-          {errors.email != null && (
-            <FormError>{errors.email.message}</FormError>
-          )}
-        </div>
-        {error && <FormError>{error}</FormError>}
-        <button disabled={isSubmitting} type="submit">
-          {isSubmitting ? "Submitting" : "Login"}
-        </button>
-        {message && <p>{message}</p>}
-      </form>
-      <p>
-        <Link to="/login">Back to login</Link>
-      </p>
+    <div className="h-screen w-screen flex bg-cover justify-center" style={{ backgroundImage: `url(${backgroundImage})`, filter: 'grayscale(50%)' }}>
+      <div className="p-6 rounded-md mb-32 mt-32 shadow-xl border border-black flex-col" style={{ backgroundColor: "#EFECEF" }}>
+        <h1 className="mb-3 text-center">Forgot Password</h1>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+            <Label htmlFor="email">Email</Label>
+            <Input type="email" id="email" placeholder="Enter Email"{...register("email")} />
+            {errors.email != null && (
+              <FormError>{errors.email.message}</FormError>
+            )}
+          </div>
+          {error && <FormError>{error}</FormError>}
+          <Button className="mb-4" variant="outline" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "Submitting" : "Recover Password"}
+          </Button>
+          {message && <p>{message}</p>}
+        </form>
+        <Button className="mb-4" variant="outline">
+          <Link to="/login">Back to login</Link>
+        </Button>
+      </div>
     </div>
   );
 };

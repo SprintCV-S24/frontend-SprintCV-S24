@@ -5,6 +5,10 @@ import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useAuth } from "../../AuthContext";
 import FormError from "./FormError";
+import backgroundImage from '../../assets/login-background.jpeg';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface FormValues {
   name: string;
@@ -58,34 +62,35 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Welcome to the React Firebase Auth template project</h1>
-      <h1>Register</h1>
+    <div className="h-screen w-screen flex bg-cover justify-center" style={{ backgroundImage: `url(${backgroundImage})`, filter: 'grayscale(50%)' }}>
+      <div className="p-6 rounded-md mb-12 mt-16 shadow-xl border border-black flex-col" style={{ backgroundColor: "#EFECEF" }}>
+      <h1 className="mb-3 text-center">Register</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input type="text" id="name" {...register("name")} />
+        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+          <Label htmlFor="name" id="name">Name</Label>
+          <Input type="text" id="name" placeholder="Enter Name" {...register("name")} />
           {errors.name != null && <FormError>{errors.name.message}</FormError>}
         </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" {...register("email")} />
+        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+          <Label htmlFor="email" id="email">Email</Label>
+          <Input type="email" id="email" placeholder="Enter Email" {...register("email")} />
           {errors.email != null && (
             <FormError>{errors.email.message}</FormError>
           )}
         </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" {...register("password")} />
+        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+          <Label htmlFor="password">Password</Label>
+          <Input type="password" id="password" placeholder="Choose Password" {...register("password")} />
           {errors.password != null && (
             <FormError>{errors.password.message}</FormError>
           )}
         </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
+        <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Input
             type="password"
             id="confirmPassword"
+            placeholder="Confirm Password"
             {...register("confirmPassword")}
           />
           {errors.confirmPassword != null && (
@@ -93,13 +98,17 @@ const Register: React.FC = () => {
           )}
         </div>
         {error && <FormError>{error}</FormError>}
-        <button disabled={isSubmitting} type="submit">
+        <Button variant="outline" disabled={isSubmitting} type="submit">
           {isSubmitting ? "Submitting" : "Register"}
-        </button>
+        </Button>
       </form>
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+      <div>
+        <Label htmlFor="haveAccount">Already have an account?</Label>
+        <Button variant="link">
+          <Link to="/login">Log in</Link>
+        </Button>
+      </div>
+    </div>
     </div>
   );
 };
