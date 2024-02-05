@@ -18,8 +18,11 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
+    // "paths": {
+    //   "~/*": ["./src/*"]
+    // }
   },
   "include": [
     ".eslintrc.cjs",
