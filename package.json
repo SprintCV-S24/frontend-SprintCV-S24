@@ -6,6 +6,7 @@
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
+		"test": "vitest",
     "preview": "vite preview",
     "lint": "eslint --ext .ts,.tsx . --fix"
   },
@@ -32,6 +33,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.3",
     "typescript": "^5.1.6",
-    "vite": "^4.4.8"
+    "vite": "^4.4.8",
+    "vitest": "^1.2.2"
   }
 }
