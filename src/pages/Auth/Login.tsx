@@ -8,8 +8,14 @@ import FormError from "./FormError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/card"
 import "../../App.css"
-import backgroundImage from '../../assets/login-background.jpeg';
+import { BackgroundBeams } from "@/components/ui/background-beams";
  
 interface FormValues {
   email: string;
@@ -58,47 +64,99 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex bg-cover justify-center" style={{ backgroundImage: `url(${backgroundImage})`, filter: 'grayscale(50%)' }}>
-      <div className="p-6 rounded-md mb-32 mt-32 shadow-xl border border-black" style={{ backgroundColor: "#EFECEF" }}>
-        <h1 className="mb-3 text-center">Login</h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-            <Label htmlFor="email" id="email">Email</Label>
-            <Input type="email" id="email" placeholder="Email" {...register("email")} />
-            {errors.email != null && (
-              <FormError>{errors.email.message}</FormError>
-            )}
+    <>
+      <div className="md:hidden">
+      </div>
+      <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+        <Button className="absolute right-4 top-4 md:right-8 md:top-8" variant="ghost">
+          <Link to="/register">
+            Create Account
+          </Link>
+        </Button>
+        <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
+          <div className="absolute inset-0 bg-black" />
+          <div className="relative z-20 flex items-center text-2xl font-large italic">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2 h-6 w-6"
+            >
+              <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+            </svg>
+            SprintCV
           </div>
-          <div className="grid w-full max-w-sm items-center gap-1.5 mb-4">
-            <Label htmlFor="password" id="password">Password</Label>
-            <Input type="password" id="password" placeholder="Password" {...register("password")} />
-            {errors.password != null && (
-              <FormError>{errors.password.message}</FormError>
-            )}
-            {errors && <FormError>{error}</FormError>}
+          <div className="relative z-20 mt-auto">
+            <blockquote className="space-y-2">
+              <p className="text-lg">
+                &ldquo;Save hours crafting custom resumes&rdquo;
+              </p>
+              <footer className="text-sm">Noah Taylor</footer>
+            </blockquote>
           </div>
-          <Button variant="outline" disabled={isSubmitting} type="submit">
-            {isSubmitting ? "Submitting" : "Login"}
-          </Button>
-        </form>
-        <div>
-          <Label htmlFor="register" id="register">Don't have an account?</Label>
-          <Button variant="link">
-            <Link to="/register">
-              Register
-            </Link>
-          </Button>
+          <BackgroundBeams/>
         </div>
-        <div>
-          <Label htmlFor="register" id="register">Forgot your password?</Label>
-          <Button variant="link" to="/forgot-password">
-            <Link to="/forgot-password">
-              Reset
-            </Link>
-          </Button>
+        <div className="lg:p-8">
+          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+            <div className="flex flex-col space-y-2 text-center">
+              <h1 className="text-2xl font-semibold tracking-tight">
+                Login
+              </h1>
+              <Card>
+                <CardHeader>
+                  <CardDescription>
+                    Enter email and password
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                    <Label htmlFor="email">Email</Label>
+                    <Input className="mt-2 mb-2" type="email" id="email" placeholder="Enter Email"{...register("email")} />
+                      {errors.email != null && (
+                        <FormError>{errors.email.message}</FormError>
+                      )}
+                    {error && <FormError>{error}</FormError>}
+                    <Label className="mt-4" htmlFor="password">Password</Label>
+                    <Input className="mt-2" type="password" id="password" placeholder="Choose Password" {...register("password")} />
+                    {errors.password != null && (
+                      <FormError>{errors.password.message}</FormError>
+                    )}
+                    <Button className="mt-4" disabled={isSubmitting} type="submit">
+                      {isSubmitting? "Submitting" : "Login"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+              <p className="text-sm text-muted-foreground">
+                <Link to="/forgot-password">
+                  Forgot password?
+                </Link>
+              </p>
+            </div>
+            <p className="px-8 text-center text-sm text-muted-foreground">
+              By clicking continue, you agree to our{" "}
+              <Link
+                href="/terms"
+                className="underline underline-offset-4 hover:text-primary"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                className="underline underline-offset-4 hover:text-primary">
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
