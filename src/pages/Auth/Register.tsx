@@ -6,13 +6,9 @@ import * as Yup from "yup";
 import { useAuth } from "../../AuthContext";
 import FormError from "./FormError";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card"
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { BackgroundBeams } from "@/components/ui/background-beams";
-
 
 interface FormValues {
   name: string;
@@ -67,13 +63,13 @@ const Register: React.FC = () => {
 
   return (
     <>
-      <div className="md:hidden">
-      </div>
+      <div className="md:hidden"></div>
       <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <Button className="absolute right-4 top-4 md:right-8 md:top-8" variant="ghost">
-          <Link to="/login">
-            Login
-          </Link>
+        <Button
+          className="absolute right-4 top-4 md:right-8 md:top-8"
+          variant="ghost"
+        >
+          <Link to="/login">Login</Link>
         </Button>
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r bg-[#6096b">
           <div className="absolute inset-0 bg-black" />
@@ -100,7 +96,7 @@ const Register: React.FC = () => {
               <footer className="text-sm">Noah Taylor</footer>
             </blockquote>
           </div>
-          <BackgroundBeams/>
+          <BackgroundBeams />
         </div>
         <div className="lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -111,25 +107,53 @@ const Register: React.FC = () => {
               <Card>
                 <CardContent>
                   <form onSubmit={handleSubmit(onSubmit)}>
-                    <Input className="mt-6" type="name" id="name" placeholder="Enter Name"{...register("name")} />
-                      {errors.email != null && (
-                        <FormError>{errors.name.message}</FormError>
-                      )}
-                    <Input className="mt-6" type="email" id="email" placeholder="Enter Email"{...register("email")} />
-                      {errors.email != null && (
-                        <FormError>{errors.email.message}</FormError>
-                      )}
+                    <Input
+                      className="mt-6"
+                      type="name"
+                      id="name"
+                      placeholder="Enter Name"
+                      {...register("name")}
+                    />
+                    {errors.email != null && (
+                      <FormError>{errors.name?.message}</FormError>
+                    )}
+                    <Input
+                      className="mt-6"
+                      type="email"
+                      id="email"
+                      placeholder="Enter Email"
+                      {...register("email")}
+                    />
+                    {errors.email != null && (
+                      <FormError>{errors.email.message}</FormError>
+                    )}
                     {error && <FormError>{error}</FormError>}
-                    <Input className="mt-6" type="password" id="password" placeholder="Choose Password" {...register("password")} />
+                    <Input
+                      className="mt-6"
+                      type="password"
+                      id="password"
+                      placeholder="Choose Password"
+                      {...register("password")}
+                    />
                     {errors.password != null && (
                       <FormError>{errors.password.message}</FormError>
                     )}
-                    <Input className="mt-6" type="password" id="password" placeholder="Confirm Password" {...register("confirmPassword")} />
+                    <Input
+                      className="mt-6"
+                      type="password"
+                      id="password"
+                      placeholder="Confirm Password"
+                      {...register("confirmPassword")}
+                    />
                     {errors.password != null && (
-                      <FormError>{errors.confirmPassword.message}</FormError>
+                      <FormError>{errors.confirmPassword?.message}</FormError>
                     )}
-                    <Button className="mt-4" disabled={isSubmitting} type="submit">
-                      {isSubmitting? "Submitting" : "Create Account"}
+                    <Button
+                      className="mt-4"
+                      disabled={isSubmitting}
+                      type="submit"
+                    >
+                      {isSubmitting ? "Submitting" : "Create Account"}
                     </Button>
                   </form>
                 </CardContent>

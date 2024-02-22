@@ -1,12 +1,12 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from "react";
 
 interface TextFormProps {}
 
 const TextForm: React.FC<TextFormProps> = () => {
   // State to store the entered text
-  const [inputText, setInputText] = useState<string>('');
+  const [inputText, setInputText] = useState<string>("");
   // State to store the saved text
-  const [savedText, setSavedText] = useState<string>('');
+  const [savedText, setSavedText] = useState<string>("");
 
   // Handler function for input text change
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

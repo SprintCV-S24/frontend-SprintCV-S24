@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,15 +7,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
- 
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export function ItemDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="mt-1 ml-2" variant="outline">Add Resume Item</Button>
+        <Button className="mt-1 ml-2" variant="outline">
+          Add Resume Item
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -43,5 +45,5 @@ export function ItemDialog() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

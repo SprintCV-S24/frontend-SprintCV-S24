@@ -3,7 +3,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-
 export const BackgroundBeams = ({ className }: { className?: string }) => {
   const paths = [
     "M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875",
@@ -61,7 +60,7 @@ export const BackgroundBeams = ({ className }: { className?: string }) => {
     <div
       className={cn(
         "absolute  h-full w-full inset-0  [mask-size:40px] [mask-repeat:no-repeat] flex items-center justify-center",
-        className
+        className,
       )}
     >
       <svg

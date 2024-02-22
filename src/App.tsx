@@ -16,7 +16,6 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 
-
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
