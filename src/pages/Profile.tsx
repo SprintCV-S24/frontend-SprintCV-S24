@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
+import TextForm from "../components/resume-item";
 
 type User = {
   displayName: string | null;
@@ -43,6 +44,7 @@ const Profile: React.FC = () => {
           <button onClick={handleLogout}>Logout</button>
         </div>
       )}
+      <TextForm></TextForm>
     </div>
   );
 };
