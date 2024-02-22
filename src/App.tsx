@@ -6,6 +6,7 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
+import { useEffect } from "react";
 import { AuthProvider } from "./AuthContext";
 // Routes
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -15,6 +16,7 @@ import Register from "./pages/Auth/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
+import { initializeLatexEngines } from "./components/Latex-comp";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,10 +31,17 @@ const router = createBrowserRouter(
   ),
 );
 
-const App: React.FC = () => (
+const App: React.FC = () => {
+  
+  useEffect(() => {
+    initializeLatexEngines();
+  }, []);
+
+  return (
   <AuthProvider>
     <RouterProvider router={router} />
   </AuthProvider>
-);
+  );
+};
 
 export default App;
