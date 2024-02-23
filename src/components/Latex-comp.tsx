@@ -244,9 +244,22 @@ export const LatexPdf: React.FC = () => {
     }, 2000);
   }, []);
 
+  // const objectURL = blob != null ? URL.createObjectURL(blob) : "";
+
   return (
     <div>
       <canvas ref={canvasRef}></canvas>
     </div>
+
+    // objectURL == "" ? (
+    //   <div></div>
+    // ) : (
+    //   <embed
+    //     src={objectURL}
+    //     width="100%"
+    //     height="400px"
+    //     type="application/pdf"
+    //   ></embed>
+    // )
   );
 };
