@@ -11,6 +11,7 @@ export const pdfInit = () => {
 export const usePdfRenderer = (
   blob: Blob | null,
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
+  width: number,
 ) => {
   useEffect(() => {
     if (blob) {
@@ -22,10 +23,18 @@ export const usePdfRenderer = (
           pdf.getPage(1).then((page) => {
             const canvas = canvasRef.current;
             if (canvas != null) {
-              const viewport = page.getViewport({ scale: 1.5 });
+              const originalWidth = page.getViewport({ scale: 1 }).width;
+              const scaleFactor = width / originalWidth;
+
+              // Use the scale factor to get the viewport
+              const viewport = page.getViewport({ scale: scaleFactor });
               const context = canvas.getContext("2d");
               canvas.height = viewport.height;
               canvas.width = viewport.width;
+              //   const viewport = page.getViewport({ scale: 1.5 });
+              //   const context = canvas.getContext("2d");
+              //   canvas.height = viewport.height;
+              //   canvas.width = viewport.width;
               if (context != null) {
                 const renderContext = {
                   canvasContext: context,
