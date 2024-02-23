@@ -17,6 +17,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import { initializeLatexEngines } from "./components/Latex-comp";
+import { pdfInit } from "./latex-utils/pdfUtils";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,7 +35,9 @@ const router = createBrowserRouter(
 const App: React.FC = () => {
   
   useEffect(() => {
-    initializeLatexEngines();
+		console.log("initializing engine");
+    initializeLatexEngines().then((res) => {console.log("engine initialized")});
+		pdfInit();
   }, []);
 
   return (
