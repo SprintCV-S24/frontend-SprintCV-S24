@@ -16,8 +16,8 @@ import Register from "./pages/Auth/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
-import { initializeLatexEngines } from "./components/Latex-comp";
-import { pdfInit } from "./latex-utils/pdfUtils";
+import { initializeLatexEngines } from "./latexUtils/latexUtils";
+import { pdfInit } from "./latexUtils/pdfUtils";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,17 +33,18 @@ const router = createBrowserRouter(
 );
 
 const App: React.FC = () => {
-  
   useEffect(() => {
-		console.log("initializing engine");
-    initializeLatexEngines().then((res) => {console.log("engine initialized")});
-		pdfInit();
+    console.log("initializing engine");
+    initializeLatexEngines().then((res) => {
+      console.log("engine initialized");
+    });
+    pdfInit();
   }, []);
 
   return (
-  <AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 };
 
