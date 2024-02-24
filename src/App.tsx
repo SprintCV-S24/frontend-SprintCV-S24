@@ -17,6 +17,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import { initializeLatexEngines } from "./latexUtils/latexUtils";
+import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
 
 const router = createBrowserRouter(
@@ -33,9 +34,12 @@ const router = createBrowserRouter(
 );
 
 const App: React.FC = () => {
+	//Initializes latex engine and pdf.js
+	//TODO: this should probably be pulled out and put somewhere else
   useEffect(() => {
     console.log("initializing engine");
     initializeLatexEngines().then((res) => {
+			notifyInitializationComplete();
       console.log("engine initialized");
     });
     pdfInit();

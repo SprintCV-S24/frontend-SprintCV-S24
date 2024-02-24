@@ -1,15 +1,17 @@
 import { PdfTeXEngine } from "@/latexUtils/PdfTeXEngine";
+import { initializationPromise, renderQueueManager } from "./renderQueue";
 
 const engine = new PdfTeXEngine();
 
 export const initializeLatexEngines = async () => {
-  //* Wrapped in try ... catch to ignore multiple engine error message
   try {
     // Initialize the PDF engine
     await engine.loadEngine();
   } catch (e) {}
 };
 
+//Compiles a latex string into a byte array
+//TODO: make sure places that call this have error handling higher in the call stack
 const compileLatex = async (latexCode: string) => {
   // Make sure both engines are ready for compilation
   if (!engine.isReady()) {
@@ -19,7 +21,7 @@ const compileLatex = async (latexCode: string) => {
   //NOTE: all of these engine methods can throw so we need error handling
   // Create a temporary main.tex file
   engine.writeMemFSFile("main.tex", latexCode);
-  // Associate the XeTeX engine with this main.tex file
+  // Associate the pdftex engine with this main.tex file
   engine.setEngineMainFile("main.tex");
   // Compile the main.tex file
   let compilation = await engine.compileLaTeX();
@@ -31,17 +33,31 @@ const compileLatex = async (latexCode: string) => {
     console.log(compilation.log);
     throw new Error("Error compiling: " + compilation.log);
   }
-  // Print the compilation log
 };
 
+//don't think this is needed
 export const revokeCompiledPdfUrl = (pdfUrl: string) => {
   // Revoke the temporary URL to the PDF blob created in `compileLatex()`
   URL.revokeObjectURL(pdfUrl);
   console.log("Revoked URL");
 };
 
-export const generatePdfBlob = async (latexCode: string) => {
+//DON'T CALL THIS, call generatePdfBlobSafe instead. This generates the blob object for one pdf, but it
+//  has no protections in terms of concurrency. It relies on the protections provided by generatePdfBlobSafe
+//  to avoid trying to render when the engine is not yet initialized or already rendering something else
+const generatePdfBlob = async (latexCode: string) => {
   const pdfBinary = await compileLatex(latexCode);
   const pdfBlob = new Blob([pdfBinary], { type: "application/pdf" });
   return pdfBlob;
+};
+
+//Wraps generatePdfBlob, providing protections against illegal calls to the engine that will cause errors
+export const generatePdfBlobSafe = async (latexCode: string) => {
+	//This promise doesn't get resolved until the engine has been initialized
+	await initializationPromise;
+
+	//This pushes the call to generatePdfBlob into a queue so that it waits its turn since the engine
+	//  can only render 1 thing at a time
+	const blob = await renderQueueManager.enqueue<Blob>(async () => await generatePdfBlob(latexCode));
+	return blob;
 };

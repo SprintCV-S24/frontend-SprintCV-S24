@@ -17,6 +17,8 @@ import {
 import "../../App.css";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 
+import { LatexPdf } from "@/components/Latex";
+
 interface FormValues {
   email: string;
   password: string;
@@ -63,6 +65,7 @@ const Login: React.FC = () => {
 
   return (
     <>
+      <LatexPdf></LatexPdf>
       <div className="md:hidden"></div>
       <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Button

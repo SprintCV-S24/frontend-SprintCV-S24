@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { generatePdfBlob } from "@/latexUtils/latexUtils";
+import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { usePdfRenderer } from "@/latexUtils/pdfUtils";
 
 const testLatex = `\\documentclass[12pt]{article}
@@ -185,17 +185,21 @@ const testLatex2 = `
 \\end{document}
 `;
 
+
+//Displays a canvas of the rendered pdf of some latex code.
+//TODO: this will need to take a latexCode prop instead of the hard coded strings it's currently using
 export const LatexPdf: React.FC = () => {
   const [blob, setBlob] = useState<Blob | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	//This custom hook renders a pdf into the provided canvas element using the 
+	//  provided blob at the provided width
   usePdfRenderer(blob, canvasRef, 500);
 
+	//Once the component mounts, generate the blob that will be used to render the pdf
   useEffect(() => {
-    setTimeout(() => {
-      generatePdfBlob(testLatex2).then((res) => {
+      generatePdfBlobSafe(testLatex2).then((res) => {
         setBlob(res);
       });
-    }, 2000);
   }, []);
 
   // const objectURL = blob != null ? URL.createObjectURL(blob) : "";

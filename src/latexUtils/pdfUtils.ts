@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 
+//Initialization code for pdf.js, called in app.tsx
 export const pdfInit = () => {
   if (typeof window === "undefined" || !("Worker" in window)) {
     throw new Error("Web Workers not supported in this environment.");
@@ -8,6 +9,8 @@ export const pdfInit = () => {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 };
 
+//This custom hook renders a pdf into the provided canvas element using the
+//  provided blob at the provided width
 export const usePdfRenderer = (
   blob: Blob | null,
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
@@ -23,6 +26,13 @@ export const usePdfRenderer = (
           pdf.getPage(1).then((page) => {
             const canvas = canvasRef.current;
             if (canvas != null) {
+              //I'm going to be honest, all of this dimension stuff is chatgpt. It's supposed
+			  //  to size the canvas to the provided width argument, and there's additional
+			  //  stuff (such as the scales object and the canvas.style.width and height) which
+			  //  is to make the pdf less blurry since it was really blurry without it. It checks
+			  //  the device's pixel density and scales based on that. This might make widths inconsistent
+			  //  across devices though
+
               // Determine the scale based on device pixel ratio for higher quality
               const scales = { 1: 3.2, 2: 4 } as { [key: number]: number };
               const defaultScale = 3;
@@ -49,7 +59,8 @@ export const usePdfRenderer = (
               canvas.style.height = `${
                 (viewport.height * displayScale) / deviceScale
               }px`;
-
+			  
+			  //This is what I had before I refactored it to be less blurry
               //   const originalWidth = page.getViewport({ scale: 1 }).width;
               //   const scaleFactor = width / originalWidth;
 
@@ -80,6 +91,5 @@ export const usePdfRenderer = (
       // Cleanup
       return () => URL.revokeObjectURL(fileURL);
     }
-	//TODO: should ref also be in here?
   }, [blob]);
 };
