@@ -11,6 +11,9 @@ export default defineConfig({
       target: "esnext",
     },
   },
+  build: {
+    target: 'esnext'
+  },
   server: {
     proxy: {
       // Proxy /api requests to our express server
