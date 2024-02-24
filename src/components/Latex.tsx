@@ -188,6 +188,11 @@ const testLatex2 = `
 
 //Displays a canvas of the rendered pdf of some latex code.
 //TODO: this will need to take a latexCode prop and a width instead of the hard coded params it's currently using
+//TODO: remove console.logs when latex files are getting downloaded
+//TODO: figure out why pdf is double rendering (if you switch generatePdfBlobSafe to generatePdfBlob and add a 
+//  timeout so that the engine has time to initialize, you will see in console that it instantly errors when a render is called.
+//  generatePdfBlobSafe masks the problem but you will see the pdf flash when it renders, which I think is because the render method
+//  is being called twice)
 export const LatexPdf: React.FC = () => {
   const [blob, setBlob] = useState<Blob | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
