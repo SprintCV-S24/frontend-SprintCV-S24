@@ -187,7 +187,7 @@ const testLatex2 = `
 
 
 //Displays a canvas of the rendered pdf of some latex code.
-//TODO: this will need to take a latexCode prop instead of the hard coded strings it's currently using
+//TODO: this will need to take a latexCode prop and a width instead of the hard coded params it's currently using
 export const LatexPdf: React.FC = () => {
   const [blob, setBlob] = useState<Blob | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
