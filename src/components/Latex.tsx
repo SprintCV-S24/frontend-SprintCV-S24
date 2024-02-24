@@ -204,6 +204,7 @@ export const LatexPdf: React.FC = () => {
 
   // const objectURL = blob != null ? URL.createObjectURL(blob) : "";
 
+	//TODO: check if it's ok to remove divs wrapping canvas and if so, remove them
   return (
     <div>
       <canvas ref={canvasRef}></canvas>

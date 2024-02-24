@@ -33,6 +33,8 @@ export const usePdfRenderer = (
 			  //  the device's pixel density and scales based on that. This might make widths inconsistent
 			  //  across devices though
 
+			  //TODO: go over this code, understand it, and make sure widths are working properly
+
               // Determine the scale based on device pixel ratio for higher quality
               const scales = { 1: 3.2, 2: 4 } as { [key: number]: number };
               const defaultScale = 3;
