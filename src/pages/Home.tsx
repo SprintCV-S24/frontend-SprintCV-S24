@@ -64,7 +64,7 @@ const Home: React.FC = () => {
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome!</h1>
             <p className="text-sm text-muted-foreground">
-              Use the navigation bar above to start making your resume!
+              Your current resumes are here!
             </p>
           </div>
         </div>
