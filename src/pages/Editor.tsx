@@ -10,7 +10,6 @@ import { ExtracurricularItem } from "@/components/resume-items/extracurricular-i
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ExportImage from "../assets/export-image.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,11 +94,6 @@ const Editor: React.FC = () => {
                   <ProjectItem></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <img
-                src={ExportImage}
-                alt="export"
-                className="mr-4 h-[30px] w-[30px]"
-              ></img>
             </div>
           </Card>
           <ScrollArea className="h-[525px] w-full rounded-md mt-4 border bg-white">

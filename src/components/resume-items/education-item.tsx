@@ -15,8 +15,7 @@ import { useState } from "react"; // Import useState
 
 export function EducationItem() {
   const [universityName, setUniversityName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [date, setDate] = useState("");
   const [major, setMajor] = useState("");
   const [minor, setMinor] = useState("");
   const [description, setDescription] = useState("");
@@ -26,8 +25,7 @@ export function EducationItem() {
 
     const educationData = {
       universityName,
-      startDate,
-      endDate,
+      date,
       major,
       minor,
       description,
@@ -78,30 +76,23 @@ export function EducationItem() {
             />
             <div className="flex justify-end">
               <Input
-                className="w-[90px] mr-[15px]"
-                id="start-date"
-                placeholder="Start Date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                className="w-[200px]"
+                id="date"
+                placeholder="Start Date - End Date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
               />
-              <Input
-                className="w-[90px]"
-                id="end-date"
-                placeholder="End Date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              ></Input>
             </div>
             <Input
               className="w-[300px]"
               id="major"
               placeholder="Select Major"
               value={major}
-              onChange={(e) => setMajor(e.target.value)}
+              onChange={(e) => setMajor(e.target.value)}  
             ></Input>
             <div className="flex justify-end">
               <Input
-                className="w-[195px]"
+                className="w-[200px]"
                 id="Minor"
                 placeholder="Minor (Optional)"
                 value={minor}

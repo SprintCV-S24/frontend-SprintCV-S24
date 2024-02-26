@@ -15,8 +15,7 @@ import { useState } from "react"; // Import useState
 
 export function ExtracurricularItem() {
   const [orgName, setOrgName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
 
   const handleFormSubmit = async (event: any) => {
@@ -24,8 +23,7 @@ export function ExtracurricularItem() {
 
     const experienceData = {
       orgName,
-      startDate,
-      endDate,
+      date,
       description,
     };
 
@@ -74,19 +72,12 @@ export function ExtracurricularItem() {
             />
             <div className="flex justify-end">
               <Input
-                className="w-[90px] mr-[15px]"
-                id="start-date"
-                placeholder="Start Date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                className="w-[200px]"
+                id="date"
+                placeholder="Start Date - End Date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
               />
-              <Input
-                className="w-[90px]"
-                id="end-date"
-                placeholder="End Date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              ></Input>
             </div>
             <div className="w-[550px]">
               <Textarea
