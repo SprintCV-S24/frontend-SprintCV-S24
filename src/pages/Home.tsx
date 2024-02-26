@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext";
-import { MainNav } from "../components/main-nav.tsx";
+import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
 import {
   Card,
