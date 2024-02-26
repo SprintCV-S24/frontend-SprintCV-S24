@@ -11,7 +11,6 @@ export const initializeLatexEngines = async () => {
 };
 
 //Compiles a latex string into a byte array
-//TODO: make sure places that call this have error handling higher in the call stack
 const compileLatex = async (latexCode: string) => {
   // Make sure both engines are ready for compilation
   if (!engine.isReady()) {
