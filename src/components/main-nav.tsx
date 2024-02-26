@@ -17,16 +17,13 @@ export function MainNav({
         ></img>
       </Link>
       <Button className="mr-4" variant="secondary">
-        Resumes
-      </Button>
-      <Button className="mr-4" variant="secondary">
         Items
       </Button>
       <Button className="mr-4" variant="secondary">
-        <Link to="/editor">Open Editor</Link>
+        <Link to="/editor">Editor</Link>
       </Button>
       <Button className="mr-4" variant="secondary">
-        AI Generated
+        Suggested Items
       </Button>
     </NavigationMenu>
   );
