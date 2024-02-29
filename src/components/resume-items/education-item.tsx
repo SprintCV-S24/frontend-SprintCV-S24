@@ -10,8 +10,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import { useState } from "react"; // Import useState
+import { useState, useEffect } from "react";
 
 export function EducationItem() {
   const [universityName, setUniversityName] = useState("");
@@ -25,13 +26,11 @@ export function EducationItem() {
   const handleAddBullet = () => {
     if (bullets.length < MAX_BULLETS) {
       setBullets([...bullets, ""]);
-    } 
+    }
   };
 
   const handleBulletChange = (index: number, value: string) => {
-    setBullets((prev) =>
-      prev.map((resp, i) => (i === index ? value : resp)),
-    );
+    setBullets((prev) => prev.map((resp, i) => (i === index ? value : resp)));
   };
 
   const resetBullets = () => {
@@ -47,38 +46,26 @@ export function EducationItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const educationData = {
-      universityName,
-      date,
-      major,
-      minor,
-      bullets,
-    };
-
-    console.log(educationData);
-
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(educationData),
-      });
-
-      if (response.ok) {
-        // Handle successful submission (e.g., close dialog, clear inputs, display feedback)
-      } else {
-        // Handle error from API
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
+      const educationData = {
+        universityName,
+        date,
+        major,
+        minor,
+        bullets,
+      };
+      console.log(educationData);
+    } catch (err: any) {}
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="text-left h-full w-full" variant="ghost" onClick={resetBullets}>
+        <Button
+          className="text-left h-full w-full"
+          variant="ghost"
+          onClick={resetBullets}
+        >
           Education
         </Button>
       </DialogTrigger>
@@ -96,7 +83,9 @@ export function EducationItem() {
               id="item-name"
               placeholder="University Name"
               value={universityName}
-              onChange={(e) => setUniversityName(e.target.value)}
+              onChange={(e) => {
+                setUniversityName(e.target.value);
+              }}
             />
             <div className="flex justify-end">
               <Input
@@ -112,7 +101,7 @@ export function EducationItem() {
               id="major"
               placeholder="Select Major"
               value={major}
-              onChange={(e) => setMajor(e.target.value)}  
+              onChange={(e) => setMajor(e.target.value)}
             ></Input>
             <div className="flex justify-end">
               <Input
@@ -128,9 +117,9 @@ export function EducationItem() {
                 {bullets.map((bullet, index) => (
                   <div key={index} className="ml-1 mt-2 flex">
                     {" "}
-                    <Input
-                      className="mb-2"
-                      placeholder={`Enter Responsibility`}
+                    <AutosizeTextarea
+                      className="mb-2 resize-none h-[35px]"
+                      placeholder="Enter Responsibility"
                       value={bullet}
                       onChange={(e) =>
                         handleBulletChange(index, e.target.value)
@@ -164,9 +153,13 @@ export function EducationItem() {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-            <Button className="mt-2" type="submit">
-              Add Item
-            </Button>
+              <Button
+                className="mt-2"
+                type="submit"
+                disabled={universityName == "" || major == "" || date == ""}
+              >
+                Add Item
+              </Button>
             </DialogClose>
           </DialogFooter>
         </form>

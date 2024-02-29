@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
+import { AutosizeTextarea } from "../ui/autosize-textarea";
+
 import { useState } from "react"; // Import useState
 
 export function ExtracurricularItem() {
@@ -110,9 +112,9 @@ export function ExtracurricularItem() {
                 {bullets.map((bullet, index) => (
                   <div key={index} className="ml-1 mt-2 flex">
                     {" "}
-                    <Input
-                      className="mb-2"
-                      placeholder={`Enter Responsibility`}
+                    <AutosizeTextarea
+                      className="mb-2 resize-none h-[35px]"
+                      placeholder="Enter Responsibility"
                       value={bullet}
                       onChange={(e) =>
                         handleBulletChange(index, e.target.value)
@@ -146,7 +148,11 @@ export function ExtracurricularItem() {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button className="mt-2" type="submit">
+              <Button
+                className="mt-2"
+                type="submit"
+                disabled={orgName == "" || date == ""}
+              >
                 Add Item
               </Button>
             </DialogClose>
