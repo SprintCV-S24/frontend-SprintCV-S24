@@ -7,6 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { EducationItem } from "@/components/resume-items/education-item";
 import { ExperienceItem } from "@/components/resume-items/experience-item";
 import { ExtracurricularItem } from "@/components/resume-items/extracurricular-item";
+import { HeadingItem } from "@/components/resume-items/heading-item";
+import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -85,6 +87,10 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <HeadingItem></HeadingItem>
+                  <DropdownMenuSeparator />
+                  <SubheadingItem></SubheadingItem>
+                  <DropdownMenuSeparator></DropdownMenuSeparator>
                   <EducationItem></EducationItem>
                   <DropdownMenuSeparator />
                   <ExperienceItem></ExperienceItem>
