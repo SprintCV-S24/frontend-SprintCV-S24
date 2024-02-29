@@ -158,7 +158,7 @@ export function EducationItem() {
                 type="submit"
                 disabled={universityName == "" || major == "" || date == ""}
               >
-                Add Item
+                {(universityName == "" || date == "" || major == "")? "Complete form" : "Add Item"}
               </Button>
             </DialogClose>
           </DialogFooter>

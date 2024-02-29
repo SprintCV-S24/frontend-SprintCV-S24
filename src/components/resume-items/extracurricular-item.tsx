@@ -153,7 +153,7 @@ export function ExtracurricularItem() {
                 type="submit"
                 disabled={orgName == "" || date == ""}
               >
-                Add Item
+                {(orgName =="" || date =="")? "Complete form" : "Add Item"}
               </Button>
             </DialogClose>
           </DialogFooter>

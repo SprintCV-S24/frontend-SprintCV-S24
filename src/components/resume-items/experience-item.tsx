@@ -135,7 +135,7 @@ export function ExperienceItem() {
                   companyName == "" ||
                   date == ""
                 }>
-                Add Item
+                {(companyName == "" || date == "")? "Complete form" : "Add Item"}
               </Button>
             </DialogClose>
           </DialogFooter>

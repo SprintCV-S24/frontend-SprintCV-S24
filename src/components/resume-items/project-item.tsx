@@ -153,7 +153,7 @@ export function ProjectItem() {
                 type="submit"
                 disabled={projectName == ""}
               >
-                Add Item
+                {(projectName == "")? "Complete form" : "Add Item"}
               </Button>
             </DialogClose>
           </DialogFooter>
