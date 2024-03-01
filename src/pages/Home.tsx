@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {generateExperienceLatex, fakeExperience
+,generateExperienceHeaderLatex, generateHeaderLatex, fakeHeading} from "../../src/latexUtils/latexString"
 
 const Home: React.FC = () => {
   const [fact, setFact] = useState<string>("");
@@ -40,6 +42,9 @@ const Home: React.FC = () => {
     };
 
     void fetchFact();
+    console.log(generateExperienceLatex(fakeExperience));
+    console.log(generateExperienceHeaderLatex());
+    console.log(generateHeaderLatex(fakeHeading));
   }, [currentUser]);
 
   return (
