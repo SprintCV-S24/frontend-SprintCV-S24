@@ -12,7 +12,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {generateExperienceLatex, fakeExperience
-,generateExperienceHeaderLatex, generateHeaderLatex, fakeHeading} from "../../src/latexUtils/latexString"
+,generateExperienceHeaderLatex, generateHeaderLatex, fakeHeading,
+generateEducationLatex, fakeEducation, generateEducationeHeaderLatex
+} from "../../src/latexUtils/latexString"
 
 const Home: React.FC = () => {
   const [fact, setFact] = useState<string>("");
@@ -42,9 +44,11 @@ const Home: React.FC = () => {
     };
 
     void fetchFact();
-    console.log(generateExperienceLatex(fakeExperience));
-    console.log(generateExperienceHeaderLatex());
-    console.log(generateHeaderLatex(fakeHeading));
+   // console.log(generateExperienceLatex(fakeExperience));
+   // console.log(generateExperienceHeaderLatex());
+    //console.log(generateHeaderLatex(fakeHeading));
+    console.log(generateEducationLatex(fakeEducation));
+    console.log(generateEducationeHeaderLatex());
   }, [currentUser]);
 
   return (

@@ -184,6 +184,73 @@ export const fakeHeading: HeadingType = {
     ]
 };
 
+
+/*  ------------------------------------------------- */
+/*  -------------------Education--------------------- */
+/*  ------------------------------------------------- */
+
+// Interface for Education document
+export interface EducationType {
+	user: string;
+	itemName: string;
+    bullets: string[];
+    title: string;
+    subtitle: string;
+    location: string;
+    year: string;
+}
+
+// Generating the full LaTeX for the Education Section
+export const generateEducationLatex = (educationObj: EducationType): string => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
+
+    // Assuming educationObj is a single object and not an array here
+    latexString += `\\resumeSubheading
+      {${sanitize(educationObj.title)}}{${sanitize(educationObj.location)}}
+      {${sanitize(educationObj.subtitle)}}{${sanitize(educationObj.year)}}
+    `;
+
+    // If there are bullet points under each education entry
+    latexString += `\\resumeItemListStart\n`;
+    educationObj.bullets.forEach(bullet => {
+        latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
+    latexString += `\\resumeItemListEnd\n`;
+
+    latexString += `\\resumeSubHeadingListEnd\n\\end{document}\n`;
+
+    return latexString;
+};
+
+
+//\\section{Education}\n
+
+// Generating the full LaTeX for the Experience Section
+export const generateEducationeHeaderLatex = () => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\section{Education}\n\\end{document}`;
+    return latexString;
+}
+
+
+// fake object for the purpose of testing 
+export const fakeEducation: EducationType = {
+    user: "", // Irrelevant for our test
+    itemName: "Resume Item", // Irrelevant for our test
+    bullets: [],
+    title: "Some High school",
+    subtitle: "BS CS",
+    year: "Exp 2023",
+    location: "Los Angeles, CA"
+};
+const generatedEducation = generateEducationLatex(fakeEducation);
+console.log(generatedEducation);
+
+
+
+
+
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
 /*  ------------------------------------------------- */
@@ -212,6 +279,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
     
     return latexString;
 }
+
 
 
 // Generating the full LaTeX for the Experience Section
