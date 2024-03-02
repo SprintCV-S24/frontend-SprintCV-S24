@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/card";
 import {generateExperienceLatex, fakeExperience
 ,generateExperienceHeaderLatex, generateHeaderLatex, fakeHeading,
-generateEducationLatex, fakeEducation, generateEducationeHeaderLatex
+generateEducationLatex, fakeEducation, generateEducationeHeaderLatex,
+generateProjectLatex, fakeProject, generateProjectHeaderLatex
 } from "../../src/latexUtils/latexString"
 
 const Home: React.FC = () => {
@@ -46,9 +47,12 @@ const Home: React.FC = () => {
     void fetchFact();
    // console.log(generateExperienceLatex(fakeExperience));
    // console.log(generateExperienceHeaderLatex());
-    //console.log(generateHeaderLatex(fakeHeading));
-    console.log(generateEducationLatex(fakeEducation));
-    console.log(generateEducationeHeaderLatex());
+  //  console.log(generateHeaderLatex(fakeHeading));
+  //  console.log(generateEducationLatex(fakeEducation));
+ //   console.log(generateEducationeHeaderLatex());
+      console.log(generateProjectLatex(fakeProject));
+      console.log(generateProjectHeaderLatex());
+     
   }, [currentUser]);
 
   return (

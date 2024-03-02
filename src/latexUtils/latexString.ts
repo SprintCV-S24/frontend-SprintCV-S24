@@ -244,11 +244,8 @@ export const fakeEducation: EducationType = {
     year: "Exp 2023",
     location: "Los Angeles, CA"
 };
-const generatedEducation = generateEducationLatex(fakeEducation);
-console.log(generatedEducation);
-
-
-
+// const generatedEducation = generateEducationLatex(fakeEducation);
+// console.log(generatedEducation);
 
 
 /*  ------------------------------------------------- */
@@ -304,5 +301,60 @@ export const fakeExperience: ExperienceType = {
     location: "Los Angeles, CA"
 };
 
-const generatedLatex = generateExperienceLatex(fakeExperience);
-console.log(generatedLatex);
+// const generatedLatex = generateExperienceLatex(fakeExperience);
+// console.log(generatedLatex);
+
+
+/*  ------------------------------------------------- */
+/*  -------------------Projects---------------------- */
+/*  ------------------------------------------------- */
+// Interface for Project document
+//you don't care about user and itemName fields, but all other fields should be in the latex you generate
+export interface ProjectType {
+	user: string;
+	itemName: string;
+    bullets: string[];
+    title: string;
+    year: string;
+}
+
+// Generating the full LaTeX for the Project Section
+export const generateProjectLatex = (projectObj: ProjectType): string => {
+    let latexString = getLatexPreamble();
+    latexString += '\\begin{document}\n\\resumeSubHeadingListStart\n';
+    latexString += `\\resumeProjectHeading\n`;
+    latexString += `{\\textbf{${sanitize(projectObj.title)}}}{${sanitize(projectObj.year)}}\n`;
+    latexString += `\\resumeItemListStart\n`;
+
+    projectObj.bullets.forEach(bullet => {
+        latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
+
+    latexString += '\\resumeItemListEnd\n';
+    latexString += '\\resumeSubHeadingListEnd\n\\end{document}\n';
+
+    return latexString;
+};
+
+// Generating the full LaTeX for the Experience Section
+export const generateProjectHeaderLatex = () => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\section{Projects}\n\\end{document}`;
+    return latexString;
+}
+
+// fake object for the purpose of testing 
+export const fakeProject: ProjectType = {
+    user: "Jane Doe", // Irrelevant for our test
+    itemName: "Resume Item", // Irrelevant for our test
+    bullets: [
+        "Developed and implemented efficient algorithms",
+        "Collaborated with a cross-functional team",
+        "Improved system performance by 20%"
+    ],
+    title: "Resume Builder",
+    year: "2023",
+};
+
+const generatedProject = generateProjectLatex(fakeProject);
+console.log(generatedProject);
