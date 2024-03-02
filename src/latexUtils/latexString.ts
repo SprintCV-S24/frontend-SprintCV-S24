@@ -362,7 +362,7 @@ export const fakeProject: ProjectType = {
 
 
 /*  ------------------------------------------------- */
-/*  -------------------Activity---------------------- */
+/*  -------------------SKILLS==---------------------- */
 /*  ------------------------------------------------- */
 // Interface for Project document
 //you don't care about user and itemName fields, but all other fields should be in the latex you generate
@@ -402,3 +402,65 @@ export const fakeSkills: SkillsType = {
 
 console.log(generateSkillsLatex(fakeSkills));
 console.log(generateSkillsHeaderLatex());
+
+
+
+
+/*  ------------------------------------------------- */
+/*  -------------------Activity---------------------- */
+/*  ------------------------------------------------- */
+// Interface for Project document
+//you don't care about user and itemName fields, but all other fields should be in the latex you generate
+// Interface for Activities document
+export interface ActivitiesType {
+	user: string;
+	itemName: string;
+    bullets: string[];
+    title: string;
+    subtitle: string;
+    year: string;
+    location: string;
+}
+
+// Generating the full LaTeX for the Experience Section
+export const generateActivityLatex = (activityObj: ActivitiesType) => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
+    \\resumeItemListStart
+    `;
+
+    activityObj.bullets.forEach(bulletPoint => {
+        latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+
+    latexString += '\\resumeItemListEnd\n\\end{document}\n';
+    
+    return latexString;
+}
+
+
+
+// Generating the full LaTeX for the Experience Section
+export const generateActivityHeaderLatex = () => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\section{Extracurricular}\n\\end{document}`;
+    return latexString;
+}
+
+// fake object for the purpose of testing 
+export const fakeActivity: ActivitiesType = {
+    user: "Jane Doe", // Irrelevant for our test
+    itemName: "Resume Item", // Irrelevant for our test
+    bullets: [
+        "Went to park",
+        "have you live your life ",
+        "Or been lived by it"
+    ],
+    title: "No job",
+    subtitle: "GDP",
+    year: "2022 - 2292",
+    location: "Los Angeles, CA"
+};
+
+// const generatedLatex = generateExperienceLatex(fakeExperience);
+// console.log(generatedLatex);
