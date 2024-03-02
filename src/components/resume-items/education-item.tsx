@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 export function EducationItem() {
   const [universityName, setUniversityName] = useState("");
   const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
   const [major, setMajor] = useState("");
   const [minor, setMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
@@ -51,6 +52,7 @@ export function EducationItem() {
     const educationData = {
       universityName,
       date,
+      location,
       major,
       minor,
       bullets,
@@ -100,7 +102,7 @@ export function EducationItem() {
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
-              className="w-[300px]"
+              className="col-span-2"
               id="item-name"
               placeholder="University Name"
               value={universityName}
@@ -108,32 +110,44 @@ export function EducationItem() {
                 setUniversityName(e.target.value);
               }}
             />
-            <div className="flex justify-end">
-              <Input
-                className="w-[200px]"
-                id="date"
-                placeholder="Start Date - End Date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
-            <Input
-              className="w-[300px]"
-              id="major"
-              placeholder="Select Major"
-              value={major}
-              onChange={(e) => setMajor(e.target.value)}
-            ></Input>
-            <div className="flex justify-end">
-              <Input
-                className="w-[200px]"
-                id="Minor"
-                placeholder="Minor (Optional)"
-                value={minor}
-                onChange={(e) => setMinor(e.target.value)}
-              ></Input>
-            </div>
-            <div className="flex flex-col w-[550px]">
+            <div className="col-span-2"> 
+              <div className="flex items-center space-x-4"> 
+                <Input
+                  className="flex-1"
+                  id="location"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+                <Input
+                  className="flex-1"
+                  id="date"
+                  placeholder="Set Date Range"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+            </div> 
+            <div className="col-span-2"> 
+              <div className="flex items-center space-x-4"> 
+                <Input
+                  className="flex-1"
+                  id="major"
+                  placeholder="Select Major"
+                  value={major}
+                  onChange={(e) => setMajor(e.target.value)}
+                />
+                <Input
+                  className="flex-1"
+                  id="Minor"
+                  placeholder="Minor (Optional)"
+                  value={minor}
+                  onChange={(e) => setMinor(e.target.value)}
+                />
+              </div>
+            </div> 
+
+            <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
                 {bullets.map((bullet, index) => (
                   <div key={index} className="ml-1 mt-2 flex">

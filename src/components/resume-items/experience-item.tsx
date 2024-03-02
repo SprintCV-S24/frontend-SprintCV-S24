@@ -17,6 +17,7 @@ import DeleteImage from "../../assets/delete.png";
 export function ExperienceItem() {
   const [companyName, setCompanyName] = useState("");
   const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
 
@@ -94,21 +95,30 @@ export function ExperienceItem() {
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
-              className="w-[300px]"
+              className="col-span-2"
               id="item-name"
               placeholder="Company Name"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
             />
-            <div className="flex justify-end">
-              <Input
-                className="w-[200px]"
-                id="date"
-                placeholder="Start Date - End Date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
+            <div className="col-span-2"> 
+              <div className="flex items-center space-x-4"> 
+                <Input
+                  className="flex-1"
+                  id="location"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+                <Input
+                  className="flex-1"
+                  id="date"
+                  placeholder="Set Date Range"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+            </div> 
             <div className="flex flex-col w-[550px]">
               <div className="flex-grow overflow-y-auto">
                 {bullets.map((bullet, index) => (

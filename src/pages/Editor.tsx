@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollAreaItem } from "@/components/scrollarea-item";
 
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
@@ -52,7 +53,7 @@ const Editor: React.FC = () => {
   }, [currentUser]);
 
   const tags = Array.from({ length: 50 }).map(
-    (_, i, a) => `v1.2.0-beta.${a.length - i}`,
+    (_, i, a) => `Resume Item ${a.length - i}`,
   );
 
   return (
@@ -109,10 +110,9 @@ const Editor: React.FC = () => {
               </h4>
               {tags.map((tag) => (
                 <>
-                  <div key={tag} className="text-sm">
-                    {tag}
-                  </div>
-                  <Separator className="my-2" />
+                  <div key={tag} className="text-sm h-[30px] mb-3">
+                    <Card className="h-[30px]">{tag}</Card>
+                  </div>  
                 </>
               ))}
             </div>
