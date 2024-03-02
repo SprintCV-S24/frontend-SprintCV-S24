@@ -128,10 +128,6 @@ export function getLatexPreamble(): string {
       .join('');
   }
   
-
-
-
-
 //you don't care about user and itemName fields, but all other fields should be in the latex you generate
 /*  ------------------------------------------------- */
 /*  -------------------Heading----------------------- */
@@ -188,8 +184,6 @@ export const fakeHeading: HeadingType = {
     ]
 };
 
-
-
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
 /*  ------------------------------------------------- */
@@ -205,26 +199,29 @@ export interface ExperienceType {
 
 // Generating the full LaTeX for the Experience Section
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
-    
-    let latexString = `\\resumeSubheading{${activityObj.title}}{${activityObj.subtitle}}{${activityObj.location}}{${activityObj.date}}
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.date)}}
     \\resumeItemListStart
     `;
 
     activityObj.bullets.forEach(bulletPoint => {
-        latexString += `\\resumeItem{${bulletPoint}}`;
+        latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
 
-    latexString += '\\resumeItemListEnd';
-    getLatexPreamble()
+    latexString += '\\resumeItemListEnd\n\\end{document}\n';
+    
     return latexString;
 }
+
 
 // Generating the full LaTeX for the Experience Section
 export const generateExperienceHeaderLatex = () => {
-    let latexString = `\\Experience`;
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\section{Experience}\n\\end{document}`;
     return latexString;
 }
 
+// fake object for the purpose of testing 
 export const fakeExperience: ExperienceType = {
     user: "Jane Doe", // Irrelevant for our test
     itemName: "Resume Item", // Irrelevant for our test
