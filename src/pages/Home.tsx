@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+
 const Home: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();

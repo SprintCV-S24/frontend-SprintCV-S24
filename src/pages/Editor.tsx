@@ -20,7 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollAreaItem } from "@/components/scrollarea-item";
 
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
@@ -119,7 +118,8 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-1/2 p-4">
-          <Card className="h-full"></Card>
+          <Card className="h-full">
+          </Card>
         </div>
       </div>
     </>
