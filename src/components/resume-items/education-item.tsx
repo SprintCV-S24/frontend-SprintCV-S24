@@ -20,6 +20,7 @@ export function EducationItem() {
   const [major, setMajor] = useState("");
   const [minor, setMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const MAX_BULLETS = 8;
 
@@ -35,6 +36,7 @@ export function EducationItem() {
 
   const resetBullets = () => {
     setBullets([""]);
+    setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -46,16 +48,34 @@ export function EducationItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
+    const educationData = {
+      universityName,
+      date,
+      major,
+      minor,
+      bullets,
+    };
+
+    console.log(educationData);
+
+    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const educationData = {
-        universityName,
-        date,
-        major,
-        minor,
-        bullets,
-      };
-      console.log(educationData);
-    } catch (err: any) {}
+      const response = await fetch("/api/save-education-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setErrorMessage("Successfully Submitted!");
+      } else {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
@@ -76,6 +96,7 @@ export function EducationItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -152,15 +173,16 @@ export function EducationItem() {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={universityName == "" || major == "" || date == ""}
-              >
-                {(universityName == "" || date == "" || major == "")? "Complete form" : "Add Item"}
-              </Button>
-            </DialogClose>
+            <Button
+              className="mt-2"
+              type="submit"
+              disabled={universityName == "" || major == "" || date == ""}
+            >
+              {universityName == "" || date == "" || major == ""
+                ? "Complete form"
+                : "Add Item"}
+            </Button>
+            <DialogClose asChild></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

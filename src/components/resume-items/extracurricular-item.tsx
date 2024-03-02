@@ -19,6 +19,7 @@ export function ExtracurricularItem() {
   const [orgName, setOrgName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
 
   const MAX_BULLETS = 8;
 
@@ -34,6 +35,7 @@ export function ExtracurricularItem() {
 
   const resetBullets = () => {
     setBullets([""]);
+    setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -58,13 +60,15 @@ export function ExtracurricularItem() {
       const response = await fetch("/api/save-education-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(experienceData),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        // Handle successful submission (e.g., close dialog, clear inputs, display feedback)
+        setErrorMessage("Successfully Submitted!");
       } else {
-        // Handle error from API
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -89,6 +93,7 @@ export function ExtracurricularItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -147,15 +152,14 @@ export function ExtracurricularItem() {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={orgName == "" || date == ""}
-              >
-                {(orgName =="" || date =="")? "Complete form" : "Add Item"}
-              </Button>
-            </DialogClose>
+            <Button
+              className="mt-2"
+              type="submit"
+              disabled={orgName == "" || date == ""}
+            >
+              {orgName == "" || date == "" ? "Complete form" : "Add Item"}
+            </Button>
+            <DialogClose asChild></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

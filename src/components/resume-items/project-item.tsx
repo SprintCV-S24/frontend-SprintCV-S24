@@ -14,11 +14,11 @@ import DeleteImage from "../../assets/delete.png";
 import { useState } from "react"; // Import useState
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 
-
 export function ProjectItem() {
   const [projectName, setProjectName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
 
   const MAX_BULLETS = 8;
 
@@ -34,6 +34,7 @@ export function ProjectItem() {
 
   const resetBullets = () => {
     setBullets([""]);
+    setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -45,26 +46,28 @@ export function ProjectItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const experienceData = {
+    const projectData = {
       projectName,
       date,
       bullets,
     };
 
-    console.log(experienceData);
+    console.log(projectData);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
       const response = await fetch("/api/save-education-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(experienceData),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        // Handle successful submission (e.g., close dialog, clear inputs, display feedback)
+        setErrorMessage("Successfully Submitted!");
       } else {
-        // Handle error from API
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -89,6 +92,7 @@ export function ProjectItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -147,15 +151,10 @@ export function ProjectItem() {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={projectName == ""}
-              >
-                {(projectName == "")? "Complete form" : "Add Item"}
-              </Button>
-            </DialogClose>
+            <Button className="mt-2" type="submit" disabled={projectName == ""}>
+              {projectName == "" ? "Complete form" : "Add Item"}
+            </Button>
+            <DialogClose asChild></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

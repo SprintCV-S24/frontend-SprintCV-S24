@@ -12,31 +12,37 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react"; // Import useState
 
-
 export function SubheadingItem() {
   const [subtitle, setSubtitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+
+  const resetError = () => {
+    setErrorMessage("");
+  };
 
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const experienceData = {
+    const data = {
       subtitle,
     };
 
-    console.log(experienceData);
+    console.log(data);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
       const response = await fetch("/api/save-education-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(experienceData),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        // Handle successful submission (e.g., close dialog, clear inputs, display feedback)
+        setErrorMessage("Successfully Submitted!");
       } else {
-        // Handle error from API
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -49,6 +55,7 @@ export function SubheadingItem() {
         <Button
           className="text-left h-full w-full"
           variant="ghost"
+          onClick={resetError}
         >
           Subheading
         </Button>
@@ -60,6 +67,7 @@ export function SubheadingItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="gap-4 flex">
             <Input
@@ -71,15 +79,10 @@ export function SubheadingItem() {
             />
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={subtitle == ""}
-              >
-                {(subtitle == "")? "Complete form" : "Add Item"}
-              </Button>
-            </DialogClose>
+            <Button className="mt-2" type="submit" disabled={subtitle == ""}>
+              {subtitle == "" ? "Complete form" : "Add Item"}
+            </Button>
+            <DialogClose asChild></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

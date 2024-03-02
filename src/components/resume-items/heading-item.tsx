@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import { useState } from "react"; // Import useState
+import { useState } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 
 interface Bullet {
@@ -24,6 +24,7 @@ export function HeadingItem() {
   const [bullets, setBullets] = useState<Bullet[]>([
     { description: "", link: "" },
   ]);
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
 
   const MAX_BULLETS = 5;
 
@@ -45,6 +46,7 @@ export function HeadingItem() {
 
   const resetBullets = () => {
     setBullets([{ description: "", link: "" }]);
+    setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -56,25 +58,27 @@ export function HeadingItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const experienceData = {
+    const data = {
       heading,
       bullets,
     };
 
-    console.log(experienceData);
+    console.log(data);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
       const response = await fetch("/api/save-education-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(experienceData),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        // Handle successful submission (e.g., close dialog, clear inputs, display feedback)
+        setErrorMessage("Successfully Submitted!");
       } else {
-        // Handle error from API
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -99,6 +103,7 @@ export function HeadingItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col w-[550px]">
@@ -156,11 +161,10 @@ export function HeadingItem() {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button className="mt-2" type="submit" disabled={heading == ""}>
-                {heading == "" ? "Complete form" : "Add Item"}
-              </Button>
-            </DialogClose>
+            <Button className="mt-2" type="submit" disabled={heading == ""}>
+              {heading == "" ? "Complete form" : "Add Item"}
+            </Button>
+            <DialogClose asChild></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>
