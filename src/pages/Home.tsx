@@ -14,7 +14,8 @@ import {
 import {generateExperienceLatex, fakeExperience
 ,generateExperienceHeaderLatex, generateHeaderLatex, fakeHeading,
 generateEducationLatex, fakeEducation, generateEducationeHeaderLatex,
-generateProjectLatex, fakeProject, generateProjectHeaderLatex
+generateProjectLatex, fakeProject, generateProjectHeaderLatex,
+generateSkillsLatex, fakeSkills, generateSkillsHeaderLatex
 } from "../../src/latexUtils/latexString"
 
 const Home: React.FC = () => {
@@ -50,8 +51,10 @@ const Home: React.FC = () => {
   //  console.log(generateHeaderLatex(fakeHeading));
   //  console.log(generateEducationLatex(fakeEducation));
  //   console.log(generateEducationeHeaderLatex());
-      console.log(generateProjectLatex(fakeProject));
-      console.log(generateProjectHeaderLatex());
+  //  console.log(generateProjectLatex(fakeProject));
+//   console.log(generateProjectHeaderLatex());
+     console.log(generateSkillsLatex(fakeSkills));
+     console.log(generateSkillsHeaderLatex());
      
   }, [currentUser]);
 

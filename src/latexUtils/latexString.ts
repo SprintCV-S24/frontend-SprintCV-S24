@@ -356,5 +356,49 @@ export const fakeProject: ProjectType = {
     year: "2023",
 };
 
-const generatedProject = generateProjectLatex(fakeProject);
-console.log(generatedProject);
+// const generatedProject = generateProjectLatex(fakeProject);
+// console.log(generatedProject);
+
+
+
+/*  ------------------------------------------------- */
+/*  -------------------Activity---------------------- */
+/*  ------------------------------------------------- */
+// Interface for Project document
+//you don't care about user and itemName fields, but all other fields should be in the latex you generate
+// Interface for Skills document
+export interface SkillsType {
+	user: string;
+	itemName: string;
+    title: string;
+    description: string;
+}
+
+// Generating the full LaTeX for the Activity Section
+export const generateSkillsLatex = (skillsObj: SkillsType): string => {
+    let latexString = getLatexPreamble();
+    latexString += '\\begin{document}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n';
+    latexString += '\\small{\\item{';
+    latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(skillsObj.description)}} \\\\`;
+    latexString += '}}\n\\end{itemize}\n\\end{document}\n';
+
+    return latexString;
+};
+
+// Generating the full LaTeX for the Experience Section
+export const generateSkillsHeaderLatex = () => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\section{Skills}\n\\end{document}`;
+    return latexString;
+}
+
+
+export const fakeSkills: SkillsType = {
+	user: "string",
+	itemName: "string",
+    title: "Langauges",
+    description: "Arabic, Persian, Kurdish",
+}
+
+console.log(generateSkillsLatex(fakeSkills));
+console.log(generateSkillsHeaderLatex());
