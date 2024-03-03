@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ResumeSelector } from "@/components/resume-selectors";
 
 
 const Home: React.FC = () => {
@@ -67,6 +68,9 @@ const Home: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Your current resumes are here!
             </p>
+            <Link to="/editor">
+              <ResumeSelector></ResumeSelector>
+              </Link>
           </div>
         </div>
       </div>

@@ -21,14 +21,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ResumeItem } from "types";
-import ResumeContext from '../components/resumecontext';
-import  HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
+import ResumeContext from "../components/resumecontext";
+import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
   const { resumeItems } = useContext(ResumeContext);
-
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -62,68 +61,102 @@ const Editor: React.FC = () => {
 
   return (
     <>
-        <div className="md:hidden"></div>
-        <div className="hidden flex-col md:flex">
-          <div className="border-b">
-            <div className="flex h-16 items-center px-4">
-              <Button
-                className="absolute right-2 top-2 md:right-4 md:top-4"
-                variant="ghost"
-              >
-                <Link to="/profile">Profile</Link>
-              </Button>
-              <MainNav className="mx-6" />
-              <div className="ml-auto flex items-center space-x-4"></div>
-            </div>
+      <div className="md:hidden"></div>
+      <div className="hidden flex-col md:flex">
+        <div className="border-b">
+          <div className="flex h-16 items-center px-4">
+            <Button
+              className="absolute right-2 top-2 md:right-4 md:top-4"
+              variant="ghost"
+            >
+              <Link to="/profile">Profile</Link>
+            </Button>
+            <MainNav className="mx-6" />
+            <div className="ml-auto flex items-center space-x-4"></div>
           </div>
         </div>
-        <div className="flex flex-row bg-[#E7ECEF] h-screen">
-          <div className="w-1/2 p-4 flex-col">
-            <Card className="h-12">
-              <div className="flex items-center justify-between">
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Button className="mt-1 ml-1" variant="outline">
-                      Add Resume Item
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuLabel className="text-center">
-                      Item Type
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <HeadingItem></HeadingItem>
-                    <DropdownMenuSeparator />
-                    <SubheadingItem></SubheadingItem>
-                    <DropdownMenuSeparator></DropdownMenuSeparator>
-                    <EducationItem></EducationItem>
-                    <DropdownMenuSeparator />
-                    <ExperienceItem></ExperienceItem>
-                    <DropdownMenuSeparator />
-                    <ExtracurricularItem></ExtracurricularItem>
-                    <DropdownMenuSeparator />
-                    <ProjectItem></ProjectItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </Card>
-            <ScrollArea className="h-[525px] w-full rounded-md mt-4 border bg-white">
-              <div className="p-4">
-                <h4 className="mb-4 text-sm font-medium leading-none">
-                  Resume Items
-                </h4>
+      </div>
+      <div className="flex flex-row bg-[#E7ECEF] h-screen">
+        <div className="w-1/2 p-4 flex-col">
+          <Card className="h-12">
+            <div className="flex items-center justify-between">
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button className="mt-1 ml-1" variant="outline">
+                    Add Resume Item
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel className="text-center">
+                    Item Type
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <HeadingItem></HeadingItem>
+                  <DropdownMenuSeparator />
+                  <SubheadingItem></SubheadingItem>
+                  <DropdownMenuSeparator></DropdownMenuSeparator>
+                  <EducationItem></EducationItem>
+                  <DropdownMenuSeparator />
+                  <ExperienceItem></ExperienceItem>
+                  <DropdownMenuSeparator />
+                  <ExtracurricularItem></ExtracurricularItem>
+                  <DropdownMenuSeparator />
+                  <ProjectItem></ProjectItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </Card>
+          <ScrollArea className="h-[525px] w-full rounded-md mt-4 border bg-white">
+            <div className="p-4">
+              <h4 className="mb-4 text-sm font-medium leading-none">
+                Resume Items
+              </h4>
+              <div>
                 {resumeItems.map((item, index) => (
                   <div key={index}>
-                    <div><HeadingScrollItem heading={item.title} descriptions={item.description} /></div>
+                    <h3>{item.title}</h3>
+                    {item.type === "heading" && (
+                      <p>Heading content: {item.description?.join(" ")}</p>
+                    )}
+                    {item.type === "subheading" && (
+                      <p>Subheading content: {item.description?.join(" ")}</p>
+                    )}
+                    {item.type === "education" && (
+                      <p>
+                        Education content: {item.date}, {item.major},{" "}
+                        {item.minor},  {item.description?.join(" ")}
+                      </p>
+                    )}
+                    {item.type === "experience" && (
+                      <p>
+                        Experience content: {item.date}, {item.major},{" "}
+                        {item.minor},  {item.description?.join(" ")}
+                      </p>
+                    )}
+                    {item.type === "extracurricular" && (
+                      <div>
+                        <p>
+                          Extracurricular content: {item.date}, {item.location},
+                        </p>
+                        <p>Description: {item.description?.join(" ")}</p>
+                      </div>
+                    )}
+                    {item.type === "project" && (
+                      <div>
+                        <p>Project content: {item.description?.join(" ")}</p>
+                        {/* Additional project-specific fields can be displayed here */}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-            </ScrollArea>
-          </div>
-          <div className="w-1/2 p-4">
-            <Card className="h-full"></Card>
-          </div>
+            </div>
+          </ScrollArea>
         </div>
+        <div className="w-1/2 p-4">
+          <Card className="h-full"></Card>
+        </div>
+      </div>
     </>
   );
 };

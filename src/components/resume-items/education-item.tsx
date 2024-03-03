@@ -72,6 +72,7 @@ export function EducationItem() {
     };
 
     console.log(educationData);
+    console.log(educationItem);
 
     addResumeItem(educationItem);
     // API call to save data (replace placeholder with your actual implementation)

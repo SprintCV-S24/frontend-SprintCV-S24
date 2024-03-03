@@ -116,7 +116,7 @@ export function HeadingItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col w-[550px]">

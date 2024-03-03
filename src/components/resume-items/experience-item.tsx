@@ -65,7 +65,7 @@ export function ExperienceItem() {
     };
 
     addResumeItem(experienceItem);
-
+    
     console.log(experienceData);
     // API call to save data (replace placeholder with your actual implementation)
     try {
