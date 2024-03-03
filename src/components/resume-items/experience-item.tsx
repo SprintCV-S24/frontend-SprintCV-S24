@@ -11,8 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
-import { useState } from "react"; // Import useState
+import React, { useState, useContext } from 'react';
 import DeleteImage from "../../assets/delete.png";
+import ResumeContext from '../../components/resumecontext';
+import { ResumeItem } from "types";
+
 
 export function ExperienceItem() {
   const [companyName, setCompanyName] = useState("");
@@ -20,6 +23,7 @@ export function ExperienceItem() {
   const [location, setLocation] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
@@ -46,11 +50,21 @@ export function ExperienceItem() {
 
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
+
     const experienceData = {
       companyName,
       date,
       bullets,
     };
+
+    const experienceItem: ResumeItem = {
+      type: "education",
+      title: companyName,
+      date: date,
+      description: bullets,
+    };
+
+    addResumeItem(experienceItem);
 
     console.log(experienceData);
     // API call to save data (replace placeholder with your actual implementation)

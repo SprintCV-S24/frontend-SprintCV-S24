@@ -30,7 +30,6 @@ export function HeadingItem() {
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const { addResumeItem } = useContext(ResumeContext);
 
-
   const MAX_BULLETS = 5;
 
   const handleAddBullet = () => {
@@ -77,8 +76,8 @@ export function HeadingItem() {
     console.log(data);
 
     // Change location later on; should only add in case of succesfull api call./
-  
     addResumeItem(headingItem);
+
     // API call to save data (replace placeholder with your actual implementation)
     try {
       const response = await fetch("/api/save-education-data", {

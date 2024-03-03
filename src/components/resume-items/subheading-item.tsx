@@ -10,11 +10,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react"; // Import useState
+import React, { useState, useContext } from 'react';
+import ResumeContext from '../../components/resumecontext';
+import { ResumeItem } from "types";
+
 
 export function SubheadingItem() {
   const [subtitle, setSubtitle] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const { addResumeItem } = useContext(ResumeContext);
 
   const resetError = () => {
     setErrorMessage("");
@@ -27,7 +31,14 @@ export function SubheadingItem() {
       subtitle,
     };
 
+    const subheadingItem: ResumeItem = {
+      type: "subheading",
+      title: subtitle,
+    };
+
     console.log(data);
+
+    addResumeItem(subheadingItem);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {

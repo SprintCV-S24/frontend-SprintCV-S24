@@ -12,14 +12,16 @@ import {
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-
-import { useState } from "react"; // Import useState
+import ResumeContext from '../../components/resumecontext';
+import React, { useState, useContext } from 'react';
+import { ResumeItem } from "types";
 
 export function ExtracurricularItem() {
   const [orgName, setOrgName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
@@ -53,7 +55,15 @@ export function ExtracurricularItem() {
       bullets,
     };
 
+    const extracurricularItem: ResumeItem = {
+      type: "extracurricular",
+      title: orgName,
+      date: date,
+      description: bullets,
+    };
+
     console.log(experienceData);
+    addResumeItem(extracurricularItem)
 
     // API call to save data (replace placeholder with your actual implementation)
     try {

@@ -11,14 +11,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import { useState } from "react"; // Import useState
+import React, { useState, useContext } from 'react';
 import { AutosizeTextarea } from "../ui/autosize-textarea";
+import ResumeContext from '../../components/resumecontext';
+import { ResumeItem } from "types";
+
 
 export function ProjectItem() {
   const [projectName, setProjectName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
@@ -52,7 +56,16 @@ export function ProjectItem() {
       bullets,
     };
 
+    const projectItem: ResumeItem = {
+      type: "project",
+      title: projectName,
+      description: bullets,
+      date: date,
+    };
+
     console.log(projectData);
+
+    addResumeItem(projectItem);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {

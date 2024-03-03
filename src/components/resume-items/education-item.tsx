@@ -12,7 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import { useState, useEffect } from "react";
+import React, { useState, useContext } from 'react';
+import ResumeContext from '../../components/resumecontext';
+import { ResumeItem } from "types";
+
 
 export function EducationItem() {
   const [universityName, setUniversityName] = useState("");
@@ -22,6 +25,7 @@ export function EducationItem() {
   const [minor, setMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
@@ -58,8 +62,18 @@ export function EducationItem() {
       bullets,
     };
 
+    const educationItem: ResumeItem = {
+      type: "education",
+      title: universityName,
+      major: major,
+      minor: minor,
+      date: date,
+      description: bullets,
+    };
+
     console.log(educationData);
 
+    addResumeItem(educationItem);
     // API call to save data (replace placeholder with your actual implementation)
     try {
       const response = await fetch("/api/save-education-data", {

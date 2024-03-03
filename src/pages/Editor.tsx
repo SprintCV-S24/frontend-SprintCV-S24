@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
@@ -20,22 +20,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ResumeContext from "@/components/resumecontext";
 import { ResumeItem } from "types";
+import ResumeContext from '../components/resumecontext';
+import  HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
-  const [resumeItems, setResumeItems] = useState<ResumeItem[]>([]);
+  const { resumeItems } = useContext(ResumeContext);
 
-  const addResumeItem = (newItem: ResumeItem) => {
-    setResumeItems([...resumeItems, newItem]);
-    console.log(resumeItems);
-  };
-
-  const removeResumeItem = (index: number) => {
-    setResumeItems(resumeItems.filter((_, i) => i !== index));
-  };
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -69,9 +62,6 @@ const Editor: React.FC = () => {
 
   return (
     <>
-      <ResumeContext.Provider
-        value={{ resumeItems, addResumeItem, removeResumeItem }}
-      >
         <div className="md:hidden"></div>
         <div className="hidden flex-col md:flex">
           <div className="border-b">
@@ -124,7 +114,7 @@ const Editor: React.FC = () => {
                 </h4>
                 {resumeItems.map((item, index) => (
                   <div key={index}>
-                    <div>{item.toString()}</div>
+                    <div><HeadingScrollItem heading={item.title} descriptions={item.description} /></div>
                   </div>
                 ))}
               </div>
@@ -134,7 +124,6 @@ const Editor: React.FC = () => {
             <Card className="h-full"></Card>
           </div>
         </div>
-      </ResumeContext.Provider>
     </>
   );
 };

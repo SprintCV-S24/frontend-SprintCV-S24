@@ -9,8 +9,9 @@ export interface ResumeItem {
     title: string; // Common field for all types
   
     // Additional fields based on the type
-    startDate?: string; // Optional for types other than "experience"
-    endDate?: string; // Optional for types other than "experience"
+    date?: string; // Optional for types other than "experience"
+    major?: string; // Optional for types other than "experience"
+    minor?: string; // Optional for types other than "experience"
     description?: string[]; // Optional for types other than "heading" and "extracurricular"
     location?: string; // Optional for types other than "heading" and "extracurricular"
   }

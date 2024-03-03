@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   createBrowserRouter,
@@ -15,6 +15,8 @@ import Register from "./pages/Auth/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
+import ResumeContext from "@/components/resumecontext";
+import { ResumeItem } from "types";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,10 +31,27 @@ const router = createBrowserRouter(
   ),
 );
 
-const App: React.FC = () => (
-  <AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>
-);
+const App: React.FC = () => {
+  const [resumeItems, setResumeItems] = useState<ResumeItem[]>([]);
+
+  const addResumeItem = (newItem: ResumeItem) => {
+    setResumeItems([...resumeItems, newItem]);
+    console.log(resumeItems);
+  };
+
+  const removeResumeItem = (index: number) => {
+    setResumeItems(resumeItems.filter((_, i) => i !== index));
+  };
+
+  return (
+    <AuthProvider>
+      <ResumeContext.Provider
+        value={{ resumeItems, addResumeItem, removeResumeItem }}
+      >
+        <RouterProvider router={router} />
+      </ResumeContext.Provider>
+    </AuthProvider>
+  );
+};
 
 export default App;
