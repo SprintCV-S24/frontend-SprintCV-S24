@@ -215,7 +215,7 @@ const Editor: React.FC = () => {
         </div>
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
-        <div className="w-1/3 p-4 flex-col">
+        <div className="w-1/2 p-4 flex-col">
           <Card className="h-12">
             <div className="flex items-center justify-between">
               <DropdownMenu>
@@ -291,7 +291,7 @@ const Editor: React.FC = () => {
             </div>
           </ScrollArea>
         </div>
-        <div className="w-2/3 p-4">
+        <div className="w-1/2 p-4">
           <Card className="h-full w-600 flex flex-col items-center justify-center relative">
             <LatexPdf latexCode={testLatex2} width={500}></LatexPdf>
           </Card>

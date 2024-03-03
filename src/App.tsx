@@ -48,7 +48,6 @@ const App: React.FC = () => {
     setResumeItems(resumeItems.filter((_, i) => i !== index));
   };
 
-  return {
 	//Initializes latex engine and pdf.js
 	//TODO: this should probably be pulled out and put somewhere else
   useEffect(() => {
@@ -69,7 +68,6 @@ const App: React.FC = () => {
       </ResumeContext.Provider>
       </AuthProvider>
     );
-};
 };
 
 export default App;
