@@ -20,10 +20,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ResumeContext from "@/components/resumecontext";
+import { ResumeItem } from "types";
 
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
+  const [resumeItems, setResumeItems] = useState<ResumeItem[]>([]);
+
+  const addResumeItem = (newItem: ResumeItem) => {
+    setResumeItems([...resumeItems, newItem]);
+    console.log(resumeItems);
+  };
+
+  const removeResumeItem = (index: number) => {
+    setResumeItems(resumeItems.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -57,71 +69,72 @@ const Editor: React.FC = () => {
 
   return (
     <>
-      <div className="md:hidden"></div>
-      <div className="hidden flex-col md:flex">
-        <div className="border-b">
-          <div className="flex h-16 items-center px-4">
-            <Button
-              className="absolute right-2 top-2 md:right-4 md:top-4"
-              variant="ghost"
-            >
-              <Link to="/profile">Profile</Link>
-            </Button>
-            <MainNav className="mx-6" />
-            <div className="ml-auto flex items-center space-x-4"></div>
+      <ResumeContext.Provider
+        value={{ resumeItems, addResumeItem, removeResumeItem }}
+      >
+        <div className="md:hidden"></div>
+        <div className="hidden flex-col md:flex">
+          <div className="border-b">
+            <div className="flex h-16 items-center px-4">
+              <Button
+                className="absolute right-2 top-2 md:right-4 md:top-4"
+                variant="ghost"
+              >
+                <Link to="/profile">Profile</Link>
+              </Button>
+              <MainNav className="mx-6" />
+              <div className="ml-auto flex items-center space-x-4"></div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-row bg-[#E7ECEF] h-screen">
-        <div className="w-1/2 p-4 flex-col">
-          <Card className="h-12">
-            <div className="flex items-center justify-between">
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button className="mt-1 ml-1" variant="outline">
-                    Add Resume Item
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel className="text-center">
-                    Item Type
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <HeadingItem></HeadingItem>
-                  <DropdownMenuSeparator />
-                  <SubheadingItem></SubheadingItem>
-                  <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem></EducationItem>
-                  <DropdownMenuSeparator />
-                  <ExperienceItem></ExperienceItem>
-                  <DropdownMenuSeparator />
-                  <ExtracurricularItem></ExtracurricularItem>
-                  <DropdownMenuSeparator />
-                  <ProjectItem></ProjectItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </Card>
-          <ScrollArea className="h-[525px] w-full rounded-md mt-4 border bg-white">
-            <div className="p-4">
-              <h4 className="mb-4 text-sm font-medium leading-none">
-                Resume Items
-              </h4>
-              {tags.map((tag) => (
-                <>
-                  <div key={tag} className="text-sm h-[30px] mb-3">
-                    <Card className="h-[30px]">{tag}</Card>
-                  </div>  
-                </>
-              ))}
-            </div>
-          </ScrollArea>
+        <div className="flex flex-row bg-[#E7ECEF] h-screen">
+          <div className="w-1/2 p-4 flex-col">
+            <Card className="h-12">
+              <div className="flex items-center justify-between">
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Button className="mt-1 ml-1" variant="outline">
+                      Add Resume Item
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel className="text-center">
+                      Item Type
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <HeadingItem></HeadingItem>
+                    <DropdownMenuSeparator />
+                    <SubheadingItem></SubheadingItem>
+                    <DropdownMenuSeparator></DropdownMenuSeparator>
+                    <EducationItem></EducationItem>
+                    <DropdownMenuSeparator />
+                    <ExperienceItem></ExperienceItem>
+                    <DropdownMenuSeparator />
+                    <ExtracurricularItem></ExtracurricularItem>
+                    <DropdownMenuSeparator />
+                    <ProjectItem></ProjectItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </Card>
+            <ScrollArea className="h-[525px] w-full rounded-md mt-4 border bg-white">
+              <div className="p-4">
+                <h4 className="mb-4 text-sm font-medium leading-none">
+                  Resume Items
+                </h4>
+                {resumeItems.map((item, index) => (
+                  <div key={index}>
+                    <div>{item.toString()}</div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+          <div className="w-1/2 p-4">
+            <Card className="h-full"></Card>
+          </div>
         </div>
-        <div className="w-1/2 p-4">
-          <Card className="h-full">
-          </Card>
-        </div>
-      </div>
+      </ResumeContext.Provider>
     </>
   );
 };

@@ -11,8 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import { useState } from "react";
+import React, { useState, useContext } from 'react';
 import { AutosizeTextarea } from "../ui/autosize-textarea";
+import { ResumeItem } from './types';
+import ResumeContext from '../../components/resumecontext';
+
 
 interface Bullet {
   description: string;
@@ -25,6 +28,8 @@ export function HeadingItem() {
     { description: "", link: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const { addResumeItem } = useContext(ResumeContext);
+
 
   const MAX_BULLETS = 5;
 
@@ -63,8 +68,17 @@ export function HeadingItem() {
       bullets,
     };
 
+    const headingItem: ResumeItem = {
+      type: "heading",
+      title: heading,
+      description: bullets,
+    };
+
     console.log(data);
 
+    // Change location later on; should only add in case of succesfull api call./
+  
+    addResumeItem(headingItem);
     // API call to save data (replace placeholder with your actual implementation)
     try {
       const response = await fetch("/api/save-education-data", {
