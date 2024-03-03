@@ -15,7 +15,9 @@ import DeleteImage from "../../assets/delete.png";
 import React, { useState, useContext } from 'react';
 import ResumeContext from '../../components/resumecontext';
 import { ResumeItem } from "types";
-
+import { createEducation } from "@/api/educationInterface";
+import { useAuth } from "@/AuthContext";
+import { EducationType } from "@/api/models/educationModel";
 
 export function EducationItem() {
   const [universityName, setUniversityName] = useState("");
@@ -25,6 +27,8 @@ export function EducationItem() {
   const [minor, setMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { currentUser } = useAuth();
   const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
@@ -53,13 +57,17 @@ export function EducationItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const educationData = {
-      universityName,
-      date,
-      location,
-      major,
-      minor,
-      bullets,
+    const token = await currentUser?.getIdToken();
+
+    const educationData: EducationType = {
+      _id:'testsetst',
+      user: token? token : "undefined",
+      bullets: bullets,
+      itemName: universityName,
+      title: major,
+      year: date,
+      location: location,
+      subtitle: minor,
     };
 
     const educationItem: ResumeItem = {
@@ -72,16 +80,11 @@ export function EducationItem() {
     };
 
     console.log(educationData);
-    console.log(educationItem);
 
     addResumeItem(educationItem);
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const response = await createEducation(educationData, token!);
 
       if (response.ok) {
         setErrorMessage("Successfully Submitted!");
