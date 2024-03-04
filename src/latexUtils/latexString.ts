@@ -99,6 +99,118 @@ export function getLatexPreamble(): string {
             `.trim();
   }
 
+
+// This function return the Preamble for each item of the resume. (e.g Experence)
+// This is important b.c each document can compile and create a latex pdf. 
+export function getLatexContentSizedPreamble(): string {
+    return `
+        \\documentclass[letterpaper,11pt]{article}
+        
+        \\usepackage{latexsym}
+        \\usepackage[empty]{fullpage}
+        \\usepackage{titlesec}
+        \\usepackage{marvosym}
+        \\usepackage[usenames,dvipsnames]{color}
+        \\usepackage{verbatim}
+        \\usepackage{enumitem}
+        \\usepackage[hidelinks]{hyperref}
+        \\usepackage{fancyhdr}
+        \\usepackage[english]{babel}
+        \\usepackage{tabularx}
+        \\input{glyphtounicode}
+        \\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
+        
+        %----------FONT OPTIONS----------
+        % sans-serif
+        % \\usepackage[sfdefault]{FiraSans}
+        % \\usepackage[sfdefault]{roboto}
+        % \\usepackage[sfdefault]{noto-sans}
+        % \\usepackage[default]{sourcesanspro}
+
+        
+        % serif
+        % \\usepackage{CormorantGaramond}
+        % \\usepackage{charter}
+        
+        \\pagestyle{fancy}
+        \\fancyhf{} % clear all header and footer fields
+        \\fancyfoot{}
+        \\renewcommand{\\headrulewidth}{0pt}
+        \\renewcommand{\\footrulewidth}{0pt}
+        
+        % Adjust margins
+        \\addtolength{\\oddsidemargin}{-0.5in}
+        \\addtolength{\\evensidemargin}{-0.5in}
+        \\addtolength{\\textwidth}{1in}
+        \\addtolength{\\topmargin}{.1in}
+        \\addtolength{\\textheight}{1.0in}
+        
+        \\urlstyle{same}
+        
+        \\raggedbottom
+        \\raggedright
+        \\setlength{\\tabcolsep}{0in}
+        
+        % Sections formatting
+        \\titleformat{\\section}{
+            \\vspace{-4pt}\\scshape\\raggedright\\large
+        }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
+        
+        % Ensure that generate pdf is machine readable/ATS parsable
+        \\pdfgentounicode=1
+        
+        %-------------------------
+        % Custom commands
+        \\newcommand{\\resumeItem}[1]{
+            \\item\\small{
+            {#1 \\vspace{-2pt}}
+            }
+        }
+        
+        \\newcommand{\\resumeSubheading}[4]{
+            \\vspace{-2pt}\\item
+            \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+                \\textbf{#1} & #2 \\\\
+                \\textit{\\small#3} & \\textit{\\small #4} \\\\
+            \\end{tabular*}\\vspace{-7pt}
+        }
+        
+        \\newcommand{\\resumeSubSubheading}[2]{
+            \\item
+            \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+                \\textit{\\small#1} & \\textit{\\small #2} \\\\
+            \\end{tabular*}\\vspace{-7pt}
+        }
+        
+        \\newcommand{\\resumeProjectHeading}[2]{
+            \\item
+            \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+                \\small#1 & #2 \\\\
+            \\end{tabular*}\\vspace{-7pt}
+        }
+        
+        \\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
+        
+        \\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+        
+        \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
+        
+        \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
+        \\newcommand{\\resumeItemListStart}{\\begin{itemize}}
+        \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}\n
+
+        \\AtBeginDocument{
+            \\setbox0=\\vbox\\bgroup
+            \\preto\\enddocument{\\egroup
+                \\dimen0=\\dp0
+                \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
+                \\unvbox0\\kern-\\dimen0 }
+        }
+
+            `.trim();
+  }
+  
+
   // This function is in charge of sanatizing our code due to Latex pickiness 
   export function sanitize(str: string): string {
     const symbolMap: { [key: string]: string } = {
@@ -146,7 +258,7 @@ interface HeadingItem {
   }
 
   export const generateHeaderLatex = (activityObj: HeadingType): string => {
-    let headerLatex = getLatexPreamble();
+    let headerLatex = getLatexContentSizedPreamble();
     headerLatex += `\\begin{document}\n\\begin{center}\n`;
     headerLatex += `\\textbf{\\Huge \\scshape ${sanitize(activityObj.name)}} \\\\ \\vspace{1pt}\n`;
     headerLatex += `\\small `;
@@ -165,7 +277,8 @@ interface HeadingItem {
             headerLatex += ` $|$ `;
         }
     });
-
+    
+    headerLatex += `\\vspace{-\\lastskip}`; // Adjust space before ending the document
     headerLatex += `\n\\end{center}\n\\end{document}`;
 
     return headerLatex;
@@ -202,7 +315,7 @@ export interface EducationType {
 
 // Generating the full LaTeX for the Education Section
 export const generateEducationLatex = (educationObj: EducationType): string => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
 
     // Assuming educationObj is a single object and not an array here
@@ -228,7 +341,7 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
 
 // Generating the full LaTeX for the Experience Section
 export const generateEducationeHeaderLatex = () => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\section{Education}\n\\end{document}`;
     return latexString;
 }
@@ -263,16 +376,16 @@ export interface ExperienceType {
 
 // Generating the full LaTeX for the Experience Section
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
-    let latexString = getLatexPreamble();
-    latexString += `\\begin{document}\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.date)}}
-    \\resumeItemListStart
+    let latexString = getLatexContentSizedPreamble();
+    latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.date)}}
+    \\resumeItemListStart\n
     `;
 
     activityObj.bullets.forEach(bulletPoint => {
         latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
 
-    latexString += '\\resumeItemListEnd\n\\end{document}\n';
+    latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\end{document}\n';
     
     return latexString;
 }
@@ -281,7 +394,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
 
 // Generating the full LaTeX for the Experience Section
 export const generateExperienceHeaderLatex = () => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\section{Experience}\n\\end{document}`;
     return latexString;
 }
@@ -291,7 +404,7 @@ export const fakeExperience: ExperienceType = {
     user: "Jane Doe", // Irrelevant for our test
     itemName: "Resume Item", // Irrelevant for our test
     bullets: [
-        "Developed and implemented efficient algorithms",
+        "Developed and implemented efficient algorithms i am the experience",
         "Collaborated with a cross-functional team",
         "Improved system performance by 20%"
     ],
@@ -320,7 +433,7 @@ export interface ProjectType {
 
 // Generating the full LaTeX for the Project Section
 export const generateProjectLatex = (projectObj: ProjectType): string => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += '\\begin{document}\n\\resumeSubHeadingListStart\n';
     latexString += `\\resumeProjectHeading\n`;
     latexString += `{\\textbf{${sanitize(projectObj.title)}}}{${sanitize(projectObj.year)}}\n`;
@@ -338,7 +451,7 @@ export const generateProjectLatex = (projectObj: ProjectType): string => {
 
 // Generating the full LaTeX for the Experience Section
 export const generateProjectHeaderLatex = () => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\section{Projects}\n\\end{document}`;
     return latexString;
 }
@@ -348,7 +461,7 @@ export const fakeProject: ProjectType = {
     user: "Jane Doe", // Irrelevant for our test
     itemName: "Resume Item", // Irrelevant for our test
     bullets: [
-        "Developed and implemented efficient algorithms",
+        "This is the project section part of resume aalkjdf;lksjd;aja;dskja;kdj;falskjdf;laksjdf;lkasjdf",
         "Collaborated with a cross-functional team",
         "Improved system performance by 20%"
     ],
@@ -376,7 +489,7 @@ export interface SkillsType {
 
 // Generating the full LaTeX for the Activity Section
 export const generateSkillsLatex = (skillsObj: SkillsType): string => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += '\\begin{document}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n';
     latexString += '\\small{\\item{';
     latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(skillsObj.description)}} \\\\`;
@@ -387,7 +500,7 @@ export const generateSkillsLatex = (skillsObj: SkillsType): string => {
 
 // Generating the full LaTeX for the Experience Section
 export const generateSkillsHeaderLatex = () => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\section{Skills}\n\\end{document}`;
     return latexString;
 }
@@ -400,8 +513,8 @@ export const fakeSkills: SkillsType = {
     description: "Arabic, Persian, Kurdish",
 }
 
-console.log(generateSkillsLatex(fakeSkills));
-console.log(generateSkillsHeaderLatex());
+// console.log(generateSkillsLatex(fakeSkills));
+// console.log(generateSkillsHeaderLatex());
 
 
 
@@ -424,25 +537,23 @@ export interface ActivitiesType {
 
 // Generating the full LaTeX for the Experience Section
 export const generateActivityLatex = (activityObj: ActivitiesType) => {
-    let latexString = getLatexPreamble();
-    latexString += `\\begin{document}\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
-    \\resumeItemListStart
+    let latexString = getLatexContentSizedPreamble();
+    latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
+    \\resumeItemListStart\n
     `;
 
     activityObj.bullets.forEach(bulletPoint => {
         latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
 
-    latexString += '\\resumeItemListEnd\n\\end{document}\n';
+    latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\end{document}\n';
     
     return latexString;
 }
 
-
-
 // Generating the full LaTeX for the Experience Section
 export const generateActivityHeaderLatex = () => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\section{Extracurricular}\n\\end{document}`;
     return latexString;
 }
@@ -452,15 +563,17 @@ export const fakeActivity: ActivitiesType = {
     user: "Jane Doe", // Irrelevant for our test
     itemName: "Resume Item", // Irrelevant for our test
     bullets: [
-        "Went to park",
+        "I amm the activity section i am working correctly",
         "have you live your life ",
         "Or been lived by it"
     ],
-    title: "No job",
+    title: "This is the actiity i am tired of fixing this bug ",
     subtitle: "GDP",
-    year: "2022 - 2292",
+    year: "2022",
     location: "Los Angeles, CA"
 };
+
+
 
 // const generatedLatex = generateExperienceLatex(fakeExperience);
 // console.log(generatedLatex);
