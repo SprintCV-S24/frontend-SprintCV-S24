@@ -428,6 +428,7 @@ export interface ProjectType {
 	itemName: string;
     bullets: string[];
     title: string;
+    technologies?: string;
     year: string;
 }
 
@@ -435,8 +436,14 @@ export interface ProjectType {
 export const generateProjectLatex = (projectObj: ProjectType): string => {
     let latexString = getLatexContentSizedPreamble();
     latexString += '\\begin{document}\n\\resumeSubHeadingListStart\n';
+
+    // Check if technologies are provided and append them to the title
+    const titleWithTechnologies = projectObj.technologies
+        ? `\\textbf{${sanitize(projectObj.title)}} $|$ \\emph{${sanitize(projectObj.technologies)}}`
+        : `\\textbf{${sanitize(projectObj.title)}}`;
+
     latexString += `\\resumeProjectHeading\n`;
-    latexString += `{\\textbf{${sanitize(projectObj.title)}}}{${sanitize(projectObj.year)}}\n`;
+    latexString += `{${titleWithTechnologies}}{${sanitize(projectObj.year)}}\n`;
     latexString += `\\resumeItemListStart\n`;
 
     projectObj.bullets.forEach(bullet => {
@@ -448,6 +455,7 @@ export const generateProjectLatex = (projectObj: ProjectType): string => {
 
     return latexString;
 };
+
 
 // Generating the full LaTeX for the Experience Section
 export const generateProjectHeaderLatex = () => {
@@ -466,6 +474,7 @@ export const fakeProject: ProjectType = {
         "Improved system performance by 20%"
     ],
     title: "Resume Builder",
+    technologies: "React node express json",
     year: "2023",
 };
 
