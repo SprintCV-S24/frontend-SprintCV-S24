@@ -172,10 +172,10 @@ const testLatex2 = `
 % \\end{tabular*}
 
 \\begin{center}
-  \\textbf{\\Huge \\scshape Jack Garritano} \\\\ \\vspace{1pt}
-  \\small 314-873-8730 $|$ \\href{jack.k.garritano@vanderbilt.edu}{\\underline{jack.k.garritano@vanderbilt.edu}} $|$
-  \\href{https://linkedin.com/in/jackgarritano}{\\underline{linkedin.com/in/jackgarritano}} $|$
-  \\href{https://github.com/jackgarritano}{\\underline{github.com/jackgarritano}}
+  \\textbf{\\Huge \\scshape Jane Doe} \\\\ \\vspace{1pt}
+  \\small 314-873-8730 $|$ \\href{email@email.com}{\\underline{email@email.com}} $|$
+  \\href{https://linkedin.com/in/janedoe}{\\underline{linkedin.com/in/janedoe}} $|$
+  \\href{https://github.com/janedoe}{\\underline{github.com/janedoe}}
 \\end{center}
 
 
