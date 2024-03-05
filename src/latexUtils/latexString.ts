@@ -1,4 +1,3 @@
-
 // This function return the Preamble for each item of the resume. (e.g Experence)
 // This is important b.c each document can compile and create a latex pdf. 
 export function getLatexPreamble(): string {
@@ -142,7 +141,6 @@ export function getLatexContentSizedPreamble(): string {
         \\addtolength{\\oddsidemargin}{-0.5in}
         \\addtolength{\\evensidemargin}{-0.5in}
         \\addtolength{\\textwidth}{1in}
-        \\addtolength{\\topmargin}{.1in}
         \\addtolength{\\textheight}{1.0in}
         
         \\urlstyle{same}
@@ -278,7 +276,9 @@ interface HeadingItem {
     });
     
     headerLatex += `\\vspace{-\\lastskip}`; // Adjust space before ending the document
-    headerLatex += `\n\\end{center}\n\\vspace{-\lastskip}\\end{document}`;
+    // headerLatex += `\n\\end{center}\n\\vspace{-\\dimexpr\\lastskip-3pt}\\end{document}`;
+    headerLatex += `\n\\end{center}\n\\vspace{-\\lastskip}\\end{document}`;
+
 
     return headerLatex;
 };
@@ -288,7 +288,7 @@ interface HeadingItem {
 export const fakeHeading: HeadingType = {
     user: "John",
     itemName: "DOE",
-    name: "Jake Garritano",
+    name: "Some Student",
     items: [
         { item: "Hello", href: null }, 
         { item: "meow", href: null }, 
@@ -296,11 +296,9 @@ export const fakeHeading: HeadingType = {
     ]
 };
 
-
 /*  ------------------------------------------------- */
 /*  -------------------Education--------------------- */
 /*  ------------------------------------------------- */
-
 // Interface for Education document
 export interface EducationType {
 	user: string;
@@ -329,7 +327,7 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
         latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
     });
     latexString += `\\resumeItemListEnd\n`;
-    latexString += `\\resumeSubHeadingListEnd\n\\end{document}\n`;
+    latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
     return latexString;
 };
 
@@ -344,9 +342,6 @@ export const fakeEducation: EducationType = {
     year: "Exp 2023",
     location: "Los Angeles, CA"
 };
-// const generatedEducation = generateEducationLatex(fakeEducation);
-// console.log(generatedEducation);
-
 
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
@@ -372,7 +367,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
         latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
 
-    latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\end{document}\n';
+    latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n';
     
     return latexString;
 }
@@ -391,10 +386,6 @@ export const fakeExperience: ExperienceType = {
     date: "2022 - 2023",
     location: "Los Angeles, CA"
 };
-
-// const generatedLatex = generateExperienceLatex(fakeExperience);
-// console.log(generatedLatex);
-
 
 /*  ------------------------------------------------- */
 /*  -------------------Projects---------------------- */
@@ -429,7 +420,7 @@ export const generateProjectLatex = (projectObj: ProjectType): string => {
     });
 
     latexString += '\\resumeItemListEnd\n';
-    latexString += '\\resumeSubHeadingListEnd\n\\end{document}\n';
+    latexString += '\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n';
 
     return latexString;
 };
@@ -447,9 +438,6 @@ export const fakeProject: ProjectType = {
     technologies: "React node express json",
     year: "2023",
 };
-
-// const generatedProject = generateProjectLatex(fakeProject);
-// console.log(generatedProject);
 
 /*  ------------------------------------------------- */
 /*  -------------------SKILLS==---------------------- */
@@ -470,7 +458,7 @@ export const generateSkillsLatex = (skillsObj: SkillsType): string => {
     latexString += '\\begin{document}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n';
     latexString += '\\small{\\item{';
     latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(skillsObj.description)}} \\\\`;
-    latexString += '}}\n\\end{itemize}\n\\end{document}\n';
+    latexString += '}}\n\\end{itemize}\n\\vspace{-\\lastskip}\\end{document}\n';
 
     return latexString;
 };
@@ -481,9 +469,6 @@ export const fakeSkills: SkillsType = {
     title: "Langauges",
     description: "Arabic, Persian, Kurdish",
 }
-
-// console.log(generateSkillsLatex(fakeSkills));
-// console.log(generateSkillsHeaderLatex());
 
 /*  ------------------------------------------------- */
 /*  -------------------Activity---------------------- */
@@ -512,7 +497,7 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
         latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
 
-    latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\end{document}\n';
+    latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n';
     
     return latexString;
 }
@@ -532,13 +517,6 @@ export const fakeActivity: ActivitiesType = {
     location: "Los Angeles, CA"
 };
 
-
-
-// const generatedLatex = generateExperienceLatex(fakeExperience);
-// console.log(generatedLatex);
-
-
-
 /*  ------------------------------------------------- */
 /*  -------------------Header---------------------- */
 /*  ------------------------------------------------- */
@@ -552,7 +530,7 @@ export interface SectionHeadingType {
 // This function generates the header for each of the experiences
 export const generateAndyHeader = (activityObj: SectionHeadingType) => {
     let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\section{${sanitize(activityObj.title)}}\n\\end{document}`;
+    latexString += `\\begin{document}\n\\section{${sanitize(activityObj.title)}}\n\\vspace{-\\lastskip}\\end{document}`;
     return latexString;
 }
 

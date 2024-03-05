@@ -11,12 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {generateExperienceLatex, fakeExperience
-,generateExperienceHeaderLatex, generateHeaderLatex, fakeHeading,
-generateEducationLatex, fakeEducation, generateEducationeHeaderLatex,
-generateProjectLatex, fakeProject, generateProjectHeaderLatex,
-generateSkillsLatex, fakeSkills, generateSkillsHeaderLatex, generateActivityHeaderLatex,
-generateActivityLatex, fakeActivity
+import {generateExperienceLatex, fakeExperience, generateHeaderLatex, fakeHeading,
+generateEducationLatex, fakeEducation,
+generateProjectLatex, fakeProject,
+generateSkillsLatex, fakeSkills, 
+generateActivityLatex, fakeActivity, generateAndyHeader, fakeAnyHeadr
 } from "../../src/latexUtils/latexString"
 
 const Home: React.FC = () => {
@@ -47,17 +46,13 @@ const Home: React.FC = () => {
     };
 
     void fetchFact();
-    console.log(generateExperienceLatex(fakeExperience));
-   // console.log(generateExperienceHeaderLatex());
-  //  console.log(generateHeaderLatex(fakeHeading));
-  //  console.log(generateEducationLatex(fakeEducation));
- //   console.log(generateEducationeHeaderLatex());
-  //  console.log(generateProjectLatex(fakeProject));
-//   console.log(generateProjectHeaderLatex());
-    //  console.log(generateSkillsLatex(fakeSkills));
-    //  console.log(generateSkillsHeaderLatex());
+     console.log(generateExperienceLatex(fakeExperience));
+     console.log(generateHeaderLatex(fakeHeading));
+     console.log(generateEducationLatex(fakeEducation));
+     console.log(generateProjectLatex(fakeProject));
+     console.log(generateSkillsLatex(fakeSkills));
      console.log(generateActivityLatex(fakeActivity));     
-     console.log(generateActivityHeaderLatex());
+     console.log(generateAndyHeader(fakeAnyHeadr));
   }, [currentUser]);
 
   return (
