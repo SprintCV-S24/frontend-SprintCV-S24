@@ -1,5 +1,9 @@
-// This function return the Preamble for each item of the resume. (e.g Experence)
-// This is important b.c each document can compile and create a latex pdf. 
+/**
+ * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
+ * string, which includes the document class, necessary packages, and custom commands essential for formatting
+ * the resume. The preamble is vital for creating a LaTeX document that can be
+@returns {string} A string representing the LaTeX preamble for the resume document.
+ */
 export function getLatexPreamble(): string {
     return `
         \\documentclass[letterpaper,11pt]{article}
@@ -98,9 +102,12 @@ export function getLatexPreamble(): string {
             `.trim();
   }
 
-
-// This function return the Preamble for each item of the resume. (e.g Experence)
-// This is important b.c each document can compile and create a latex pdf. 
+/**
+ * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
+ * string, which includes the document class, necessary packages, and custom commands essential for formatting
+ * the resume. The preamble is vital for creating a LaTeX document that can be
+@returns {string} A string representing the LaTeX preamble for the resume document.
+ */
 export function getLatexContentSizedPreamble(): string {
     return `
         \\documentclass[letterpaper,11pt]{article}
@@ -208,7 +215,14 @@ export function getLatexContentSizedPreamble(): string {
             `.trim();
   }
   
-  // This function is in charge of sanatizing our code due to Latex pickiness 
+/**
+ * Sanitizes a given string to escape LaTeX special characters. This function is essential for ensuring
+ * the integrity of the LaTeX code by escaping characters that LaTeX interprets in a specific manner.
+ * It prevents compilation errors and ensures that the text is rendered correctly in the final document.
+ *
+ * @param {string} str - The string to be sanitized for LaTeX.
+ * @returns {string} The sanitized string, safe for inclusion in LaTeX code.
+ */
 export function sanitize(str: string): string {
 const symbolMap: { [key: string]: string } = {
     '\'': '\\textquotesingle{}',
@@ -237,7 +251,6 @@ return Array.from(str)
     .join('');
   }
   
-//you don't care about user and itemName fields, but all other fields should be in the latex you generate
 /*  ------------------------------------------------- */
 /*  -------------------Heading----------------------- */
 /*  ------------------------------------------------- */
@@ -254,6 +267,14 @@ interface HeadingItem {
       items: HeadingItem[];
   }
 
+  /**
+ * Generates the LaTeX header for the resume, including personal details and contact information. This
+ * function creates a LaTeX block that represents the header section of the resume, formatted according
+ * to the specified LaTeX commands and styles.
+ *
+ * @param {HeadingType} activityObj - An object containing the necessary data to populate the header section.
+ * @returns {string} The generated LaTeX code for the resume header.
+ */
   export const generateHeaderLatex = (activityObj: HeadingType): string => {
     let headerLatex = getLatexContentSizedPreamble();
     headerLatex += `\\begin{document}\n\\begin{center}\n`;
@@ -310,7 +331,13 @@ export interface EducationType {
     year: string;
 }
 
-// Generating the full LaTeX for the Education Section
+/**
+ * Generates the LaTeX code for the education section of the resume. This function constructs a LaTeX
+ * block that lists educational qualifications, including institution names, degrees, and dates.
+ *
+ * @param {EducationType} educationObj - An object containing data for the education section.
+ * @returns {string} The generated LaTeX code for the education section of the resume.
+ */
 export const generateEducationLatex = (educationObj: EducationType): string => {
     let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
@@ -356,7 +383,13 @@ export interface ExperienceType {
     location: string;
 }
 
-// Generating the full LaTeX for the Experience Section
+/**
+ * Generates the LaTeX code for the experience section of the resume. This function creates a LaTeX
+ * block that details professional experience, including job titles, company names, dates, and descriptions.
+ *
+ * @param {ExperienceType} activityObj - An object containing data for the experience section.
+ * @returns {string} The generated LaTeX code for the experience section of the resume.
+ */
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
     let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.date)}}
@@ -391,7 +424,6 @@ export const fakeExperience: ExperienceType = {
 /*  -------------------Projects---------------------- */
 /*  ------------------------------------------------- */
 // Interface for Project document
-//you don't care about user and itemName fields, but all other fields should be in the latex you generate
 export interface ProjectType {
 	user: string;
 	itemName: string;
@@ -401,7 +433,13 @@ export interface ProjectType {
     year: string;
 }
 
-// Generating the full LaTeX for the Project Section
+/**
+ * Generates the LaTeX code for the projects section of the resume. This function constructs a LaTeX
+ * block that showcases personal or academic projects, including titles, technologies used, and descriptions.
+ *
+ * @param {ProjectType} projectObj - An object containing data for the projects section.
+ * @returns {string} The generated LaTeX code for the projects section of the resume.
+ */
 export const generateProjectLatex = (projectObj: ProjectType): string => {
     let latexString = getLatexContentSizedPreamble();
     latexString += '\\begin{document}\n\\resumeSubHeadingListStart\n';
@@ -443,8 +481,6 @@ export const fakeProject: ProjectType = {
 /*  -------------------SKILLS==---------------------- */
 /*  ------------------------------------------------- */
 // Interface for Project document
-//you don't care about user and itemName fields, but all other fields should be in the latex you generate
-// Interface for Skills document
 export interface SkillsType {
 	user: string;
 	itemName: string;
@@ -452,7 +488,13 @@ export interface SkillsType {
     description: string;
 }
 
-// Generating the full LaTeX for the Activity Section
+/**
+ * Generates the LaTeX code for the skills section of the resume. This function creates a concise LaTeX
+ * list of skills, typically highlighting technical abilities and other competencies.
+ *
+ * @param {SkillsType} skillsObj - An object containing data for the skills section.
+ * @returns {string} The generated LaTeX code for the skills section of the resume.
+ */
 export const generateSkillsLatex = (skillsObj: SkillsType): string => {
     let latexString = getLatexContentSizedPreamble();
     latexString += '\\begin{document}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n';
@@ -474,8 +516,6 @@ export const fakeSkills: SkillsType = {
 /*  -------------------Activity---------------------- */
 /*  ------------------------------------------------- */
 // Interface for Project document
-//you don't care about user and itemName fields, but all other fields should be in the latex you generate
-// Interface for Activities document
 export interface ActivitiesType {
 	user: string;
 	itemName: string;
@@ -486,7 +526,13 @@ export interface ActivitiesType {
     location: string;
 }
 
-// Generating the full LaTeX for the Experience Section
+/**
+ * Generates the LaTeX code for the activities section of the resume. This function constructs a LaTeX
+ * block that details extracurricular activities, volunteer work, or other non-professional experiences.
+ *
+ * @param {ActivitiesType} activityObj - An object containing data for the activities section.
+ * @returns {string} The generated LaTeX code for the activities section of the resume.
+ */
 export const generateActivityLatex = (activityObj: ActivitiesType) => {
     let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(activityObj.title)}}{${sanitize(activityObj.subtitle)}}{${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
@@ -527,13 +573,21 @@ export interface SectionHeadingType {
   	title: string;
 }
 
-// This function generates the header for each of the experiences
+/**
+ * Generates a LaTeX header for a specific section of the resume. This function creates a section
+ * heading in the LaTeX document, which is used to introduce the subsequent content block, such as
+ * experience, education, or projects.
+ *
+ * @param {SectionHeadingType} activityObj - An object containing the title for the section header.
+ * @returns {string} The generated LaTeX code for the section header.
+ */
 export const generateAndyHeader = (activityObj: SectionHeadingType) => {
     let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\section{${sanitize(activityObj.title)}}\n\\vspace{-\\lastskip}\\end{document}`;
     return latexString;
 }
 
+// Fake Object for the purpose of testing. 
 export const fakeAnyHeadr: SectionHeadingType = {
     user: "Mine",
 	itemName: "Yours",
