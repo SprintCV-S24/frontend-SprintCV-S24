@@ -210,34 +210,33 @@ export function getLatexContentSizedPreamble(): string {
             `.trim();
   }
   
-
   // This function is in charge of sanatizing our code due to Latex pickiness 
-  export function sanitize(str: string): string {
-    const symbolMap: { [key: string]: string } = {
-      '\'': '\\textquotesingle{}',
-      '"': '\\textquotedbl{}',
-      '`': '\\textasciigrave{}',
-      '^': '\\textasciicircum{}',
-      '~': '\\textasciitilde{}',
-      '<': '\\textless{}',
-      '>': '\\textgreater{}',
-      '|': '\\textbar{}',
-      '\\': '\\textbackslash{}',
-      '{': '\\{',
-      '}': '\\}',
-      '$': '\\$',
-      '&': '\\&',
-      '#': '\\#',
-      '_': '\\_',
-      '%': '\\%',
-      '/': '\\textslash{}',
-      '[': '\\textlbrack{}',
-      ']': '\\textrbrack{}',
-    };
-  
-    return Array.from(str)
-      .map(char => symbolMap[char] || char)
-      .join('');
+export function sanitize(str: string): string {
+const symbolMap: { [key: string]: string } = {
+    '\'': '\\textquotesingle{}',
+    '"': '\\textquotedbl{}',
+    '`': '\\textasciigrave{}',
+    '^': '\\textasciicircum{}',
+    '~': '\\textasciitilde{}',
+    '<': '\\textless{}',
+    '>': '\\textgreater{}',
+    '|': '\\textbar{}',
+    '\\': '\\textbackslash{}',
+    '{': '\\{',
+    '}': '\\}',
+    '$': '\\$',
+    '&': '\\&',
+    '#': '\\#',
+    '_': '\\_',
+    '%': '\\%',
+    '/': '\\textslash{}',
+    '[': '\\textlbrack{}',
+    ']': '\\textrbrack{}',
+};
+
+return Array.from(str)
+    .map(char => symbolMap[char] || char)
+    .join('');
   }
   
 //you don't care about user and itemName fields, but all other fields should be in the latex you generate
@@ -279,7 +278,7 @@ interface HeadingItem {
     });
     
     headerLatex += `\\vspace{-\\lastskip}`; // Adjust space before ending the document
-    headerLatex += `\n\\end{center}\n\\end{document}`;
+    headerLatex += `\n\\end{center}\n\\vspace{-\lastskip}\\end{document}`;
 
     return headerLatex;
 };
@@ -289,7 +288,7 @@ interface HeadingItem {
 export const fakeHeading: HeadingType = {
     user: "John",
     itemName: "DOE",
-    name: "This Is My Name%",
+    name: "Jake Garritano",
     items: [
         { item: "Hello", href: null }, 
         { item: "meow", href: null }, 
@@ -330,21 +329,9 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
         latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
     });
     latexString += `\\resumeItemListEnd\n`;
-
     latexString += `\\resumeSubHeadingListEnd\n\\end{document}\n`;
-
     return latexString;
 };
-
-
-//\\section{Education}\n
-
-// Generating the full LaTeX for the Experience Section
-export const generateEducationeHeaderLatex = () => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\section{Education}\n\\end{document}`;
-    return latexString;
-}
 
 
 // fake object for the purpose of testing 
@@ -387,15 +374,6 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
 
     latexString += '\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\end{document}\n';
     
-    return latexString;
-}
-
-
-
-// Generating the full LaTeX for the Experience Section
-export const generateExperienceHeaderLatex = () => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\section{Experience}\n\\end{document}`;
     return latexString;
 }
 
@@ -456,14 +434,6 @@ export const generateProjectLatex = (projectObj: ProjectType): string => {
     return latexString;
 };
 
-
-// Generating the full LaTeX for the Experience Section
-export const generateProjectHeaderLatex = () => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\section{Projects}\n\\end{document}`;
-    return latexString;
-}
-
 // fake object for the purpose of testing 
 export const fakeProject: ProjectType = {
     user: "Jane Doe", // Irrelevant for our test
@@ -480,8 +450,6 @@ export const fakeProject: ProjectType = {
 
 // const generatedProject = generateProjectLatex(fakeProject);
 // console.log(generatedProject);
-
-
 
 /*  ------------------------------------------------- */
 /*  -------------------SKILLS==---------------------- */
@@ -507,14 +475,6 @@ export const generateSkillsLatex = (skillsObj: SkillsType): string => {
     return latexString;
 };
 
-// Generating the full LaTeX for the Experience Section
-export const generateSkillsHeaderLatex = () => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\section{Skills}\n\\end{document}`;
-    return latexString;
-}
-
-
 export const fakeSkills: SkillsType = {
 	user: "string",
 	itemName: "string",
@@ -524,9 +484,6 @@ export const fakeSkills: SkillsType = {
 
 // console.log(generateSkillsLatex(fakeSkills));
 // console.log(generateSkillsHeaderLatex());
-
-
-
 
 /*  ------------------------------------------------- */
 /*  -------------------Activity---------------------- */
@@ -560,13 +517,6 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
     return latexString;
 }
 
-// Generating the full LaTeX for the Experience Section
-export const generateActivityHeaderLatex = () => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\section{Extracurricular}\n\\end{document}`;
-    return latexString;
-}
-
 // fake object for the purpose of testing 
 export const fakeActivity: ActivitiesType = {
     user: "Jane Doe", // Irrelevant for our test
@@ -586,3 +536,28 @@ export const fakeActivity: ActivitiesType = {
 
 // const generatedLatex = generateExperienceLatex(fakeExperience);
 // console.log(generatedLatex);
+
+
+
+/*  ------------------------------------------------- */
+/*  -------------------Header---------------------- */
+/*  ------------------------------------------------- */
+// Interface for Section Heading document
+export interface SectionHeadingType {
+	user: string;
+	itemName: string;
+  	title: string;
+}
+
+// This function generates the header for each of the experiences
+export const generateAndyHeader = (activityObj: SectionHeadingType) => {
+    let latexString = getLatexContentSizedPreamble();
+    latexString += `\\begin{document}\n\\section{${sanitize(activityObj.title)}}\n\\end{document}`;
+    return latexString;
+}
+
+export const fakeAnyHeadr: SectionHeadingType = {
+    user: "Mine",
+	itemName: "Yours",
+  	title: "KickBoxing",
+}
