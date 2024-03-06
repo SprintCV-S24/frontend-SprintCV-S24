@@ -1,12 +1,6 @@
-import { BaseItem } from "./baseItem";
+import { EducationType } from "@/interfaces/interfaces";
 
-export interface EducationData {
+export interface EducationServerType extends EducationType{
   _id: string;
   user: string;
-  itemName: string;
-  bullets: string[];
-  title: string;
-  subtitle: string;
-  location: string;
-  year: string;
 }

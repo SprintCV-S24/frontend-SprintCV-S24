@@ -1,10 +1,6 @@
-export interface ExtracurricularData {
+import { ActivitiesType } from "@/interfaces/interfaces";
+
+export interface ActivitiesServerType extends ActivitiesType {
   _id: string;
   user: string;
-  itemName: string;
-  bullets: string[];
-  title: string;
-  subtitle: string;
-  year: string;
-  location: string;
 }

@@ -1,9 +1,6 @@
-export interface ProjectData {
+import { ProjectsType } from "@/interfaces/interfaces";
+
+export interface ProjectServerType extends ProjectsType{
   _id: string;
   user: string;
-  itemName: string;
-  bullets: string[];
-  title: string;
-  technologies?: string;
-  year: string;
 }

@@ -131,6 +131,7 @@ export function getLatexContentSizedPreamble(): string {
         \\usepackage{enumitem}
         \\usepackage[hidelinks]{hyperref}
         \\usepackage{fancyhdr}
+        \\usepackage{etoolbox}
         \\usepackage[english]{babel}
         \\usepackage{tabularx}
         \\input{glyphtounicode}
@@ -251,7 +252,7 @@ export function sanitize(str: string): string {
     "#": "\\#",
     _: "\\_",
     "%": "\\%",
-    "/": "\\textslash{}",
+    "/": "\\textbackslash{}",
     "[": "\\textlbrack{}",
     "]": "\\textrbrack{}",
   };
@@ -324,14 +325,17 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
       {${sanitize(educationObj.subtitle)}}{${sanitize(educationObj.year)}}
     `;
 
-  // If there are bullet points under each education entry
-  latexString += `\\resumeItemListStart\n`;
-  educationObj.bullets.forEach((bullet) => {
-    latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
-  });
-  latexString += `\\resumeItemListEnd\n`;
-  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
+  if (educationObj.bullets.length > 0) {
+    latexString += `\\resumeItemListStart\n`;
+    educationObj.bullets.forEach((bullet) => {
+      latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
 
+    latexString += `\\resumeItemListEnd\n`;
+  }
+  
+  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
+  // If there are bullet points under each education entry
   console.log(latexString);
 
   return latexString;
@@ -355,15 +359,21 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   )}}{${sanitize(activityObj.subtitle)}}{${sanitize(
     activityObj.location,
   )}}{${sanitize(activityObj.date)}}
-    \\resumeItemListStart\n
     `;
 
-  activityObj.bullets.forEach((bulletPoint) => {
-    latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
-  });
+  if (activityObj.bullets.length > 0) {
+    latexString +=   `\\resumeItemListStart\n`;
+
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+  
+    latexString +=
+      "\\resumeItemListEnd\n";
+  }
 
   latexString +=
-    "\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
 
   return latexString;
 };
@@ -392,13 +402,16 @@ export const generateProjectLatex = (projectObj: ProjectsType): string => {
 
   latexString += `\\resumeProjectHeading\n`;
   latexString += `{${titleWithTechnologies}}{${sanitize(projectObj.year)}}\n`;
-  latexString += `\\resumeItemListStart\n`;
 
-  projectObj.bullets.forEach((bullet) => {
-    latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
-  });
+  if(projectObj.bullets.length > 0) {
+    latexString += `\\resumeItemListStart\n`;
+    projectObj.bullets.forEach((bullet) => {
+      latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
+  
+    latexString += "\\resumeItemListEnd\n";
+  }
 
-  latexString += "\\resumeItemListEnd\n";
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
 

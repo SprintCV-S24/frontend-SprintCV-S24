@@ -37,19 +37,7 @@ const router = createBrowserRouter(
 );
 
 const App: React.FC = () => {
-  const [resumeItems, setResumeItems] = useState<BaseItem[]>([
-    {
-      user: "", // Irrelevant for our test
-      itemName: "Resume Item", // Irrelevant for our test
-      bullets: [],
-      title: "Some High school",
-      subtitle: "BS CS",
-      year: "Exp 2023",
-      location: "Los Angeles, CA",
-    }
-  ]);
-
-  
+  const [resumeItems, setResumeItems] = useState<BaseItem[]>([]);
 
   const addResumeItem = (newItem: BaseItem) => {
     setResumeItems([...resumeItems, newItem]);

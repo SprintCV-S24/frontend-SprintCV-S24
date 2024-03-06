@@ -1,10 +1,6 @@
-export interface ExperienceData {
+import { ExperienceType } from "@/interfaces/interfaces";
+
+export interface ExperienceServerType extends ExperienceType {
   _id: string;
   user: string;
-  itemName: string;
-  bullets: string[];
-  title: string;
-  subtitle: string;
-  year: string;
-  location: string;
 }
