@@ -197,6 +197,7 @@ const Editor: React.FC = () => {
     (_, i, a) => `Resume Item ${a.length - i}`,
   );
 
+  // TODO: Make this type safe, make some other changes.
   return (
     <>
       <div className="md:hidden"></div>
