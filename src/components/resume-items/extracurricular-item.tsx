@@ -15,7 +15,7 @@ import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from "../../components/resumecontext";
 import React, { useState, useContext } from "react";
 import { useAuth } from "@/AuthContext";
-import { ActivitiesData } from "@/api/models/extracurricularModel";
+import { ActivitiesType } from "@/interfaces/interfaces";
 import { createActivity } from "@/api/extracurricularInterface";
 
 export function ExtracurricularItem() {
@@ -59,7 +59,7 @@ export function ExtracurricularItem() {
 
     const token = await currentUser?.getIdToken();
 
-    const data: ActivitiesData = {
+    const data: ActivitiesType = {
       user: token!,
       itemName: "TESTING", // TODO: Modify this!
       subtitle: orgName,
@@ -77,7 +77,7 @@ export function ExtracurricularItem() {
     try {
       const response = await createActivity(data, token!);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
   };
 

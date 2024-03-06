@@ -331,6 +331,9 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
   });
   latexString += `\\resumeItemListEnd\n`;
   latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
+
+  console.log(latexString);
+
   return latexString;
 };
 

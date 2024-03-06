@@ -1,10 +1,10 @@
-import { ActivitiesData } from "./models/extracurricularModel";
+import { ActivitiesType } from "@/interfaces/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 // TODO: Check this route
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/activities`;
 
-export const createActivity = async (activity: ActivitiesData, token: string) => {
+export const createActivity = async (activity: ActivitiesType, token: string) => {
   const response = await fetch(`${BACKEND_ROUTE}`, {
     method: "POST",
     body: JSON.stringify(activity),

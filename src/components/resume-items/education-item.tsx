@@ -16,7 +16,7 @@ import React, { useState, useContext } from "react";
 import ResumeContext from "../../components/resumecontext";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
-import { EducationData } from "@/api/models/educationModel";
+import { EducationType } from "@/interfaces/interfaces";
 
 export function EducationItem() {
   // Global context(s)
@@ -61,7 +61,7 @@ export function EducationItem() {
 
     const token = await currentUser?.getIdToken();
 
-    const data: EducationData = {
+    const data: EducationType = {
       user: token!,
       itemName: "Testing", // TODO: Modify this!
       bullets: bullets,
@@ -81,7 +81,6 @@ export function EducationItem() {
       const response = await createEducation(data, token!);
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
-      console.error("Error submitting form:", error);
     }
   };
 

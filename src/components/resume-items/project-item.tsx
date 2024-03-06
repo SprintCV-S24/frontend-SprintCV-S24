@@ -14,7 +14,7 @@ import DeleteImage from "../../assets/delete.png";
 import React, { useState, useContext } from 'react';
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from '../../components/resumecontext';
-import { ProjectData } from "@/api/models/projectModel";
+import { ProjectsType } from "@/interfaces/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createProject } from "@/api/projectInterface";
 
@@ -57,11 +57,11 @@ export function ProjectItem() {
 
     const token = await currentUser?.getIdToken();
 
-    const data: ProjectData = {
+    const data: ProjectsType = {
       user: token!,
       itemName: "TESTING", // TODO: Modify this!
       title: projectName,
-      subtitle: technologies,
+      technologies: technologies,
       bullets: bullets,
       year: date,
     }
@@ -73,7 +73,7 @@ export function ProjectItem() {
     try {
       const response = createProject(data, token!);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
   };
 

@@ -12,9 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import React, { useState, useContext } from 'react';
 import ResumeContext from '../../components/resumecontext';
-import { ResumeItem } from "types";
 import { useAuth } from "@/AuthContext";
-import { SectionHeadingData } from "@/api/models/subheadingModel";
+import { SectionHeadingsType } from "@/interfaces/interfaces";
 
 export function SubheadingItem() {
   const { addResumeItem } = useContext(ResumeContext);
@@ -33,7 +32,7 @@ export function SubheadingItem() {
 
     const token = await currentUser?.getIdToken();
 
-    const data: SectionHeadingData = {
+    const data: SectionHeadingsType = {
       user: token!,
       itemName: "TESTING", // TODO: Modify this!
       title: subtitle,
@@ -47,7 +46,7 @@ export function SubheadingItem() {
     try {
   
     } catch (error) {
-      console.error("Error submitting form:", error);
+      setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
   };
 

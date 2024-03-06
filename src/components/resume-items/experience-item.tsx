@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import React, { useState, useContext } from "react";
 import DeleteImage from "../../assets/delete.png";
 import ResumeContext from "../../components/resumecontext";
-import { ExperienceData } from "@/api/models/experienceModel";
+import { ExperienceType } from "@/interfaces/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createExperience } from "@/api/experienceInterface";
 
@@ -60,13 +60,13 @@ export function ExperienceItem() {
     // TODO: Test, make sure this works.
     const token = await currentUser?.getIdToken();
 
-    const data: ExperienceData = {
+    const data: ExperienceType = {
       user: token!,
       bullets: bullets,
       itemName: "TESTING", // TODO: Modify this!
       title: jobTitle,
       subtitle: companyName,
-      year: date,
+      date: date,
       location: location,
     };
 
@@ -79,7 +79,6 @@ export function ExperienceItem() {
       const response = await createExperience(data, token!);
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
-      console.error("Error submitting form:", error);
     }
   };
 

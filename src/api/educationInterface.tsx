@@ -1,10 +1,10 @@
-import { EducationData } from "./models/educationModel";
+import { EducationType } from "@/interfaces/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/education`;
 
 export const createEducation = async (
-  education: EducationData,
+  education: EducationType,
   token: string,
 ) => {
   const response = await fetch(`${BACKEND_ROUTE}`, {

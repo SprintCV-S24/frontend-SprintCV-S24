@@ -1,11 +1,11 @@
-import { HeadingData, HeaderItem } from "./models/headingModel";
+import { HeadingsType } from "@/interfaces/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 // TODO: Check this route
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/headings`;
 
 export const createHeading = async (
-  heading: HeadingData,
+  heading: HeadingsType,
   token: string,
 ) => {
   const response = await fetch(`${BACKEND_ROUTE}`, {

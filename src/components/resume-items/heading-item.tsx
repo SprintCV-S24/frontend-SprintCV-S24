@@ -13,10 +13,9 @@ import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import React, { useState, useContext } from 'react';
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import { ResumeItem } from 'types';
 import ResumeContext from '../../components/resumecontext';
 import { useAuth } from "@/AuthContext";
-import { HeaderItem, HeadingData } from "@/api/models/headingModel";
+import { HeadingsType, HeadingComponent } from "@/interfaces/interfaces";
 import { createHeading } from "@/api/headerInterface";
 
 export function HeadingItem() {
@@ -24,7 +23,7 @@ export function HeadingItem() {
   const { currentUser } = useAuth();
 
   const [heading, setHeading] = useState("");
-  const [bullets, setBullets] = useState<HeaderItem[]>([
+  const [bullets, setBullets] = useState<HeadingComponent[]>([
     { item: "", href: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -63,7 +62,7 @@ export function HeadingItem() {
 
     const token = await currentUser?.getIdToken();
 
-    const data: HeadingData = {
+    const data: HeadingsType = {
       user: token!,
       itemName: "TESTING", // TODO: Modify this value
       name: heading,
@@ -79,7 +78,7 @@ export function HeadingItem() {
     try {
       const response = await createHeading(data, token!);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
   };
 

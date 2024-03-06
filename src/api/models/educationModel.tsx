@@ -1,17 +1,7 @@
 import { BaseItem } from "./baseItem";
 
-export interface EducationType {
+export interface EducationData {
   _id: string;
-  user: string;
-  itemName: string;
-  bullets: string[];
-  title: string;
-  subtitle: string;
-  location: string;
-  year: string;
-}
-
-export interface EducationData extends BaseItem {
   user: string;
   itemName: string;
   bullets: string[];

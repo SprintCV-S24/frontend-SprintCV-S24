@@ -1,18 +1,20 @@
-interface HeadingItem {
+export interface HeadingComponent {
   item: string;
   href: string | null;
 }
 
+export interface BaseItem {}
+
 // Interface for Contact details document
-export interface HeadingsType {
+export interface HeadingsType extends BaseItem {
   user: string;
   itemName: string;
   name: string;
-  items: HeadingItem[];
+  items: HeadingComponent[];
 }
 
 // Interface for Education document
-export interface EducationType {
+export interface EducationType extends BaseItem {
   user: string;
   itemName: string;
   bullets: string[];
@@ -23,7 +25,7 @@ export interface EducationType {
 }
 
 // Interface for Experience document
-export interface ExperienceType {
+export interface ExperienceType extends BaseItem  {
   user: string;
   itemName: string;
   bullets: string[];
@@ -34,7 +36,7 @@ export interface ExperienceType {
 }
 
 // Interface for Project document
-export interface ProjectsType {
+export interface ProjectsType extends BaseItem {
   user: string;
   itemName: string;
   bullets: string[];
@@ -44,7 +46,7 @@ export interface ProjectsType {
 }
 
 // Interface for Skills document
-export interface SkillsType {
+export interface SkillsType extends BaseItem {
   user: string;
   itemName: string;
   title: string;
@@ -52,7 +54,7 @@ export interface SkillsType {
 }
 
 // Interface for Activities document
-export interface ActivitiesType {
+export interface ActivitiesType extends BaseItem {
   user: string;
   itemName: string;
   bullets: string[];
@@ -63,7 +65,7 @@ export interface ActivitiesType {
 }
 
 // Interface for Section Heading document
-export interface SectionHeadingsType {
+export interface SectionHeadingsType extends BaseItem {
   user: string;
   itemName: string;
   title: string;

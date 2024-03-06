@@ -1,4 +1,4 @@
-import { ExperienceData } from "./models/experienceModel";
+import { ExperienceType } from "@/interfaces/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 
@@ -6,7 +6,7 @@ import { handleJsonResponse } from "./responseHelpers";
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/experience`;
 
 export const createExperience = async (
-  experience: ExperienceData,
+  experience: ExperienceType,
   token: string,
 ) => {
   const response = await fetch(`${BACKEND_ROUTE}`, {

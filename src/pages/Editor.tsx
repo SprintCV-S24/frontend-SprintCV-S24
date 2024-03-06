@@ -24,6 +24,7 @@ import { ResumeItem } from "types";
 import ResumeContext from "../components/resumecontext";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexPdf } from "@/components/Latex";
+import { generateEducationLatex } from "@/latexUtils/latexString";
 
 const testLatex2 = `
 %-------------------------
@@ -250,44 +251,9 @@ const Editor: React.FC = () => {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
-              <div>
-                {resumeItems.map((item, index) => (
-                  <div key={index}>
-                    <h3>{item.title}</h3>
-                    {item.type === "heading" && (
-                      <p>Heading content: {item.description?.join(" ")}</p>
-                    )}
-                    {item.type === "subheading" && (
-                      <p>Subheading content: {item.description?.join(" ")}</p>
-                    )}
-                    {item.type === "education" && (
-                      <p>
-                        Education content: {item.date}, {item.major},{" "}
-                        {item.minor},  {item.description?.join(" ")}
-                      </p>
-                    )}
-                    {item.type === "experience" && (
-                      <p>
-                        Experience content: {item.date}, {item.major},{" "}
-                        {item.minor},  {item.description?.join(" ")}
-                      </p>
-                    )}
-                    {item.type === "extracurricular" && (
-                      <div>
-                        <p>
-                          Extracurricular content: {item.date}, {item.location},
-                        </p>
-                        <p>Description: {item.description?.join(" ")}</p>
-                      </div>
-                    )}
-                    {item.type === "project" && (
-                      <div>
-                        <p>Project content: {item.description?.join(" ")}</p>
-                        {/* Additional project-specific fields can be displayed here */}
-                      </div>
-                    )}
-                  </div>
-                ))}
+              <div>{resumeItems.map((item) => (
+                <LatexPdf latexCode={generateEducationLatex(item)} width={100}></LatexPdf>
+            ))}
               </div>
             </div>
           </ScrollArea>

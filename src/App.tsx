@@ -18,8 +18,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import ResumeContext from "@/components/resumecontext";
-import { ResumeItem } from "types";
-import { BaseItem } from "./api/models/baseItem";
+import { BaseItem } from "./interfaces/interfaces";
 import { initializeLatexEngines } from "./latexUtils/latexUtils";
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
@@ -38,7 +37,19 @@ const router = createBrowserRouter(
 );
 
 const App: React.FC = () => {
-  const [resumeItems, setResumeItems] = useState<BaseItem[]>([]);
+  const [resumeItems, setResumeItems] = useState<BaseItem[]>([
+    {
+      user: "", // Irrelevant for our test
+      itemName: "Resume Item", // Irrelevant for our test
+      bullets: [],
+      title: "Some High school",
+      subtitle: "BS CS",
+      year: "Exp 2023",
+      location: "Los Angeles, CA",
+    }
+  ]);
+
+  
 
   const addResumeItem = (newItem: BaseItem) => {
     setResumeItems([...resumeItems, newItem]);
