@@ -20,8 +20,8 @@ export const createActivity = async (
   return await handleJsonResponse(response);
 };
 
-// GET all activity
-export const getAllActivity = async (token: string) => {
+// GET all activities
+export const getAllActivities = async (token: string) => {
   const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
