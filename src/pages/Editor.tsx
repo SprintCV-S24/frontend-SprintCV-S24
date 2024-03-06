@@ -24,7 +24,11 @@ import { ResumeItem } from "types";
 import ResumeContext from "../components/resumecontext";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexPdf } from "@/components/Latex";
-import { generateEducationLatex, generateExperienceLatex, generateProjectLatex } from "@/latexUtils/latexString";
+import {
+  generateEducationLatex,
+  generateExperienceLatex,
+  generateProjectLatex,
+} from "@/latexUtils/latexString";
 
 const testLatex2 = `
 %-------------------------
@@ -271,8 +275,9 @@ const testlatex3 = `\\documentclass[letterpaper,11pt]{article}
 {BS CS}{Exp 2023}
 \\resumeSubHeadingListEnd
 \\vspace{-\\lastskip}\\end{document}
-`
+`;
 
+const DOCUMENT_WIDTH = 420;
 
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
@@ -357,22 +362,27 @@ const Editor: React.FC = () => {
               </DropdownMenu>
             </div>
           </Card>
-          <ScrollArea className="h-[525px] w-full rounded-md mt-4 border bg-white">
+          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white">
             <div className="p-4">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
-              <div>{resumeItems.map((item) => (
-                <LatexPdf key={item._id} latexCode={generateProjectLatex(item)} width={250}></LatexPdf>
-            ))}
-              </div>
+              {resumeItems.map((item) => (
+                <Card className="w-full p-2 mb-2 bg-grey">
+                  <LatexPdf
+                    key={item._id}
+                    latexCode={generateExperienceLatex(item)}
+                    width={DOCUMENT_WIDTH}
+                  ></LatexPdf>
+                </Card>
+              ))}
             </div>
           </ScrollArea>
         </div>
         <div className="w-1/2 p-4">
-          <Card className="h-full w-600 flex flex-col items-center justify-center relative">
-            <LatexPdf latexCode={testLatex2} width={500}></LatexPdf>
-          </Card>
+          <div className="flex items-center justify-center">
+            <LatexPdf latexCode={testLatex2} width={DOCUMENT_WIDTH}></LatexPdf>
+          </div>
         </div>
       </div>
     </>

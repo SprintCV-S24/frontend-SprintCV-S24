@@ -6,6 +6,7 @@ import {
   SkillsType,
   ActivitiesType,
   SectionHeadingsType,
+  BaseItem,
 } from "@/interfaces/interfaces";
 
 /**
@@ -235,6 +236,7 @@ export function getLatexContentSizedPreamble(): string {
  * @returns {string} The sanitized string, safe for inclusion in LaTeX code.
  */
 export function sanitize(str: string): string {
+  console.log(str)
   const symbolMap: { [key: string]: string } = {
     "'": "\\textquotesingle{}",
     '"': "\\textquotedbl{}",

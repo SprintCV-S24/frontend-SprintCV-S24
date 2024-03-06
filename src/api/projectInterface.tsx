@@ -1,7 +1,6 @@
 import { ProjectsType } from "@/interfaces/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
-// TODO: Check this route
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/projects`;
 
 export const createProject = async (
