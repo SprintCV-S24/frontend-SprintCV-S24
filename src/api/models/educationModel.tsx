@@ -1,6 +1,6 @@
-import { EducationType } from "@/interfaces/interfaces";
+import { EducationType } from "@/api/models/interfaces";
 
-export interface EducationServerType extends EducationType{
+export interface EducationServerType extends EducationType {
   _id: string;
   user: string;
 }

@@ -11,13 +11,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from '../../components/resumecontext';
-import { ProjectsType } from "@/interfaces/interfaces";
+import ResumeContext from "../../components/resumecontext";
+import { ProjectsType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createProject } from "@/api/projectInterface";
-
 
 export function ProjectItem() {
   const { addResumeItem } = useContext(ResumeContext);
@@ -64,7 +63,7 @@ export function ProjectItem() {
       technologies: technologies,
       bullets: bullets,
       year: date,
-    }
+    };
 
     // TODO: Add to try/catch block.
     console.log(data);

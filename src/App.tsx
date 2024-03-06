@@ -18,7 +18,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import ResumeContext from "@/components/resumecontext";
-import { BaseItem } from "./interfaces/interfaces";
+import { BaseItem } from "./api/models/interfaces";
 import { initializeLatexEngines } from "./latexUtils/latexUtils";
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
@@ -47,26 +47,26 @@ const App: React.FC = () => {
     setResumeItems(resumeItems.filter((_, i) => i !== index));
   };
 
-	//Initializes latex engine and pdf.js
-	//TODO: this should probably be pulled out and put somewhere else
+  //Initializes latex engine and pdf.js
+  //TODO: this should probably be pulled out and put somewhere else
   useEffect(() => {
     console.log("initializing engine");
     initializeLatexEngines().then((res) => {
-			notifyInitializationComplete();
+      notifyInitializationComplete();
       console.log("engine initialized");
     });
     pdfInit();
   }, []);
 
   return (
-      <AuthProvider>
+    <AuthProvider>
       <ResumeContext.Provider
         value={{ resumeItems, addResumeItem, removeResumeItem }}
       >
-          <RouterProvider router={router} />
+        <RouterProvider router={router} />
       </ResumeContext.Provider>
-      </AuthProvider>
-    );
+    </AuthProvider>
+  );
 };
 
 export default App;

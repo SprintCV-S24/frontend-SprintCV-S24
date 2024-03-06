@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from '../../components/resumecontext';
+import ResumeContext from "../../components/resumecontext";
 import { useAuth } from "@/AuthContext";
-import { HeadingsType, HeadingComponent } from "@/interfaces/interfaces";
+import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
 import { createHeading } from "@/api/headerInterface";
 
 export function HeadingItem() {
@@ -101,7 +101,11 @@ export function HeadingItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col w-[550px]">

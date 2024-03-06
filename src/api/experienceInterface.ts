@@ -1,10 +1,9 @@
-import { ExperienceType } from "@/interfaces/interfaces";
+import { ExperienceType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
-
-// TODO: Check this route
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/experience`;
 
+// POST an experience item
 export const createExperience = async (
   experience: ExperienceType,
   token: string,
@@ -20,8 +19,19 @@ export const createExperience = async (
   return await handleJsonResponse(response);
 };
 
-export const getExperienceById = async (fireID: string, token: string) => {
-  const response = await fetch(`${BACKEND_ROUTE}/${fireID}`, {
+// GET all experience
+export const getAllExperience = async (token: string) => {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+};
+
+// GET one experience item
+export const getExperienceById = async (itemId: string, token: string) => {
+  const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

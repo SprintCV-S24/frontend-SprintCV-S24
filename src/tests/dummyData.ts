@@ -6,7 +6,7 @@ import {
   SkillsType,
   ActivitiesType,
   SectionHeadingsType,
-} from "@/interfaces/interfaces";
+} from "@/api/models/interfaces";
 
 export const fakeHeading: HeadingsType = {
   user: "John",

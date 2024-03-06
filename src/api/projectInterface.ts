@@ -1,8 +1,9 @@
-import { ProjectsType } from "@/interfaces/interfaces";
+import { ProjectsType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/projects`;
 
+// POST a project item
 export const createProject = async (
   project: ProjectsType,
   token: string,
@@ -18,8 +19,19 @@ export const createProject = async (
   return await handleJsonResponse(response);
 };
 
-export const getProjectById = async (fireID: string, token: string) => {
-  const response = await fetch(`${BACKEND_ROUTE}/${fireID}`, {
+// GET all projects
+export const getAllProjects = async (token: string) => {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+};
+
+// GET one project item
+export const getProjectById = async (itemId: string, token: string) => {
+  const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
