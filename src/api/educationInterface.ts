@@ -1,4 +1,4 @@
-import { EducationType } from "@/interfaces/interfaces";
+import { EducationType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/education`;

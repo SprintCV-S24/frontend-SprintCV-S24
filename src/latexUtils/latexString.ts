@@ -6,7 +6,7 @@ import {
   SkillsType,
   ActivitiesType,
   SectionHeadingsType,
-} from "@/interfaces/interfaces";
+} from "@/api/models/interfaces";
 
 /**
  * Generates the LaTeX preamble required for the resume document. This function constructs the preamble

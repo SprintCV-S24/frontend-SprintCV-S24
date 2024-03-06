@@ -1,4 +1,4 @@
-import { HeadingsType } from "@/interfaces/interfaces";
+import { HeadingsType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 // TODO: Check this route

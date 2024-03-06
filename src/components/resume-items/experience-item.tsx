@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import React, { useState, useContext } from "react";
 import DeleteImage from "../../assets/delete.png";
 import ResumeContext from "../../components/resumecontext";
-import { ExperienceType } from "@/interfaces/interfaces";
+import { ExperienceType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createExperience } from "@/api/experienceInterface";
 

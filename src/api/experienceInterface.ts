@@ -1,4 +1,4 @@
-import { ExperienceType } from "@/interfaces/interfaces";
+import { ExperienceType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/experience`;

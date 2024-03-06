@@ -1,4 +1,4 @@
-import { SectionHeadingsType } from "@/interfaces/interfaces";
+import { SectionHeadingsType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/sectionHeadings`;

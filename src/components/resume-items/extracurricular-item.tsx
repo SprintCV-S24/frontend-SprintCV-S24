@@ -15,8 +15,8 @@ import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from "../../components/resumecontext";
 import React, { useState, useContext } from "react";
 import { useAuth } from "@/AuthContext";
-import { ActivitiesType } from "@/interfaces/interfaces";
-import { createActivity } from "@/api/extracurricularInterface";
+import { ActivitiesType } from "@/api/models/interfaces";
+import { createActivity } from "@/api/activityInterface";
 
 export function ExtracurricularItem() {
   // Global context(s)

@@ -10,10 +10,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import React, { useState, useContext } from 'react';
-import ResumeContext from '../../components/resumecontext';
+import React, { useState, useContext } from "react";
+import ResumeContext from "../../components/resumecontext";
 import { useAuth } from "@/AuthContext";
-import { SectionHeadingsType } from "@/interfaces/interfaces";
+import { SectionHeadingsType } from "@/api/models/interfaces";
 
 export function SubheadingItem() {
   const { addResumeItem } = useContext(ResumeContext);
@@ -21,7 +21,6 @@ export function SubheadingItem() {
 
   const [subtitle, setSubtitle] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-
 
   const resetError = () => {
     setErrorMessage("");
@@ -36,7 +35,7 @@ export function SubheadingItem() {
       user: token!,
       itemName: "TESTING", // TODO: Modify this!
       title: subtitle,
-    }
+    };
 
     // TOOD: Add to try/catch blcok
     console.log(data);
@@ -44,7 +43,6 @@ export function SubheadingItem() {
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
-  
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }

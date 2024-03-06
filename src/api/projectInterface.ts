@@ -1,4 +1,4 @@
-import { ProjectsType } from "@/interfaces/interfaces";
+import { ProjectsType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 // TODO: Check this route

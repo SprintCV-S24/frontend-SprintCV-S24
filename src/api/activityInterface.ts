@@ -1,4 +1,4 @@
-import { ActivitiesType } from "@/interfaces/interfaces";
+import { ActivitiesType } from "@/api/models/interfaces";
 import { handleJsonResponse } from "./responseHelpers";
 
 // TODO: Check this route

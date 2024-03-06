@@ -16,7 +16,7 @@ import React, { useState, useContext } from "react";
 import ResumeContext from "../../components/resumecontext";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
-import { EducationType } from "@/interfaces/interfaces";
+import { EducationType } from "@/api/models/interfaces";
 
 export function EducationItem() {
   // Global context(s)
