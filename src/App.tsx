@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import ResumeContext from "@/components/resumecontext";
 import { ResumeItem } from "types";
+import { BaseItem } from "./api/models/baseItem";
 import { initializeLatexEngines } from "./latexUtils/latexUtils";
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
@@ -37,11 +38,10 @@ const router = createBrowserRouter(
 );
 
 const App: React.FC = () => {
-  const [resumeItems, setResumeItems] = useState<ResumeItem[]>([]);
+  const [resumeItems, setResumeItems] = useState<BaseItem[]>([]);
 
-  const addResumeItem = (newItem: ResumeItem) => {
+  const addResumeItem = (newItem: BaseItem) => {
     setResumeItems([...resumeItems, newItem]);
-    console.log(resumeItems);
   };
 
   const removeResumeItem = (index: number) => {

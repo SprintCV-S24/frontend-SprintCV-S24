@@ -13,12 +13,16 @@ import { Input } from "@/components/ui/input";
 import React, { useState, useContext } from 'react';
 import ResumeContext from '../../components/resumecontext';
 import { ResumeItem } from "types";
-
+import { useAuth } from "@/AuthContext";
+import { SectionHeadingData } from "@/api/models/subheadingModel";
 
 export function SubheadingItem() {
+  const { addResumeItem } = useContext(ResumeContext);
+  const { currentUser } = useAuth();
+
   const [subtitle, setSubtitle] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-  const { addResumeItem } = useContext(ResumeContext);
+
 
   const resetError = () => {
     setErrorMessage("");
@@ -27,34 +31,21 @@ export function SubheadingItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const data = {
-      subtitle,
-    };
+    const token = await currentUser?.getIdToken();
 
-    const subheadingItem: ResumeItem = {
-      type: "subheading",
+    const data: SectionHeadingData = {
+      user: token!,
+      itemName: "TESTING", // TODO: Modify this!
       title: subtitle,
-    };
+    }
 
+    // TOOD: Add to try/catch blcok
     console.log(data);
-
-    addResumeItem(subheadingItem);
+    addResumeItem(data);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        setErrorMessage("Successfully Submitted!");
-      } else {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+  
     } catch (error) {
       console.error("Error submitting form:", error);
     }

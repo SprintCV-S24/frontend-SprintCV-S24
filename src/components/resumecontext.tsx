@@ -1,9 +1,10 @@
 import React, { createContext, useState } from 'react';
 import { ResumeItem } from 'types';
+import { BaseItem } from '@/api/models/baseItem';
 
 const ResumeContext = createContext<{
-  resumeItems: ResumeItem[];
-  addResumeItem: (item: ResumeItem) => void;
+  resumeItems: BaseItem[];
+  addResumeItem: (item: BaseItem) => void;
   removeResumeItem: (index: number) => void;
 }>({
   resumeItems: [],

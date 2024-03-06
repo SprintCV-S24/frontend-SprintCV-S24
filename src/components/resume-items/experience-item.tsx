@@ -11,22 +11,28 @@ import {
 } from "@/components/ui/dialog";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from "react";
 import DeleteImage from "../../assets/delete.png";
-import ResumeContext from '../../components/resumecontext';
-import { ResumeItem } from "types";
-
+import ResumeContext from "../../components/resumecontext";
+import { ExperienceData } from "@/api/models/experienceModel";
+import { useAuth } from "@/AuthContext";
+import { createExperience } from "@/api/experienceInterface";
 
 export function ExperienceItem() {
+  // Global context(s)
+  const { addResumeItem } = useContext(ResumeContext);
+  const { currentUser } = useAuth();
+
   const [companyName, setCompanyName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
+  const [jobTitle, setjobTitle] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
+  // Functions for handing bullet addition/subtraction
   const handleAddBullet = () => {
     if (bullets.length < MAX_BULLETS) {
       setBullets([...bullets, ""]);
@@ -51,38 +57,28 @@ export function ExperienceItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const experienceData = {
-      companyName,
-      date,
-      bullets,
+    // TODO: Test, make sure this works.
+    const token = await currentUser?.getIdToken();
+
+    const data: ExperienceData = {
+      user: token!,
+      bullets: bullets,
+      itemName: "TESTING", // TODO: Modify this!
+      title: jobTitle,
+      subtitle: companyName,
+      year: date,
+      location: location,
     };
 
-    const experienceItem: ResumeItem = {
-      type: "education",
-      title: companyName,
-      date: date,
-      description: bullets,
-    };
+    // TODO: Add to try/catch block
+    addResumeItem(data);
 
-    addResumeItem(experienceItem);
-    
-    console.log(experienceData);
+    console.log(data);
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        setErrorMessage("Successfully Submitted!");
-      } else {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      const response = await createExperience(data, token!);
     } catch (error) {
+      setErrorMessage("Error: Unable to submit form. Please try again later.");
       console.error("Error submitting form:", error);
     }
   };
@@ -115,8 +111,15 @@ export function ExperienceItem() {
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
             />
-            <div className="col-span-2"> 
-              <div className="flex items-center space-x-4"> 
+            <Input
+              className="col-span-2"
+              id="job-title"
+              placeholder="Job Title"
+              value={jobTitle}
+              onChange={(e) => setjobTitle(e.target.value)}
+            />
+            <div className="col-span-2">
+              <div className="flex items-center space-x-4">
                 <Input
                   className="flex-1"
                   id="location"
@@ -132,7 +135,7 @@ export function ExperienceItem() {
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
-            </div> 
+            </div>
             <div className="flex flex-col w-[550px]">
               <div className="flex-grow overflow-y-auto">
                 {bullets.map((bullet, index) => (

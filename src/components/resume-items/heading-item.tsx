@@ -13,34 +13,33 @@ import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import React, { useState, useContext } from 'react';
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import { ResumeItem } from './types';
+import { ResumeItem } from 'types';
 import ResumeContext from '../../components/resumecontext';
-
-
-interface Bullet {
-  description: string;
-  link: string;
-}
+import { useAuth } from "@/AuthContext";
+import { HeaderItem, HeadingData } from "@/api/models/headingModel";
+import { createHeading } from "@/api/headerInterface";
 
 export function HeadingItem() {
-  const [heading, setHeading] = useState("");
-  const [bullets, setBullets] = useState<Bullet[]>([
-    { description: "", link: "" },
-  ]);
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const { addResumeItem } = useContext(ResumeContext);
+  const { currentUser } = useAuth();
+
+  const [heading, setHeading] = useState("");
+  const [bullets, setBullets] = useState<HeaderItem[]>([
+    { item: "", href: "" },
+  ]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const MAX_BULLETS = 5;
 
   const handleAddBullet = () => {
     if (bullets.length < MAX_BULLETS) {
-      setBullets([...bullets, { description: "", link: "" }]);
+      setBullets([...bullets, { item: "", href: "" }]);
     }
   };
 
   const handleBulletChange = (
     index: number,
-    field: "description" | "link",
+    field: "item" | "href",
     value: string,
   ) => {
     setBullets((prev) =>
@@ -49,7 +48,7 @@ export function HeadingItem() {
   };
 
   const resetBullets = () => {
-    setBullets([{ description: "", link: "" }]);
+    setBullets([{ item: "", href: "" }]);
     setErrorMessage("");
   };
 
@@ -62,42 +61,29 @@ export function HeadingItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const data = {
-      heading,
-      bullets,
-    };
+    const token = await currentUser?.getIdToken();
 
-    const headingItem: ResumeItem = {
-      type: "heading",
-      title: heading,
-      description: bullets,
+    const data: HeadingData = {
+      user: token!,
+      itemName: "TESTING", // TODO: Modify this value
+      name: heading,
+      items: bullets,
     };
 
     console.log(data);
 
-    // Change location later on; should only add in case of succesfull api call./
-    addResumeItem(headingItem);
+    // TODO: Put in try/catch block
+    addResumeItem(data);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        setErrorMessage("Successfully Submitted!");
-      } else {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      const response = await createHeading(data, token!);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
 
+  // TODO: Modify href to be optional!
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -134,17 +120,17 @@ export function HeadingItem() {
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
                       placeholder="Enter Description"
-                      value={bullet.description}
+                      value={bullet.item}
                       onChange={(e) =>
-                        handleBulletChange(index, "description", e.target.value)
+                        handleBulletChange(index, "item", e.target.value)
                       }
                     />
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px] ml-2" // Add margin for spacing
                       placeholder="Enter Link"
-                      value={bullet.link}
+                      value={bullet.href!}
                       onChange={(e) =>
-                        handleBulletChange(index, "link", e.target.value)
+                        handleBulletChange(index, "href", e.target.value)
                       }
                     />
                     <Button

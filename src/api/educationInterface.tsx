@@ -1,13 +1,13 @@
-import { EducationType } from "./models/educationModel";
+import { EducationData } from "./models/educationModel";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/education`;
 
 export const createEducation = async (
-  education: EducationType,
+  education: EducationData,
   token: string,
 ) => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     method: "POST",
     body: JSON.stringify(education),
     headers: {
@@ -19,7 +19,7 @@ export const createEducation = async (
 };
 
 export const getEducationById = async (fireID: string, token: string) => {
-  const response = await fetch(`${BACKEND_ROUTE}/byID/${fireID}`, {
+  const response = await fetch(`${BACKEND_ROUTE}/${fireID}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

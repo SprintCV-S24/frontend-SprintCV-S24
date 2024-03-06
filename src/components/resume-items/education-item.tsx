@@ -12,27 +12,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from 'react';
-import ResumeContext from '../../components/resumecontext';
-import { ResumeItem } from "types";
+import React, { useState, useContext } from "react";
+import ResumeContext from "../../components/resumecontext";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
-import { EducationType } from "@/api/models/educationModel";
+import { EducationData } from "@/api/models/educationModel";
 
 export function EducationItem() {
-  const [universityName, setUniversityName] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [major, setMajor] = useState("");
-  const [minor, setMinor] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-
+  // Global context(s)
   const { currentUser } = useAuth();
   const { addResumeItem } = useContext(ResumeContext);
 
-  const MAX_BULLETS = 8;
+  const [universityName, setUniversityName] = useState("");
+  const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
+  const [majorMinor, setMajorMinor] = useState("");
+  const [bullets, setBullets] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
+  const MAX_BULLETS = 8; // Arbitrary Max for UI
+
+  // Functions for handing bullet addition/subtraction
   const handleAddBullet = () => {
     if (bullets.length < MAX_BULLETS) {
       setBullets([...bullets, ""]);
@@ -54,46 +54,33 @@ export function EducationItem() {
     );
   };
 
+  // Handling for submission: calls createEducation to add to MongoDB.
+  // TODO: Allow for form to close upon submission.
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
     const token = await currentUser?.getIdToken();
 
-    const educationData: EducationType = {
-      _id:'testsetst',
-      user: token? token : "undefined",
+    const data: EducationData = {
+      user: token!,
+      itemName: "Testing", // TODO: Modify this!
       bullets: bullets,
-      itemName: universityName,
-      title: major,
+      title: universityName,
       year: date,
       location: location,
-      subtitle: minor,
+      subtitle: majorMinor,
     };
 
-    const educationItem: ResumeItem = {
-      type: "education",
-      title: universityName,
-      major: major,
-      minor: minor,
-      date: date,
-      description: bullets,
-    };
+    console.log(data);
 
-    console.log(educationData);
+    // TODO: Modify this to be within try block! Should only add upon successful back-end submission.
+    addResumeItem(data);
 
-    addResumeItem(educationItem);
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await createEducation(educationData, token!);
-
-      if (response.ok) {
-        setErrorMessage("Successfully Submitted!");
-      } else {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      const response = await createEducation(data, token!);
     } catch (error) {
+      setErrorMessage("Error: Unable to submit form. Please try again later.");
       console.error("Error submitting form:", error);
     }
   };
@@ -128,8 +115,17 @@ export function EducationItem() {
                 setUniversityName(e.target.value);
               }}
             />
-            <div className="col-span-2"> 
-              <div className="flex items-center space-x-4"> 
+            <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Major, Minor, etc."
+              value={majorMinor}
+              onChange={(e) => {
+                setMajorMinor(e.target.value);
+              }}
+            />
+            <div className="col-span-2">
+              <div className="flex items-center space-x-4">
                 <Input
                   className="flex-1"
                   id="location"
@@ -145,26 +141,7 @@ export function EducationItem() {
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
-            </div> 
-            <div className="col-span-2"> 
-              <div className="flex items-center space-x-4"> 
-                <Input
-                  className="flex-1"
-                  id="major"
-                  placeholder="Select Major"
-                  value={major}
-                  onChange={(e) => setMajor(e.target.value)}
-                />
-                <Input
-                  className="flex-1"
-                  id="Minor"
-                  placeholder="Minor (Optional)"
-                  value={minor}
-                  onChange={(e) => setMinor(e.target.value)}
-                />
-              </div>
-            </div> 
-
+            </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
                 {bullets.map((bullet, index) => (
@@ -208,9 +185,9 @@ export function EducationItem() {
             <Button
               className="mt-2"
               type="submit"
-              disabled={universityName == "" || major == "" || date == ""}
+              disabled={universityName == "" || majorMinor == "" || date == ""}
             >
-              {universityName == "" || date == "" || major == ""
+              {universityName == "" || date == "" || majorMinor == ""
                 ? "Complete form"
                 : "Add Item"}
             </Button>

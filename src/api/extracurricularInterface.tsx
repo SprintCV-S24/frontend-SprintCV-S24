@@ -1,13 +1,11 @@
-import { ActivitiesType } from "./models/extracurricularModel";
+import { ActivitiesData } from "./models/extracurricularModel";
 import { handleJsonResponse } from "./responseHelpers";
 
-const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/forms`;
+// TODO: Check this route
+const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/activities`;
 
-export const createActivity = async (
-  activity: ActivitiesType,
-  token: string,
-) => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}/events`, {
+export const createActivity = async (activity: ActivitiesData, token: string) => {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     method: "POST",
     body: JSON.stringify(activity),
     headers: {
@@ -19,7 +17,7 @@ export const createActivity = async (
 };
 
 export const getActivityById = async (fireID: string, token: string) => {
-  const response = await fetch(`${BACKEND_ROUTE}/byID/${fireID}`, {
+  const response = await fetch(`${BACKEND_ROUTE}/${fireID}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

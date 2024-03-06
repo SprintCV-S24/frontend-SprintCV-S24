@@ -12,19 +12,27 @@ import {
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from '../../components/resumecontext';
-import React, { useState, useContext } from 'react';
-import { ResumeItem } from "types";
+import ResumeContext from "../../components/resumecontext";
+import React, { useState, useContext } from "react";
+import { useAuth } from "@/AuthContext";
+import { ActivitiesData } from "@/api/models/extracurricularModel";
+import { createActivity } from "@/api/extracurricularInterface";
 
 export function ExtracurricularItem() {
+  // Global context(s)
+  const { addResumeItem } = useContext(ResumeContext);
+  const { currentUser } = useAuth();
+
   const [orgName, setOrgName] = useState("");
+  const [role, setRole] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
+  const [location, setLocation] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
+  // Functions for handing bullet addition/subtraction
   const handleAddBullet = () => {
     if (bullets.length < MAX_BULLETS) {
       setBullets([...bullets, ""]);
@@ -49,37 +57,25 @@ export function ExtracurricularItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const experienceData = {
-      orgName,
-      date,
-      bullets,
+    const token = await currentUser?.getIdToken();
+
+    const data: ActivitiesData = {
+      user: token!,
+      itemName: "TESTING", // TODO: Modify this!
+      subtitle: orgName,
+      title: role,
+      bullets: bullets,
+      year: date,
+      location: date,
     };
 
-    const extracurricularItem: ResumeItem = {
-      type: "extracurricular",
-      title: orgName,
-      date: date,
-      description: bullets,
-    };
-
-    console.log(experienceData);
-    addResumeItem(extracurricularItem)
+    // TODO: Add to try/catch block!
+    console.log(data);
+    addResumeItem(data);
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        setErrorMessage("Successfully Submitted!");
-      } else {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      const response = await createActivity(data, token!);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -107,20 +103,36 @@ export function ExtracurricularItem() {
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
-              className="w-[300px]"
-              id="item-name"
-              placeholder="Extracurricular Name"
+              className="col-span-2"
+              id="org-name"
+              placeholder="Organization Name"
               value={orgName}
               onChange={(e) => setOrgName(e.target.value)}
             />
-            <div className="flex justify-end">
-              <Input
-                className="w-[200px]"
-                id="date"
-                placeholder="Start Date - End Date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+            <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            />
+            <div className="col-span-2">
+              <div className="flex items-center space-x-4">
+                <Input
+                  className="flex-1"
+                  id="location"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+                <Input
+                  className="flex-1"
+                  id="date"
+                  placeholder="Set Date Range"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
             </div>
             <div className="flex flex-col w-[550px]">
               <div className="flex-grow overflow-y-auto">

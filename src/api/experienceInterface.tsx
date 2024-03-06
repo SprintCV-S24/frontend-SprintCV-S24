@@ -1,13 +1,15 @@
-import { ExperienceType } from "./models/experienceModel";
+import { ExperienceData } from "./models/experienceModel";
 import { handleJsonResponse } from "./responseHelpers";
 
-const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/forms`;
 
-export const createEvent = async (
-  experience: ExperienceType,
+// TODO: Check this route
+const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/experience`;
+
+export const createExperience = async (
+  experience: ExperienceData,
   token: string,
 ) => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}/events`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     method: "POST",
     body: JSON.stringify(experience),
     headers: {
@@ -19,7 +21,7 @@ export const createEvent = async (
 };
 
 export const getExperienceById = async (fireID: string, token: string) => {
-  const response = await fetch(`${BACKEND_ROUTE}/byID/${fireID}`, {
+  const response = await fetch(`${BACKEND_ROUTE}/${fireID}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -14,15 +14,20 @@ import DeleteImage from "../../assets/delete.png";
 import React, { useState, useContext } from 'react';
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from '../../components/resumecontext';
-import { ResumeItem } from "types";
+import { ProjectData } from "@/api/models/projectModel";
+import { useAuth } from "@/AuthContext";
+import { createProject } from "@/api/projectInterface";
 
 
 export function ProjectItem() {
+  const { addResumeItem } = useContext(ResumeContext);
+  const { currentUser } = useAuth();
+
   const [projectName, setProjectName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
+  const [technologies, setTechnologies] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-  const { addResumeItem } = useContext(ResumeContext);
 
   const MAX_BULLETS = 8;
 
@@ -50,38 +55,23 @@ export function ProjectItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const projectData = {
-      projectName,
-      date,
-      bullets,
-    };
+    const token = await currentUser?.getIdToken();
 
-    const projectItem: ResumeItem = {
-      type: "project",
+    const data: ProjectData = {
+      user: token!,
+      itemName: "TESTING", // TODO: Modify this!
       title: projectName,
-      description: bullets,
-      date: date,
-    };
+      subtitle: technologies,
+      bullets: bullets,
+      year: date,
+    }
 
-    console.log(projectData);
+    // TODO: Add to try/catch block.
+    console.log(data);
+    addResumeItem(data);
 
-    addResumeItem(projectItem);
-
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await fetch("/api/save-education-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        setErrorMessage("Successfully Submitted!");
-      } else {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      const response = createProject(data, token!);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -109,20 +99,29 @@ export function ProjectItem() {
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
-              className="w-[300px]"
+              className="col-span-2"
               id="item-name"
               placeholder="Project Name"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
             />
-            <div className="flex justify-end">
-              <Input
-                className="w-[200px]"
-                id="date"
-                placeholder="Start Date - End Date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+            <div className="col-span-2">
+              <div className="flex items-center space-x-4">
+                <Input
+                  className="flex-1"
+                  id="tech"
+                  placeholder="Technologies"
+                  value={technologies}
+                  onChange={(e) => setTechnologies(e.target.value)}
+                />
+                <Input
+                  className="flex-1"
+                  id="date"
+                  placeholder="Set Date Range"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
             </div>
             <div className="flex flex-col w-[550px]">
               <div className="flex-grow overflow-y-auto">
