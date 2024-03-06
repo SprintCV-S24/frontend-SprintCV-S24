@@ -1,4 +1,12 @@
-import { HeadingsType, EducationType, ExperienceType, ProjectsType, SkillsType, ActivitiesType, SectionHeadingsType } from "@/interfaces/interfaces";
+import {
+  HeadingsType,
+  EducationType,
+  ExperienceType,
+  ProjectsType,
+  SkillsType,
+  ActivitiesType,
+  SectionHeadingsType,
+} from "@/interfaces/interfaces";
 
 /**
  * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
@@ -257,7 +265,6 @@ export function sanitize(str: string): string {
 /*  -------------------Heading----------------------- */
 /*  ------------------------------------------------- */
 
-
 /**
  * Generates the LaTeX header for the resume, including personal details and contact information. This
  * function creates a LaTeX block that represents the header section of the resume, formatted according
@@ -462,7 +469,9 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
  * @param {SectionHeadingsType} activityObj - An object containing the title for the section header.
  * @returns {string} The generated LaTeX code for the section header.
  */
-export const generateSectionHeadingLatex = (activityObj: SectionHeadingsType) => {
+export const generateSectionHeadingLatex = (
+  activityObj: SectionHeadingsType,
+) => {
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\section{${sanitize(
     activityObj.title,
