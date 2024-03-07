@@ -23,7 +23,7 @@ import { generatePdfBlobSafe, initializeLatexEngines } from "./latexUtils/latexU
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { LatexPdf } from "./components/Latex";
+import { testlatex3 } from "./tests/dummyData";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -60,7 +60,7 @@ const App: React.FC = () => {
       console.log("engine initialized");
     });
     pdfInit();
-    //generatePdfBlobSafe("");
+    generatePdfBlobSafe(testlatex3);
   }, []);
 
   return (
