@@ -20,7 +20,7 @@ export const createSkill = async (skill: SkillsType, token: string) => {
 
 // GET all skills
 export const getAllSkills = async (token: string): Promise<SkillServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

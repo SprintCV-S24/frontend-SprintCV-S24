@@ -23,7 +23,7 @@ export const createSectionHeading = async (
 
 // GET all section headings
 export const getAllSectionHeadings = async (token: string): Promise<SectionHeadingServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

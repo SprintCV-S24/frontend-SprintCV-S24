@@ -23,7 +23,7 @@ export const createProject = async (
 
 // GET all projects
 export const getAllProjects = async (token: string): Promise<ProjectServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

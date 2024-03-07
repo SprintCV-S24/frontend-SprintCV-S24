@@ -23,7 +23,7 @@ export const createExperience = async (
 
 // GET all experience
 export const getAllExperience = async (token: string): Promise<ExperienceServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
