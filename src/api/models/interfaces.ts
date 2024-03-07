@@ -4,7 +4,7 @@ import { ExperienceServerExplicitType } from "./experienceModel";
 import { HeadingServerExplicitType } from "./headingModel";
 import { ProjectServerExplicitType } from "./projectModel";
 import { SkillServerExplicitType } from "./skillModel";
-import { SectionHeadingServerType } from "./subheadingModel";
+import { SectionHeadingServerExplicitType } from "./subheadingModel";
 
 export type BaseItem =
   | ActivitiesServerExplicitType
@@ -13,7 +13,7 @@ export type BaseItem =
   | HeadingServerExplicitType
   | ProjectServerExplicitType
   | SkillServerExplicitType
-  | SectionHeadingServerType;
+  | SectionHeadingServerExplicitType;
 
 export interface HeadingComponent {
   item: string;
