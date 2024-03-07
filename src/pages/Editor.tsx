@@ -30,6 +30,7 @@ import {
   generateExperienceLatex,
   generateProjectLatex,
 } from "@/latexUtils/latexString";
+import { useGetAllItems } from "@/hooks/queries";
 
 const testLatex2 = `
 %-------------------------
@@ -286,12 +287,16 @@ const Editor: React.FC = () => {
   const { resumeItems } = useContext(ResumeContext);
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [ bulletRendering, setBulletRendering ] = useState(false);
+  const [ storedToken, setStoredToken ] = useState<string | undefined>(undefined);
+  const { data, isLoading, isError } = useGetAllItems(storedToken);
 
   useEffect(() => {
     const fetchFact = async () => {
       console.log("called");
       try {
+
         const token = await currentUser?.getIdToken();
+        setStoredToken(token);
 
         const payloadHeader = {
           headers: {
