@@ -24,12 +24,15 @@ export const createHeading = async (
 
 // GET all headings
 export const getAllHeadings = async (token: string): Promise<HeadingServerExplicitType[]> => {
+  console.log("GETTING HEADING");
+
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const headings = await handleJsonResponse(response);
+  console.log(headings)
 	return headings.map((heading: HeadingsType) => ({
     ...heading,
     type: resumeItemTypes.HEADING,

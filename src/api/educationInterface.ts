@@ -23,12 +23,17 @@ export const createEducation = async (
 
 // GET all education
 export const getAllEducation = async (token: string): Promise<EducationServerExplicitType[]> => {
+  console.log("GETTIGN EDUCATION");
+
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const educations = await handleJsonResponse(response);
+
+  console.log(educations);
+
 	return educations.map((education: EducationType) => ({
     ...education,
     type: resumeItemTypes.EDUCATION,

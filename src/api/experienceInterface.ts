@@ -23,12 +23,14 @@ export const createExperience = async (
 
 // GET all experience
 export const getAllExperience = async (token: string): Promise<ExperienceServerExplicitType[]> => {
+  console.log("GETTING EXPERIENCE");
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const experiences = await handleJsonResponse(response);
+  console.log(experiences);
 	return experiences.map((experience: ExperienceType) => ({
     ...experience,
     type: resumeItemTypes.EXPERIENCE,

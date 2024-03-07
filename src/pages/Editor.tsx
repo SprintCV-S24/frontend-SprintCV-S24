@@ -316,7 +316,7 @@ const Editor: React.FC = () => {
     };
 
     void fetchFact();
-  }, [currentUser]);
+  }, [currentUser, storedToken]);
 
   const tags = Array.from({ length: 50 }).map(
     (_, i, a) => `Resume Item ${a.length - i}`,

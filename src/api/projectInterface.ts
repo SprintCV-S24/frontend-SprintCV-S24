@@ -23,12 +23,15 @@ export const createProject = async (
 
 // GET all projects
 export const getAllProjects = async (token: string): Promise<ProjectServerExplicitType[]> => {
+  console.log("GETTING PROJECTS");
+
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const projects = await handleJsonResponse(response);
+  console.log(projects);
 	return projects.map((project: ProjectsType) => ({
     ...project,
     type: resumeItemTypes.PROJECT,
