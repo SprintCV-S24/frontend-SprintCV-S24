@@ -12,16 +12,19 @@ import {
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from "../../components/resumecontext";
-import React, { useState, useContext } from "react";
+import ResumeContext from "../resumecontext";
+import React, { useState, useContext, useEffect } from "react";
 import { useAuth } from "@/AuthContext";
 import { ActivitiesType } from "@/api/models/interfaces";
 import { createActivity } from "@/api/activityInterface";
+import { useAddActivity } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function ExtracurricularItem() {
   // Global context(s)
   const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [orgName, setOrgName] = useState("");
   const [role, setRole] = useState("");
@@ -29,6 +32,25 @@ export function ExtracurricularItem() {
   const [bullets, setBullets] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddActivity(
+    queryClient,
+    storedToken,
+  );
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8;
 
@@ -61,7 +83,7 @@ export function ExtracurricularItem() {
 
     const data: ActivitiesType = {
       user: token!,
-      itemName: "TESTING", // TODO: Modify this!
+      itemName: "TESTING3", // TODO: Modify this!
       subtitle: orgName,
       title: role,
       bullets: bullets,
@@ -75,7 +97,8 @@ export function ExtracurricularItem() {
 
     // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await createActivity(data, token!);
+      // const response = await createActivity(data, token!);
+      mutate(data);
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
