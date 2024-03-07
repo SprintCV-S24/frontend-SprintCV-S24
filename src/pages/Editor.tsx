@@ -288,7 +288,7 @@ const Editor: React.FC = () => {
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [ bulletRendering, setBulletRendering ] = useState(false);
   const [ storedToken, setStoredToken ] = useState<string | undefined>(undefined);
-  const { data, isLoading, isError } = useGetAllItems(storedToken);
+  const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -376,7 +376,7 @@ const Editor: React.FC = () => {
                 Resume Items
               </h4>
               <Separator></Separator>
-              {resumeItems.map((item) => (
+              { if(isSuccess){ data.map((item) => (
                 <Card className="w-full p-2 mb-2 bg-grey">
                   <LatexPdf
                     onRenderStart={() => setBulletRendering(isPdfRendering)}
@@ -387,6 +387,7 @@ const Editor: React.FC = () => {
                   ></LatexPdf>
                 </Card>
               ))}
+              }
             </div>
           </ScrollArea>
         </div>
