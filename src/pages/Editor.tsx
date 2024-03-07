@@ -286,15 +286,14 @@ const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const { resumeItems } = useContext(ResumeContext);
   const [isPdfRendering, setIsPdfRendering] = useState(false);
-  const [ bulletRendering, setBulletRendering ] = useState(false);
-  const [ storedToken, setStoredToken ] = useState<string | undefined>(undefined);
+  const [bulletRendering, setBulletRendering] = useState(false);
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
 
   useEffect(() => {
     const fetchFact = async () => {
       console.log("called");
       try {
-
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
 
@@ -376,18 +375,17 @@ const Editor: React.FC = () => {
                 Resume Items
               </h4>
               <Separator></Separator>
-              { if(isSuccess){ data.map((item) => (
-                <Card className="w-full p-2 mb-2 bg-grey">
-                  <LatexPdf
-                    onRenderStart={() => setBulletRendering(isPdfRendering)}
-                    onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
-                    key={item._id}
-                    latexCode={generateExperienceLatex(item)}
-                    width={DOCUMENT_WIDTH}
-                  ></LatexPdf>
-                </Card>
-              ))}
-              }
+              {isSuccess &&
+                data.map((item) => (
+                  <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
+                    <LatexPdf
+                      onRenderStart={() => setBulletRendering(isPdfRendering)}
+                      onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
+                      latexCode={generateExperienceLatex(item)}
+                      width={DOCUMENT_WIDTH}
+                    ></LatexPdf>
+                  </Card>
+                ))}
             </div>
           </ScrollArea>
         </div>

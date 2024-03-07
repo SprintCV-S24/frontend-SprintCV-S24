@@ -6,6 +6,6 @@ export const useGetAllItems = (token: string | undefined) => {
 		if (token === undefined) {
 			throw new Error('Token is undefined');
 		}
-		getAllActivities(token)
+		return getAllActivities(token);
 	},});
 }
