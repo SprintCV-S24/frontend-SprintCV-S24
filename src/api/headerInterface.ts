@@ -24,7 +24,7 @@ export const createHeading = async (
 
 // GET all headings
 export const getAllHeadings = async (token: string): Promise<HeadingServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

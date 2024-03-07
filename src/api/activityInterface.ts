@@ -24,7 +24,7 @@ export const createActivity = async (
 
 // GET all activities
 export const getAllActivities = async (token: string): Promise<ActivitiesServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -23,7 +23,7 @@ export const createEducation = async (
 
 // GET all education
 export const getAllEducation = async (token: string): Promise<EducationServerExplicitType[]> => {
-  const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
+  const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
