@@ -19,6 +19,8 @@ export const getAllItems = async (token: string) => {
 
   // Combine all the arrays into one
   const combinedResults = results.flat();
+  console.log("HEREEEEEE");
+  console.log(combinedResults);
 
   return combinedResults;
 };
