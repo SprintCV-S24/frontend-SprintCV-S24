@@ -66,7 +66,7 @@ export function ExperienceItem() {
       itemName: "TESTING", // TODO: Modify this!
       title: jobTitle,
       subtitle: companyName,
-      date: date,
+      year: date,
       location: location,
     };
 

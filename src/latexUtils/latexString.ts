@@ -356,12 +356,13 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
+  console.log("HERE")
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
     activityObj.title,
-  )}}{${sanitize(activityObj.subtitle)}}{${sanitize(
-    activityObj.location,
-  )}}{${sanitize(activityObj.date)}}
+  )}}{${sanitize(activityObj.location)}}{${sanitize(
+    activityObj.subtitle,
+  )}}{${sanitize(activityObj.year)}}
     `;
 
   if (activityObj.bullets.length > 0) {

@@ -46,7 +46,7 @@ export interface ExperienceType {
   bullets: string[];
   title: string;
   subtitle: string;
-  date: string;
+  year: string;
   location: string;
 }
 

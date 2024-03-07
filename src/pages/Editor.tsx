@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { EducationItem } from "@/components/resume-items/education-item";
 import { ExperienceItem } from "@/components/resume-items/experience-item";
-import { ExtracurricularItem } from "@/components/resume-items/extracurricular-item";
+import { ExtracurricularItem } from "@/components/resume-items/activity";
 import { HeadingItem } from "@/components/resume-items/heading-item";
 import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
@@ -156,10 +156,10 @@ const testLatex2 = `
 % \\end{tabular*}
 
 \\begin{center}
-  \\textbf{\\Huge \\scshape Jack Garritano} \\\\ \\vspace{1pt}
-  \\small 314-873-8730 $|$ \\href{jack.k.garritano@vanderbilt.edu}{\\underline{jack.k.garritano@vanderbilt.edu}} $|$
-  \\href{https://linkedin.com/in/jackgarritano}{\\underline{linkedin.com/in/jackgarritano}} $|$
-  \\href{https://github.com/jackgarritano}{\\underline{github.com/jackgarritano}}
+  \\textbf{\\Huge \\scshape Aubrey Graham (Drake)} \\\\ \\vspace{1pt}
+  \\small 111-111-1111 $|$ \\href{aubrey.graham@gmail.com}{\\underline{aubrey.graham@gmail.com}} $|$
+  \\href{https://linkedin.com/in/aubreygraham}{\\underline{linkedin.com/in/aubreygraham}} $|$
+  \\href{https://github.com/aubreygraham}{\\underline{github.com/aubreygraham}}
 \\end{center}
 
 
@@ -375,7 +375,7 @@ const Editor: React.FC = () => {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
-              <Separator></Separator>
+              <Separator className="mb-2"></Separator>
               {isSuccess &&
                 data.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
@@ -391,9 +391,9 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-1/2 p-4">
-          {isPdfRendering && (
+          {/* {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
-          )}{" "}
+          )}{" "} */}
           <div className="flex items-center justify-center">
             <LatexPdf
               onRenderStart={() => setIsPdfRendering(true)}
