@@ -12,6 +12,7 @@ import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -283,6 +284,8 @@ const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
   const { resumeItems } = useContext(ResumeContext);
+  const [isPdfRendering, setIsPdfRendering] = useState(false);
+  const [ bulletRendering, setBulletRendering ] = useState(false);
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -367,9 +370,12 @@ const Editor: React.FC = () => {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
+              <Separator></Separator>
               {resumeItems.map((item) => (
                 <Card className="w-full p-2 mb-2 bg-grey">
                   <LatexPdf
+                    onRenderStart={() => setBulletRendering(isPdfRendering)}
+                    onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
                     key={item._id}
                     latexCode={generateExperienceLatex(item)}
                     width={DOCUMENT_WIDTH}
@@ -380,8 +386,16 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-1/2 p-4">
+          {isPdfRendering && (
+            <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
+          )}{" "}
           <div className="flex items-center justify-center">
-            <LatexPdf latexCode={testLatex2} width={DOCUMENT_WIDTH}></LatexPdf>
+            <LatexPdf
+              onRenderStart={() => setIsPdfRendering(true)}
+              onRenderEnd={() => setIsPdfRendering(false)}
+              latexCode={testLatex2}
+              width={DOCUMENT_WIDTH}
+            ></LatexPdf>
           </div>
         </div>
       </div>

@@ -7,7 +7,8 @@ import {
   ActivitiesType,
   SectionHeadingsType,
   BaseItem,
-} from "@/interfaces/interfaces";
+} from "../api/models/interfaces";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 /**
  * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
@@ -496,3 +497,30 @@ export const generateSectionHeadingLatex = (
   )}}\n\\vspace{-\\lastskip}\\end{document}`;
   return latexString;
 };
+
+// export const generateLatex(object: BaseItem): string => {
+//   switch(object.type){
+//     case resumeItemTypes.EDUCATION:
+//       return generateEducationLatex(object as EducationType);
+    
+//     case resumeItemTypes.EXPERIENCE:
+//       return generateExperienceLatex(object as ExperienceType);
+
+//     case resumeItemTypes.ACTIVITY:
+//       return generateActivityLatex(object as ActivitiesType);
+
+//     case resumeItemTypes.HEADING:
+//       return generateHeaderLatex(object as HeadingsType);
+
+//     case resumeItemTypes.PROJECT:
+//       return generateProjectLatex(object as ProjectsType);
+
+//     case resumeItemTypes.SECTIONHEADING:
+//       return generateSectionHeadingLatex(object as SectionHeadingsType);
+
+//     case resumeItemTypes.SKILL:
+//       return generateSectionHeadingLatex(object as SkillsType);
+//   }
+
+//   return "";
+// }

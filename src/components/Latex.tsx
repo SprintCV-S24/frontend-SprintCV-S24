@@ -190,31 +190,41 @@ const testLatex2 = `
 //  timeout so that the engine has time to initialize, you will see in console that it instantly errors when a render is called.
 //  generatePdfBlobSafe masks the problem but you will see the pdf flash when it renders, which I think is because the render method
 //  is being called twice)
-export const LatexPdf: React.FC<{ latexCode: string; width: number }> = ({
-  latexCode,
-  width,
-}) => {
+export const LatexPdf: React.FC<{
+  latexCode: string;
+  width: number;
+  onRenderStart: () => void;
+  onRenderEnd: () => void;
+}> = ({ latexCode, width, onRenderStart, onRenderEnd }) => {
   //these two can be turned on for testing
   // latexCode = testLatex2;
   // width = 500;
 
-	//TODO: improve error handling and possibly move it somewhere else
+  //TODO: improve error handling and possibly move it somewhere else
   const [error, setError] = useState<string | null>(null);
   const [blob, setBlob] = useState<Blob | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Initially loading
+
   //This custom hook renders a pdf into the provided canvas element using the
   //  provided blob at the provided width
   usePdfRenderer(blob, canvasRef, width);
 
   //Once the component mounts, generate the blob that will be used to render the pdf
   useEffect(() => {
+    setIsLoading(true);
+    onRenderStart?.(); // Call if callback is provided
     generatePdfBlobSafe(latexCode)
       .then((res) => {
         setBlob(res);
+        setIsLoading(false);
+        onRenderEnd?.();
       })
       .catch((err) => {
         setError("Error rendering latex");
         console.log(err);
+        setIsLoading(false);
+        onRenderEnd?.();
       });
   }, []);
 

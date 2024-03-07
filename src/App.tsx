@@ -19,9 +19,10 @@ import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import ResumeContext from "@/components/resumecontext";
 import { BaseItem } from "./api/models/interfaces";
-import { initializeLatexEngines } from "./latexUtils/latexUtils";
+import { generatePdfBlobSafe, initializeLatexEngines } from "./latexUtils/latexUtils";
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
+import { LatexPdf } from "./components/Latex";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -56,6 +57,7 @@ const App: React.FC = () => {
       console.log("engine initialized");
     });
     pdfInit();
+    //generatePdfBlobSafe("");
   }, []);
 
   return (
