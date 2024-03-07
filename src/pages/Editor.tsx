@@ -31,6 +31,7 @@ import {
   generateProjectLatex,
 } from "@/latexUtils/latexString";
 import { useGetAllItems } from "@/hooks/queries";
+import { generateLatex } from "@/latexUtils/latexString";
 
 const testLatex2 = `
 %-------------------------
@@ -381,7 +382,7 @@ const Editor: React.FC = () => {
                     <LatexPdf
                       onRenderStart={() => setBulletRendering(isPdfRendering)}
                       onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
-                      latexCode={generateExperienceLatex(item)}
+                      latexCode={generateLatex(item)}
                       width={DOCUMENT_WIDTH}
                     ></LatexPdf>
                   </Card>
