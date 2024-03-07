@@ -3,7 +3,7 @@ import { SkillServerExplicitType } from "./models/skillModel";
 import { handleJsonResponse } from "./responseHelpers";
 import { resumeItemTypes } from "./models/resumeItemTypes";
 
-const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/skill`;
+const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/skills`;
 
 // POST an skill item
 export const createSkill = async (skill: SkillsType, token: string) => {

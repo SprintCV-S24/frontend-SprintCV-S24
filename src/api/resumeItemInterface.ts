@@ -7,6 +7,8 @@ import { getAllSectionHeadings } from "./sectionHeadingInterface";
 import { getAllSkills } from "./skillInterface";
 
 export const getAllItems = async (token: string) => {
+	console.log("in getallitems");
+
   console.log("IN GET ALL");
   const results = await Promise.all([
     getAllActivities(token),
