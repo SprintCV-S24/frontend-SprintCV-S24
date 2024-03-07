@@ -1,5 +1,7 @@
 import { ActivitiesType } from "@/api/models/interfaces";
+import { ActivitiesServerExplicitType } from "./models/activityModel";
 import { handleJsonResponse } from "./responseHelpers";
+import { resumeItemTypes } from "./models/resumeItemTypes";
 
 // TODO: Check this route
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/activities`;
@@ -21,22 +23,30 @@ export const createActivity = async (
 };
 
 // GET all activities
-export const getAllActivities = async (token: string) => {
+export const getAllActivities = async (token: string): Promise<ActivitiesServerExplicitType[]> => {
   const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return await handleJsonResponse(response);
+  const activities = await handleJsonResponse(response);
+	return activities.map((activity: ActivitiesType) => ({
+    ...activity,
+    type: resumeItemTypes.ACTIVITY,
+  }));
 };
 
 // GET one activity item
-export const getActivityById = async (itemId: string, token: string) => {
+export const getActivityById = async (itemId: string, token: string): Promise<ActivitiesServerExplicitType> => {
   const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return await handleJsonResponse(response);
+  const activity = await handleJsonResponse(response);
+	return {
+		...activity,
+		type: resumeItemTypes.ACTIVITY,
+	};
 };
 
