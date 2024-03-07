@@ -1,5 +1,7 @@
 import { ExperienceType } from "@/api/models/interfaces";
+import { ExperienceServerExplicitType } from "./models/experienceModel";
 import { handleJsonResponse } from "./responseHelpers";
+import { resumeItemTypes } from "./models/resumeItemTypes";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/experience`;
 
@@ -20,21 +22,29 @@ export const createExperience = async (
 };
 
 // GET all experience
-export const getAllExperience = async (token: string) => {
+export const getAllExperience = async (token: string): Promise<ExperienceServerExplicitType[]> => {
   const response = await fetch(`${import.meta.env.VITE_BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return await handleJsonResponse(response);
+  const experiences = await handleJsonResponse(response);
+	return experiences.map((experience: ExperienceType) => ({
+    ...experience,
+    type: resumeItemTypes.EXPERIENCE,
+  }));
 };
 
 // GET one experience item
-export const getExperienceById = async (itemId: string, token: string) => {
+export const getExperienceById = async (itemId: string, token: string): Promise<ExperienceServerExplicitType> => {
   const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return await handleJsonResponse(response);
+  const experience = await handleJsonResponse(response);
+	return {
+		...experience,
+		type: resumeItemTypes.EXPERIENCE,
+	};
 };

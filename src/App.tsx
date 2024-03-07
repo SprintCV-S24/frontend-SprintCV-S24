@@ -22,6 +22,7 @@ import { BaseItem } from "./api/models/interfaces";
 import { generatePdfBlobSafe, initializeLatexEngines } from "./latexUtils/latexUtils";
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LatexPdf } from "./components/Latex";
 
 const router = createBrowserRouter(
@@ -36,6 +37,8 @@ const router = createBrowserRouter(
     </>,
   ),
 );
+
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   const [resumeItems, setResumeItems] = useState<BaseItem[]>([]);
@@ -62,11 +65,13 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
-      <ResumeContext.Provider
-        value={{ resumeItems, addResumeItem, removeResumeItem }}
-      >
-        <RouterProvider router={router} />
-      </ResumeContext.Provider>
+      <QueryClientProvider client={queryClient}>
+        <ResumeContext.Provider
+          value={{ resumeItems, addResumeItem, removeResumeItem }}
+        >
+          <RouterProvider router={router} />
+        </ResumeContext.Provider>
+      </QueryClientProvider>
     </AuthProvider>
   );
 };

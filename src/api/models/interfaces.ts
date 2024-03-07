@@ -70,3 +70,10 @@ export interface SectionHeadingsType extends BaseItem {
   itemName: string;
   title: string;
 }
+
+export interface SkillsType extends BaseItem {
+	user: string;
+	itemName: string;
+  title: string;
+  description: string;
+}
