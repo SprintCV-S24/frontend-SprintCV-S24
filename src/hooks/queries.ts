@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllActivities } from "@/api/activityInterface";
+import { getAllItems } from "@/api/resumeItemInterface";
 
 export const useGetAllItems = (token: string | undefined) => {
 	return useQuery({queryKey: ['allItems'], enabled: !!token, queryFn: async () => {
+		console.log("query being ran");
 		if (token === undefined) {
 			throw new Error('Token is undefined');
 		}
-		return getAllActivities(token);
+		console.log("about to call getAllActivities");
+		return await getAllItems(token);
 	},});
 }
