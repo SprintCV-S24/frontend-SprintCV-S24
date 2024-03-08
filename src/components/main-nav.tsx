@@ -8,7 +8,7 @@ export function MainNav({
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   return (
-    <NavigationMenu>
+    <NavigationMenu className="drop-shadow-sm">
       <Link to="/">
         <img
           src={LogoImage}

@@ -11,12 +11,12 @@ export const getAllItems = async (token: string) => {
 
   console.log("IN GET ALL");
   const results = await Promise.all([
+    getAllHeadings(token),
+    getAllSectionHeadings(token),
     getAllActivities(token),
     getAllEducation(token),
     getAllExperience(token),
-    getAllHeadings(token),
     getAllProjects(token),
-    getAllSectionHeadings(token),
   ]);
 
   console.log("PASSED")

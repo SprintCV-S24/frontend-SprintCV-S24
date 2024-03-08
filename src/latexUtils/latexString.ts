@@ -359,10 +359,10 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   console.log("HERE")
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
-    activityObj.title,
-  )}}{${sanitize(activityObj.location)}}{${sanitize(
     activityObj.subtitle,
-  )}}{${sanitize(activityObj.year)}}
+  )}}{${sanitize(activityObj.year)}}{${sanitize(
+    activityObj.title,
+  )}}{${sanitize(activityObj.location)}}
     `;
 
   if (activityObj.bullets.length > 0) {
@@ -461,9 +461,9 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
     activityObj.title,
-  )}}{${sanitize(activityObj.subtitle)}}{${sanitize(
-    activityObj.location,
-  )}}{${sanitize(activityObj.year)}}
+  )}}{${sanitize(activityObj.year)}}{${sanitize(
+    activityObj.subtitle,
+  )}}{${sanitize(activityObj.location)}}
     \\resumeItemListStart\n
     `;
 

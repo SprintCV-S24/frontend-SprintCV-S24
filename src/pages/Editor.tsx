@@ -287,9 +287,13 @@ const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const { resumeItems } = useContext(ResumeContext);
   const [isPdfRendering, setIsPdfRendering] = useState(false);
-  const [bulletRendering, setBulletRendering] = useState(false);
+  const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+
+  const handleBulletRenderingChange = (newRenderingState: boolean) => {
+    setIsPdfRendering(newRenderingState);
+  }
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -328,7 +332,7 @@ const Editor: React.FC = () => {
       <div className="md:hidden"></div>
       <div className="hidden flex-col md:flex">
         <div className="border-b">
-          <div className="flex h-16 items-center px-4">
+          <div className="flex h-16 items-center px-4 shadow-xl">
             <Button
               className="absolute right-2 top-2 md:right-4 md:top-4"
               variant="ghost"
@@ -370,7 +374,7 @@ const Editor: React.FC = () => {
               </DropdownMenu>
             </div>
           </Card>
-          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white">
+          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
             <div className="p-4">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
@@ -380,8 +384,8 @@ const Editor: React.FC = () => {
                 data.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
                     <LatexPdf
-                      onRenderStart={() => setBulletRendering(isPdfRendering)}
-                      onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
+                      onRenderStart={() => setDummy(dummy)}
+                      onRenderEnd={() => setDummy(dummy)}
                       latexCode={generateLatex(item)}
                       width={DOCUMENT_WIDTH}
                     ></LatexPdf>
@@ -391,13 +395,13 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-1/2 p-4">
-          {/* {isPdfRendering && (
+          {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
-          )}{" "} */}
+          )}{" "}
           <div className="flex items-center justify-center">
             <LatexPdf
-              onRenderStart={() => setIsPdfRendering(true)}
-              onRenderEnd={() => setIsPdfRendering(false)}
+              onRenderStart={() => handleBulletRenderingChange(true)}
+              onRenderEnd={() => handleBulletRenderingChange(false)}
               latexCode={testLatex2}
               width={DOCUMENT_WIDTH}
             ></LatexPdf>

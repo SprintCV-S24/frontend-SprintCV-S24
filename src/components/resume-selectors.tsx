@@ -31,6 +31,7 @@ export const ResumeSelector: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>Rename</DropdownMenuItem>
+            <DropdownMenuItem>Duplicate</DropdownMenuItem>
             <DropdownMenuItem className="text-red-500 font-bold">Delete Resume</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
