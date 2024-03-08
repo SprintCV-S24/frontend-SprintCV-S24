@@ -11,22 +11,45 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from "../../components/resumecontext";
 import { ProjectsType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
-import { createProject } from "@/api/projectInterface";
+import { useAddProject } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { generateRandomString } from "@/latexUtils/randomString";
 
 export function ProjectItem() {
   const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [projectName, setProjectName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [technologies, setTechnologies] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddProject(
+    queryClient,
+    storedToken,
+  );
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8;
 
@@ -58,7 +81,7 @@ export function ProjectItem() {
 
     const data: ProjectsType = {
       user: token!,
-      itemName: "TESTING", // TODO: Modify this!
+      itemName: generateRandomString(10), // TODO: Modify this!
       title: projectName,
       technologies: technologies,
       bullets: bullets,
@@ -70,7 +93,16 @@ export function ProjectItem() {
     addResumeItem(data);
 
     try {
-      const response = createProject(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          //TODO: close the dialog
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }

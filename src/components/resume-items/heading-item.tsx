@@ -11,22 +11,44 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from "../../components/resumecontext";
 import { useAuth } from "@/AuthContext";
 import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
-import { createHeading } from "@/api/headerInterface";
+import { useAddHeading } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { generateRandomString } from "@/latexUtils/randomString";
 
 export function HeadingItem() {
   const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [heading, setHeading] = useState("");
   const [bullets, setBullets] = useState<HeadingComponent[]>([
     { item: "", href: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState("");
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddHeading(
+    queryClient,
+    storedToken,
+  );
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 5;
 
@@ -64,7 +86,7 @@ export function HeadingItem() {
 
     const data: HeadingsType = {
       user: token!,
-      itemName: "TESTING", // TODO: Modify this value
+      itemName: generateRandomString(10), // TODO: Modify this value
       name: heading,
       items: bullets,
     };
@@ -74,9 +96,17 @@ export function HeadingItem() {
     // TODO: Put in try/catch block
     addResumeItem(data);
 
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await createHeading(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          //TODO: close the dialog
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
@@ -122,7 +152,7 @@ export function HeadingItem() {
                     {" "}
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
-                      placeholder="Enter Description"
+                      placeholder="Enter Contact Item"
                       value={bullet.item}
                       onChange={(e) =>
                         handleBulletChange(index, "item", e.target.value)
@@ -158,7 +188,7 @@ export function HeadingItem() {
                 onClick={handleAddBullet}
                 disabled={bullets.length >= MAX_BULLETS}
               >
-                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Bullet"}
+                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Contact"}
               </Button>
             </div>
           </div>
