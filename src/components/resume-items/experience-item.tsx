@@ -11,17 +11,22 @@ import {
 } from "@/components/ui/dialog";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import DeleteImage from "../../assets/delete.png";
 import ResumeContext from "../../components/resumecontext";
 import { ExperienceType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createExperience } from "@/api/experienceInterface";
+import { useAddExperience } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { generateRandomString } from "@/latexUtils/randomString";
 
 export function ExperienceItem() {
   // Global context(s)
   const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [companyName, setCompanyName] = useState("");
   const [date, setDate] = useState("");
@@ -29,6 +34,25 @@ export function ExperienceItem() {
   const [jobTitle, setjobTitle] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddExperience(
+    queryClient,
+    storedToken,
+  );
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8;
 
@@ -63,7 +87,7 @@ export function ExperienceItem() {
     const data: ExperienceType = {
       user: token!,
       bullets: bullets,
-      itemName: "TESTING", // TODO: Modify this!
+      itemName: generateRandomString(10), // TODO: Modify this!
       title: jobTitle,
       subtitle: companyName,
       year: date,
@@ -74,9 +98,19 @@ export function ExperienceItem() {
     addResumeItem(data);
 
     console.log(data);
-    // API call to save data (replace placeholder with your actual implementation)
+
     try {
-      const response = await createExperience(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          //TODO: close the dialog
+        },
+        onError: (error) => {
+          console.log(error);
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }

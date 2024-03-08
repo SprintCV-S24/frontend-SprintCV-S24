@@ -16,20 +16,10 @@ import ResumeContext from "../resumecontext";
 import React, { useState, useContext, useEffect } from "react";
 import { useAuth } from "@/AuthContext";
 import { ActivitiesType } from "@/api/models/interfaces";
-import { createActivity } from "@/api/activityInterface";
 import { useAddActivity } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 
-function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
-
+import { generateRandomString } from "@/latexUtils/randomString";
 
 export function ExtracurricularItem() {
   // Global context(s)
@@ -106,10 +96,17 @@ export function ExtracurricularItem() {
     console.log(data);
     addResumeItem(data);
 
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      // const response = await createActivity(data, token!);
-      mutate(data);
+      mutate(data, {
+        onSuccess: (response) => {
+          //TODO: close the dialog
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
