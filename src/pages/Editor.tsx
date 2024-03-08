@@ -33,6 +33,9 @@ import {
 import { useGetAllItems } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
 
+import { ReactSortable } from "react-sortablejs";
+import { BaseItem } from "@/api/models/interfaces";
+
 const testLatex2 = `
 %-------------------------
 % Resume in Latex
@@ -291,6 +294,134 @@ const Editor: React.FC = () => {
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
 
+  const [tempList, setTempList] = useState([
+    {
+      id: "65e92d4e549aa17ad29a34c6",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "TESTING",
+      bullets: [""],
+      title: "asdfasdf",
+      subtitle: "ACTIVITY",
+      year: "asdfasdfas",
+      location: "asdfasdfas",
+      __v: 0,
+      type: 2,
+    },
+    {
+      id: "65e93b75c289e4713ca2c49d",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "TESTING2",
+      bullets: [""],
+      title: "leader",
+      subtitle: "extracur",
+      year: "aug 2023",
+      location: "aug 2023",
+      __v: 0,
+      type: 2,
+    },
+    {
+      id: "65e9f3251bd06d72e3fd167f",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "3WUHBPVZNM",
+      bullets: ["bullet 1", "bullet 2"],
+      title: "Follower",
+      subtitle: "Test extra",
+      year: "jan 2026",
+      location: "st louis",
+      __v: 0,
+      type: 2,
+    },
+    {
+      id: "65e9f3251bd06d72e3fd168e",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "1NTNMEOUIF",
+      bullets: ["bullet 1", "bullet 2"],
+      title: "Follower",
+      subtitle: "Test extra",
+      year: "jan 2026",
+      location: "st louis",
+      __v: 0,
+      type: 2,
+    },
+    {
+      id: "65e9f4d7e15389226434dfb5",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "CIVR6WQXW5",
+      bullets: ["asdf"],
+      title: "a",
+      subtitle: "test item",
+      year: "a",
+      location: "a",
+      __v: 0,
+      type: 2,
+    },
+    {
+      id: "65e9faf2e15389226434dff5",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "PORP0NE3KZ",
+      bullets: ["Dean's list", "Gold star"],
+      title: "Hustler's University",
+      subtitle: "B.S. Hustling",
+      location: "Romania",
+      year: "Jul 2018 - Sep 2026",
+      __v: 0,
+      type: 0,
+    },
+    {
+      id: "65e9fea6e15389226434e06a",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "AGHVNMVR73",
+      bullets: ["asdf"],
+      title: "asdf",
+      subtitle: "aassddff",
+      year: "adsf",
+      location: "adsf",
+      __v: 0,
+      type: 1,
+    },
+    {
+      id: "65e9ff5ce15389226434e085",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "HJI5F4RETR",
+      name: "Jacky G",
+      items: [
+        {
+          item: "jackyg.com",
+          href: "jackyg.com",
+        },
+      ],
+      __v: 0,
+      type: 3,
+    },
+    {
+      id: "65ea63bbe15389226434e0a6",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "P5GLSZOKC5",
+      bullets: ["I made a personal project", "It allowed people to log in"],
+      title: "Personal project",
+      technologies: "React, cobol",
+      year: "july 1962",
+      __v: 0,
+      type: 4,
+    },
+    {
+      id: "65ea6452e15389226434e0c1",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "36X5W6U7K1",
+      title: "Projects",
+      __v: 0,
+      type: 5,
+    },
+    {
+      id: "65ea6586e15389226434e0dc",
+      user: "ZzCozEPHZOYVLw0jep3qi646cvi1",
+      itemName: "LVPE0KD2K6",
+      title: "Test",
+      __v: 0,
+      type: 5,
+    },
+  ]);
+
   useEffect(() => {
     const fetchFact = async () => {
       console.log("called");
@@ -376,7 +507,7 @@ const Editor: React.FC = () => {
                 Resume Items
               </h4>
               <Separator className="mb-2"></Separator>
-              {isSuccess &&
+              {/* {isSuccess &&
                 data.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
                     <LatexPdf
@@ -386,7 +517,20 @@ const Editor: React.FC = () => {
                       width={DOCUMENT_WIDTH}
                     ></LatexPdf>
                   </Card>
-                ))}
+                ))} */}
+              <ReactSortable animation={150} list={tempList} setList={setTempList}>
+                {isSuccess &&
+                  tempList.map((item) => (
+                    <Card className="w-full p-2 mb-2 bg-grey" key={item.id}>
+                      <LatexPdf
+                        onRenderStart={() => setBulletRendering(isPdfRendering)}
+                        onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
+                        latexCode={generateLatex(item as BaseItem)}
+                        width={DOCUMENT_WIDTH}
+                      ></LatexPdf>
+                    </Card>
+                  ))}
+              </ReactSortable>
             </div>
           </ScrollArea>
         </div>
