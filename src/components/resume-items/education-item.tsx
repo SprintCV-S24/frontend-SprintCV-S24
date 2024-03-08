@@ -12,15 +12,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import ResumeContext from "../../components/resumecontext";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
+import { useAddEducation } from "@/hooks/mutations";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { generateRandomString } from "@/latexUtils/randomString";
 
 export function EducationItem() {
   // Global context(s)
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { addResumeItem } = useContext(ResumeContext);
 
   const [universityName, setUniversityName] = useState("");
@@ -29,6 +34,25 @@ export function EducationItem() {
   const [majorMinor, setMajorMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddEducation(
+    queryClient,
+    storedToken,
+  );
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8; // Arbitrary Max for UI
 
@@ -63,7 +87,7 @@ export function EducationItem() {
 
     const data: EducationType = {
       user: token!,
-      itemName: "Testing", // TODO: Modify this!
+      itemName: generateRandomString(10), // TODO: Modify this!
       bullets: bullets,
       title: universityName,
       year: date,
@@ -76,9 +100,17 @@ export function EducationItem() {
     // TODO: Modify this to be within try block! Should only add upon successful back-end submission.
     addResumeItem(data);
 
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await createEducation(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          //TODO: close the dialog
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
