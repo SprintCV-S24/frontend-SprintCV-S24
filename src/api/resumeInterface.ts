@@ -38,8 +38,7 @@ export const createResume = async (itemName: string, token: string) => {
   return await handleJsonResponse(response);
 };
 
-//
-export const updateResumeItems = async (
+export const updateResume = async (
   updatedFields: Partial<ResumesType>,
   resumeId: string,
   token: string,
