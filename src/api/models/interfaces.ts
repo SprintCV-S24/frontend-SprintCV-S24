@@ -92,3 +92,10 @@ export interface SkillsType {
   title: string;
   description: string;
 }
+
+export interface ResumesType {
+	user: string;
+	itemName: string;
+  itemIds: string[];
+  templateId: string | null;
+}
