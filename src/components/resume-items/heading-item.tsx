@@ -32,11 +32,19 @@ export function HeadingItem() {
     { item: "", href: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddHeading(
     queryClient,
     storedToken,
   );
+
+  const resetForm = () => {
+    setHeading(""), setItemName("");
+    setBullets([]); // Reset bullets
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     const updateToken = async () => {
@@ -87,7 +95,7 @@ export function HeadingItem() {
 
     const data: HeadingsType = {
       user: token!,
-      itemName: generateRandomString(10), // TODO: Modify this value
+      itemName: itemName,
       name: heading,
       items: bullets,
     };
@@ -100,7 +108,8 @@ export function HeadingItem() {
     try {
       mutate(data, {
         onSuccess: (response) => {
-          //TODO: close the dialog
+          setIsOpen(false);
+          resetForm();
         },
         onError: (error) => {
           setErrorMessage(
@@ -115,12 +124,15 @@ export function HeadingItem() {
 
   // TODO: Modify href to be optional!
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Heading
         </Button>

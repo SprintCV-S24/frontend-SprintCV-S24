@@ -35,12 +35,23 @@ export function EducationItem() {
   const [majorMinor, setMajorMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddEducation(
     queryClient,
     storedToken,
   );
+
+  const resetForm = () => {
+    setUniversityName("");
+    setMajorMinor("");
+    setDate("");
+    setItemName("");
+    setBullets([""]); // Reset bullets
+    setLocation("");
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     const updateToken = async () => {
@@ -88,7 +99,7 @@ export function EducationItem() {
 
     const data: EducationType = {
       user: token!,
-      itemName: generateRandomString(10), // TODO: Modify this!
+      itemName: itemName,
       bullets: bullets,
       title: universityName,
       year: date,
@@ -104,7 +115,8 @@ export function EducationItem() {
     try {
       mutate(data, {
         onSuccess: (response) => {
-          //TODO: close the dialog
+          setIsOpen(false);
+          resetForm();
         },
         onError: (error) => {
           setErrorMessage(
@@ -118,12 +130,15 @@ export function EducationItem() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Education
         </Button>
@@ -138,7 +153,7 @@ export function EducationItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
-          <Input
+            <Input
               className="col-span-2"
               id="item-name"
               placeholder="Choose an Item Name"

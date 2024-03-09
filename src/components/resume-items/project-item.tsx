@@ -28,6 +28,7 @@ export function ProjectItem() {
   const [bullets, setBullets] = useState<string[]>([]);
   const [technologies, setTechnologies] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [isOpen, setIsOpen] = useState(false);
 
   const MAX_BULLETS = 8;
 
@@ -52,6 +53,15 @@ export function ProjectItem() {
     );
   };
 
+  const resetForm = () => {
+    setProjectName("");
+    setTechnologies("");
+    setDate("");
+    setItemName("");
+    setBullets([""]); // Reset bullets
+    setErrorMessage("");
+  };
+
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
@@ -59,7 +69,7 @@ export function ProjectItem() {
 
     const data: ProjectsType = {
       user: token!,
-      itemName: "TESTING", // TODO: Modify this!
+      itemName: itemName,
       title: projectName,
       technologies: technologies,
       bullets: bullets,
@@ -78,12 +88,15 @@ export function ProjectItem() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Projects
         </Button>
@@ -98,7 +111,7 @@ export function ProjectItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
-          <Input
+            <Input
               className="col-span-2"
               id="item-name"
               placeholder="Choose an Item Name"

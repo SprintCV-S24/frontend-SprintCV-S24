@@ -27,11 +27,19 @@ export function SubheadingItem() {
   const [itemName, setItemName] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [isOpen, setIsOpen] = useState(false);
+
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddSectionHeading(
     queryClient,
     storedToken,
   );
+
+  const resetForm = () => {
+    setSubtitle("");
+    setItemName("");
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     const updateToken = async () => {
@@ -46,10 +54,6 @@ export function SubheadingItem() {
     void updateToken();
   }, [currentUser]);
 
-  const resetError = () => {
-    setErrorMessage("");
-  };
-
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
@@ -57,7 +61,7 @@ export function SubheadingItem() {
 
     const data: SectionHeadingsType = {
       user: token!,
-      itemName: generateRandomString(10), // TODO: Modify this!
+      itemName: itemName,
       title: subtitle,
     };
 
@@ -68,7 +72,8 @@ export function SubheadingItem() {
     try {
       mutate(data, {
         onSuccess: (response) => {
-          //TODO: close the dialog
+          setIsOpen(false);
+          resetForm();
         },
         onError: (error) => {
           setErrorMessage(
@@ -82,12 +87,14 @@ export function SubheadingItem() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetError}
+          onClick={() => {
+            setIsOpen(true);
+          }}
         >
           Subheading
         </Button>
@@ -102,7 +109,7 @@ export function SubheadingItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="gap-4 flex">
-          <Input
+            <Input
               className="w-full"
               id="item-name"
               placeholder="Choose an Item Name"

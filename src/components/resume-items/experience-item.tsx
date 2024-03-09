@@ -35,12 +35,23 @@ export function ExperienceItem() {
   const [jobTitle, setjobTitle] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddExperience(
     queryClient,
     storedToken,
   );
+
+  const resetForm = () => {
+    setCompanyName("");
+    setjobTitle("");
+    setDate("");
+    setItemName("");
+    setBullets([""]); // Reset bullets
+    setLocation("");
+    setErrorMessage("");
+  };
 
   useEffect(() => {
     const updateToken = async () => {
@@ -82,13 +93,12 @@ export function ExperienceItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    // TODO: Test, make sure this works.
     const token = await currentUser?.getIdToken();
 
     const data: ExperienceType = {
       user: token!,
       bullets: bullets,
-      itemName: generateRandomString(10), // TODO: Modify this!
+      itemName: itemName,
       title: jobTitle,
       subtitle: companyName,
       year: date,
@@ -103,7 +113,8 @@ export function ExperienceItem() {
     try {
       mutate(data, {
         onSuccess: (response) => {
-          //TODO: close the dialog
+          setIsOpen(false);
+          resetForm();
         },
         onError: (error) => {
           console.log(error);
@@ -118,12 +129,15 @@ export function ExperienceItem() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Experience
         </Button>
@@ -138,7 +152,7 @@ export function ExperienceItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
-          <Input
+            <Input
               className="col-span-2"
               id="item-name"
               placeholder="Choose an Item Name"

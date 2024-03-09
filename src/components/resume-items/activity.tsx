@@ -33,7 +33,8 @@ export function ExtracurricularItem() {
   const [itemName, setItemName] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [location, setLocation] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); 
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -78,6 +79,16 @@ export function ExtracurricularItem() {
     );
   };
 
+  const resetForm = () => {
+    setOrgName("");
+    setRole("");
+    setDate("");
+    setItemName("");
+    setBullets([""]); // Reset bullets
+    setLocation("");
+    setErrorMessage("");
+  };
+
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
@@ -85,7 +96,7 @@ export function ExtracurricularItem() {
 
     const data: ActivitiesType = {
       user: token!,
-      itemName: itemName, // TODO: Modify this!
+      itemName: itemName,
       subtitle: orgName,
       title: role,
       bullets: bullets,
@@ -100,7 +111,8 @@ export function ExtracurricularItem() {
     try {
       mutate(data, {
         onSuccess: (response) => {
-          //TODO: close the dialog
+          setIsOpen(false);
+          resetForm();
         },
         onError: (error) => {
           setErrorMessage(
@@ -114,12 +126,15 @@ export function ExtracurricularItem() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Extracurricular
         </Button>
@@ -134,7 +149,7 @@ export function ExtracurricularItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
-          <Input
+            <Input
               className="col-span-2"
               id="item-name"
               placeholder="Choose an Item Name"
@@ -220,7 +235,7 @@ export function ExtracurricularItem() {
             >
               {orgName == "" || date == "" ? "Complete form" : "Add Item"}
             </Button>
-            <DialogClose asChild></DialogClose>
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>
