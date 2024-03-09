@@ -10,17 +10,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import React, { useState, useContext, useEffect } from "react";
-import ResumeContext from "../../components/resumecontext";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/AuthContext";
 import { SectionHeadingsType } from "@/api/models/interfaces";
 import { useAddSectionHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { generateRandomString } from "@/latexUtils/randomString";
 
 export function SubheadingItem() {
-  const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
@@ -64,10 +61,6 @@ export function SubheadingItem() {
       itemName: itemName,
       title: subtitle,
     };
-
-    // TOOD: Add to try/catch blcok
-    console.log(data);
-    addResumeItem(data);
 
     try {
       mutate(data, {

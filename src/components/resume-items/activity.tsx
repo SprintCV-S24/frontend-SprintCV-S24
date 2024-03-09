@@ -12,8 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from "../resumecontext";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/AuthContext";
 import { ActivitiesType } from "@/api/models/interfaces";
 import { useAddActivity } from "@/hooks/mutations";
@@ -23,7 +22,6 @@ import { generateRandomString } from "@/latexUtils/randomString";
 
 export function ExtracurricularItem() {
   // Global context(s)
-  const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
@@ -106,8 +104,6 @@ export function ExtracurricularItem() {
 
     // TODO: Add to try/catch block!
     console.log(data);
-    addResumeItem(data);
-
     try {
       mutate(data, {
         onSuccess: (response) => {

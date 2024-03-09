@@ -11,20 +11,17 @@ import {
 } from "@/components/ui/dialog";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import DeleteImage from "../../assets/delete.png";
-import ResumeContext from "../../components/resumecontext";
 import { ExperienceType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createExperience } from "@/api/experienceInterface";
 import { useAddExperience } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { generateRandomString } from "@/latexUtils/randomString";
 
 export function ExperienceItem() {
   // Global context(s)
-  const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
@@ -104,9 +101,6 @@ export function ExperienceItem() {
       year: date,
       location: location,
     };
-
-    // TODO: Add to try/catch block
-    addResumeItem(data);
 
     console.log(data);
 

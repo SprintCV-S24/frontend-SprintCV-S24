@@ -11,15 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from "../../components/resumecontext";
 import { ProjectsType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createProject } from "@/api/projectInterface";
 
 export function ProjectItem() {
-  const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
 
   const [itemName, setItemName] = useState("");
@@ -76,10 +74,7 @@ export function ProjectItem() {
       year: date,
     };
 
-    // TODO: Add to try/catch block.
-    console.log(data);
-    addResumeItem(data);
-
+    // TODO: NEED MUTATE
     try {
       const response = createProject(data, token!);
     } catch (error) {

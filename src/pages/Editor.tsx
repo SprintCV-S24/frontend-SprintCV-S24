@@ -22,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ResumeItem } from "types";
-import ResumeContext from "../components/resumecontext";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexPdf } from "@/components/Latex";
 import {
@@ -285,7 +284,6 @@ const DOCUMENT_WIDTH = 420;
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
-  const { resumeItems } = useContext(ResumeContext);
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);

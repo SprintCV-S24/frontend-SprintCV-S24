@@ -12,21 +12,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext, useEffect } from "react";
-import ResumeContext from "../../components/resumecontext";
+import React, { useState, useEffect } from "react";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
 import { useAddEducation } from "@/hooks/mutations";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { generateRandomString } from "@/latexUtils/randomString";
 
 export function EducationItem() {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
-  const { addResumeItem } = useContext(ResumeContext);
 
   const [itemName, setItemName] = useState("");
   const [universityName, setUniversityName] = useState("");
@@ -108,9 +105,6 @@ export function EducationItem() {
     };
 
     console.log(data);
-
-    // TODO: Modify this to be within try block! Should only add upon successful back-end submission.
-    addResumeItem(data);
 
     try {
       mutate(data, {

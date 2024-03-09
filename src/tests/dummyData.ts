@@ -39,7 +39,7 @@ export const fakeExperience: ExperienceType = {
   ],
   title: "Software Engineer",
   subtitle: "Acme Corporation",
-  date: "2022 - 2023",
+  year: "2022 - 2023",
   location: "Los Angeles, CA",
 };
 

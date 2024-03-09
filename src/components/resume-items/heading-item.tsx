@@ -11,18 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from "../../components/resumecontext";
 import { useAuth } from "@/AuthContext";
 import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
 import { useAddHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { generateRandomString } from "@/latexUtils/randomString";
 
 export function HeadingItem() {
-  const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
@@ -101,9 +98,6 @@ export function HeadingItem() {
     };
 
     console.log(data);
-
-    // TODO: Put in try/catch block
-    addResumeItem(data);
 
     try {
       mutate(data, {
