@@ -30,11 +30,13 @@ export function ExtracurricularItem() {
   const [orgName, setOrgName] = useState("");
   const [role, setRole] = useState("");
   const [date, setDate] = useState("");
+  const [itemName, setItemName] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [location, setLocation] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [errorMessage, setErrorMessage] = useState(""); 
 
   const queryClient = useQueryClient();
+
   const { mutate, isPending, isError } = useAddActivity(
     queryClient,
     storedToken,
@@ -49,7 +51,6 @@ export function ExtracurricularItem() {
         console.log(err);
       }
     };
-
     void updateToken();
   }, [currentUser]);
 
@@ -84,7 +85,7 @@ export function ExtracurricularItem() {
 
     const data: ActivitiesType = {
       user: token!,
-      itemName: generateRandomString(10), // TODO: Modify this!
+      itemName: itemName, // TODO: Modify this!
       subtitle: orgName,
       title: role,
       bullets: bullets,
@@ -133,6 +134,13 @@ export function ExtracurricularItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
+          <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Choose an Item Name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Input
               className="col-span-2"
               id="org-name"

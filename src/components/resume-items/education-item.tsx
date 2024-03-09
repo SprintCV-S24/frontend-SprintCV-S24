@@ -28,6 +28,7 @@ export function EducationItem() {
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { addResumeItem } = useContext(ResumeContext);
 
+  const [itemName, setItemName] = useState("");
   const [universityName, setUniversityName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
@@ -137,6 +138,13 @@ export function EducationItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
+          <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Choose an Item Name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Input
               className="col-span-2"
               id="item-name"

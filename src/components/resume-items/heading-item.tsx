@@ -26,6 +26,7 @@ export function HeadingItem() {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
+  const [itemName, setItemName] = useState("");
   const [heading, setHeading] = useState("");
   const [bullets, setBullets] = useState<HeadingComponent[]>([
     { item: "", href: "" },
@@ -139,6 +140,13 @@ export function HeadingItem() {
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col w-[550px]">
+              <Input
+                className="mb-2 w-full"
+                id="item-name"
+                placeholder="Choose an Item Name"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+              />
               <Input
                 className="mb-2 w-full"
                 id="item-name"

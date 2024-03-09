@@ -24,6 +24,7 @@ export function SubheadingItem() {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
+  const [itemName, setItemName] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const queryClient = useQueryClient();
@@ -101,6 +102,13 @@ export function SubheadingItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="gap-4 flex">
+          <Input
+              className="w-full"
+              id="item-name"
+              placeholder="Choose an Item Name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Input
               className="w-full"
               id="item-name"

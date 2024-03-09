@@ -11,45 +11,23 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import ResumeContext from "../../components/resumecontext";
 import { ProjectsType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
-import { useAddProject } from "@/hooks/mutations";
-import { useQueryClient } from "@tanstack/react-query";
-
-import { generateRandomString } from "@/latexUtils/randomString";
+import { createProject } from "@/api/projectInterface";
 
 export function ProjectItem() {
   const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
-  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
+  const [itemName, setItemName] = useState("");
   const [projectName, setProjectName] = useState("");
   const [date, setDate] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [technologies, setTechnologies] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-
-  const queryClient = useQueryClient();
-  const { mutate, isPending, isError } = useAddProject(
-    queryClient,
-    storedToken,
-  );
-
-  useEffect(() => {
-    const updateToken = async () => {
-      try {
-        const token = await currentUser?.getIdToken();
-        setStoredToken(token);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    void updateToken();
-  }, [currentUser]);
 
   const MAX_BULLETS = 8;
 
@@ -81,7 +59,7 @@ export function ProjectItem() {
 
     const data: ProjectsType = {
       user: token!,
-      itemName: generateRandomString(10), // TODO: Modify this!
+      itemName: "TESTING", // TODO: Modify this!
       title: projectName,
       technologies: technologies,
       bullets: bullets,
@@ -93,16 +71,7 @@ export function ProjectItem() {
     addResumeItem(data);
 
     try {
-      mutate(data, {
-        onSuccess: (response) => {
-          //TODO: close the dialog
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
+      const response = createProject(data, token!);
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
@@ -129,6 +98,13 @@ export function ProjectItem() {
         {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
+          <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Choose an Item Name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Input
               className="col-span-2"
               id="item-name"
