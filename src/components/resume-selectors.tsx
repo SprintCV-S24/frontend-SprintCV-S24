@@ -1,6 +1,6 @@
 import { Card } from "./ui/card";
 import ResumeLogo from "../assets/resume-logo.png";
-import Select from "../assets/selector.png";
+import Select from "../assets/Selector.png";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
