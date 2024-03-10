@@ -381,7 +381,7 @@ const Editor: React.FC = () => {
                 data.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
                     <LatexImage
-                      onRenderStart={() => setBulletRendering(isPdfRendering)}
+                      onRenderStart={() => setIsPdfRendering(isPdfRendering)}
                       onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
                       latexCode={generateLatex(item)}
                     ></LatexImage>
