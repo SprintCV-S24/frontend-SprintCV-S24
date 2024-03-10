@@ -149,7 +149,7 @@ export function HeadingItem() {
               <Input
                 className="mb-2 w-full"
                 id="item-name"
-                placeholder="Choose an Item Name"
+                placeholder="Unique Item Name"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
               />
@@ -166,7 +166,7 @@ export function HeadingItem() {
                     {" "}
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
-                      placeholder="Enter Contact Item"
+                      placeholder="Contact Item"
                       value={bullet.item}
                       onChange={(e) =>
                         handleBulletChange(index, "item", e.target.value)
@@ -202,7 +202,7 @@ export function HeadingItem() {
                 onClick={handleAddBullet}
                 disabled={bullets.length >= MAX_BULLETS}
               >
-                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Contact"}
+                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Contact Item"}
               </Button>
             </div>
           </div>

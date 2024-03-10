@@ -16,7 +16,6 @@ import { SectionHeadingsType } from "@/api/models/interfaces";
 import { useAddSectionHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 
-
 export function SubheadingItem() {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -105,14 +104,14 @@ export function SubheadingItem() {
             <Input
               className="w-full"
               id="item-name"
-              placeholder="Choose an Item Name"
+              placeholder="Unique Item Name"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="w-full"
               id="item-name"
-              placeholder="Enter Subheading Title"
+              placeholder="Title"
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
             />

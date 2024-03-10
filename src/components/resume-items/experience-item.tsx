@@ -19,7 +19,6 @@ import { createExperience } from "@/api/experienceInterface";
 import { useAddExperience } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 
-
 export function ExperienceItem() {
   // Global context(s)
   const { currentUser } = useAuth();
@@ -149,7 +148,7 @@ export function ExperienceItem() {
             <Input
               className="col-span-2"
               id="item-name"
-              placeholder="Choose an Item Name"
+              placeholder="Unique Item Name"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
             />
@@ -179,7 +178,7 @@ export function ExperienceItem() {
                 <Input
                   className="flex-1"
                   id="date"
-                  placeholder="Set Date Range"
+                  placeholder="Date Range"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
@@ -192,7 +191,7 @@ export function ExperienceItem() {
                     {" "}
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
-                      placeholder="Enter Responsibility"
+                      placeholder="Description"
                       value={bullet}
                       onChange={(e) =>
                         handleBulletChange(index, e.target.value)
