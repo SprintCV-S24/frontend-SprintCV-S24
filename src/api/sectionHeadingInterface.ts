@@ -23,14 +23,12 @@ export const createSectionHeading = async (
 
 // GET all section headings
 export const getAllSectionHeadings = async (token: string): Promise<SectionHeadingServerExplicitType[]> => {
-  console.log("GETTING SECTION HEADINGS");
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const sectionHeadings = await handleJsonResponse(response);
-  console.log(sectionHeadings);
 	return sectionHeadings.map((sectionHeading: SectionHeadingsType) => ({
     ...sectionHeading,
     type: resumeItemTypes.SECTIONHEADING,

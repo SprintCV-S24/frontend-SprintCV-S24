@@ -237,7 +237,6 @@ export function getLatexContentSizedPreamble(): string {
  * @returns {string} The sanitized string, safe for inclusion in LaTeX code.
  */
 export function sanitize(str: string): string {
-  console.log(str)
   const symbolMap: { [key: string]: string } = {
     "'": "\\textquotesingle{}",
     '"': "\\textquotedbl{}",
@@ -339,7 +338,6 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
   
   latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
   // If there are bullet points under each education entry
-  console.log(latexString);
 
   return latexString;
 };
@@ -356,7 +354,6 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
-  console.log("HERE")
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
     activityObj.title,

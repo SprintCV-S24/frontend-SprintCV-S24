@@ -29,10 +29,8 @@ export const getAllActivities = async (token: string): Promise<ActivitiesServerE
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("GETTIGN ACTIVITY");
 
   const activities = await handleJsonResponse(response);
-  console.log(activities);
 	return activities.map((activity: ActivitiesType) => ({
     ...activity,
     type: resumeItemTypes.ACTIVITY,

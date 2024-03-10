@@ -24,7 +24,7 @@ import {
 import { ResumeItem } from "types";
 import ResumeContext from "../components/resumecontext";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
-import { LatexPdf } from "@/components/Latex";
+import { LatexImage } from "@/components/Latex";
 import {
   generateEducationLatex,
   generateExperienceLatex,
@@ -293,7 +293,6 @@ const Editor: React.FC = () => {
 
   useEffect(() => {
     const fetchFact = async () => {
-      console.log("called");
       try {
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
@@ -379,12 +378,11 @@ const Editor: React.FC = () => {
               {isSuccess &&
                 data.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
-                    <LatexPdf
+                    <LatexImage
                       onRenderStart={() => setBulletRendering(isPdfRendering)}
                       onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
                       latexCode={generateLatex(item)}
-                      width={DOCUMENT_WIDTH}
-                    ></LatexPdf>
+                    ></LatexImage>
                   </Card>
                 ))}
             </div>
@@ -395,12 +393,11 @@ const Editor: React.FC = () => {
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "} */}
           <div className="flex items-center justify-center">
-            <LatexPdf
+            <LatexImage
               onRenderStart={() => setIsPdfRendering(true)}
               onRenderEnd={() => setIsPdfRendering(false)}
               latexCode={testLatex2}
-              width={DOCUMENT_WIDTH}
-            ></LatexPdf>
+            ></LatexImage>
           </div>
         </div>
       </div>
