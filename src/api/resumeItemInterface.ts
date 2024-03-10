@@ -7,9 +7,6 @@ import { getAllSectionHeadings } from "./sectionHeadingInterface";
 import { getAllSkills } from "./skillInterface";
 
 export const getAllItems = async (token: string) => {
-	console.log("in getallitems");
-
-  console.log("IN GET ALL");
   const results = await Promise.all([
     getAllHeadings(token),
     getAllSectionHeadings(token),
@@ -19,7 +16,6 @@ export const getAllItems = async (token: string) => {
     getAllProjects(token),
   ]);
 
-  console.log("PASSED")
   // Combine all the arrays into one
   const combinedResults = results.flat();
 

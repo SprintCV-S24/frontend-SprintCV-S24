@@ -23,7 +23,6 @@ export const createEducation = async (
 
 // GET all education
 export const getAllEducation = async (token: string): Promise<EducationServerExplicitType[]> => {
-  console.log("GETTIGN EDUCATION");
 
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
@@ -31,8 +30,6 @@ export const getAllEducation = async (token: string): Promise<EducationServerExp
     },
   });
   const educations = await handleJsonResponse(response);
-
-  console.log(educations);
 
 	return educations.map((education: EducationType) => ({
     ...education,

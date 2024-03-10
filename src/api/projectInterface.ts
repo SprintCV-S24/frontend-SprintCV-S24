@@ -29,7 +29,6 @@ export const getAllProjects = async (token: string): Promise<ProjectServerExplic
     },
   });
   const projects = await handleJsonResponse(response);
-  console.log(projects);
 	return projects.map((project: ProjectsType) => ({
     ...project,
     type: resumeItemTypes.PROJECT,
