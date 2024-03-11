@@ -1,4 +1,7 @@
 import wasmModuleUrl from "./swiftlatexpdftex.wasm?url";
+import latexCache from "./cache";
+
+const msInDay = 24 * 60 * 60 * 1000;
 
 var Module = typeof Module !== "undefined" ? Module : {};
 const TEXCACHEROOT = "/tex";
@@ -243,6 +246,25 @@ function kpse_find_file_impl(nameptr, format, _mustexist) {
     const savepath = texlive200_cache[cacheKey];
     return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
   }
+
+	latexCache.cache
+    .get(cacheKey)
+    .then((cachedFile) => {
+      if (cachedFile && cachedFile.expires > currentTime) {
+        console.log("Serving from Dexie cache:", cacheKey);
+        FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
+        pk200_cache[cacheKey] = cachedFile.savepath;
+        return allocate(
+          intArrayFromString(cachedFile.savepath),
+          "i8",
+          ALLOC_NORMAL,
+        );
+      }
+    })
+    .catch((err) => {
+      console.error("Error getting from cache", cacheKey, ": ", err);
+    });
+
   const remote_url = self.texlive_endpoint + "pdftex/" + cacheKey;
   let xhr = new XMLHttpRequest();
   xhr.open("GET", remote_url, false);
@@ -259,10 +281,25 @@ function kpse_find_file_impl(nameptr, format, _mustexist) {
     const fileid = xhr.getResponseHeader("fileid");
     const savepath = TEXCACHEROOT + "/" + fileid;
     FS.writeFile(savepath, new Uint8Array(arraybuffer));
-    texlive200_cache[cacheKey] = savepath;
-    return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
+		
+    //between -60 and 60
+		const randomOffset = Math.floor(Math.random() * (121)) - 60;
+		//randomize the expiration so that all files don't expire at the same time
+		const expires = Date.now() + 6 * msInDay + randomOffset * msInDay;
+
+    latexCache.cache
+      .put({ cacheKey, content: arraybuffer, savepath, expires })
+      .then(() => {
+        pk200_cache[cacheKey] = savepath;
+				console.log("cached file ", cacheKey);
+        return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
+      })
+      .catch((err) => {
+        console.error("Error caching file ", cacheKey, ": ", err);
+      });
   } else if (xhr.status === 301) {
-    /*console.log("TexLive File not exists "+remote_url);*/ texlive404_cache[
+    /*console.log("TexLive File not exists "+remote_url);*/ 
+		texlive404_cache[
       cacheKey
     ] = 1;
     return 0;
@@ -284,7 +321,40 @@ function kpse_find_pk_impl(nameptr, dpi) {
     const savepath = pk200_cache[cacheKey];
     return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
   }
-  const remote_url = self.texlive_endpoint + "pdftex/pk/" + cacheKey;
+
+  // try {
+  //   const cachedFile = await latexCache.cache.get(cacheKey);
+  //   const currentTime = Date.now();
+
+  //   if (cachedFile && cachedFile.expires > currentTime) {
+  //     console.log("Serving from Dexie cache:", cacheKey);
+  //     FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
+  //   	pk200_cache[cacheKey] = cachedFile.savepath;
+  //     return allocate(intArrayFromString(cachedFile.savepath), "i8", ALLOC_NORMAL);
+  //   }
+  // } catch (error) {
+  //   console.error("Error accessing Dexie cache:", error);
+  // }
+
+  latexCache.cache
+    .get(cacheKey)
+    .then((cachedFile) => {
+      if (cachedFile && cachedFile.expires > currentTime) {
+        console.log("Serving from Dexie cache:", cacheKey);
+        FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
+        pk200_cache[cacheKey] = cachedFile.savepath;
+        return allocate(
+          intArrayFromString(cachedFile.savepath),
+          "i8",
+          ALLOC_NORMAL,
+        );
+      }
+    })
+    .catch((err) => {
+      console.error("Error getting from cache", cacheKey, ": ", err);
+    });
+
+	const remote_url = self.texlive_endpoint + "pdftex/pk/" + cacheKey;
   let xhr = new XMLHttpRequest();
   xhr.open("GET", remote_url, false);
   xhr.timeout = 15e4;
@@ -301,8 +371,22 @@ function kpse_find_pk_impl(nameptr, dpi) {
     const pkid = xhr.getResponseHeader("pkid");
     const savepath = TEXCACHEROOT + "/" + pkid;
     FS.writeFile(savepath, new Uint8Array(arraybuffer));
-    pk200_cache[cacheKey] = savepath;
-    return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
+
+		//between -60 and 60
+		const randomOffset = Math.floor(Math.random() * (121)) - 60;
+		//randomize the expiration so that all files don't expire at the same time
+		const expires = Date.now() + 6 * msInDay + randomOffset * msInDay;
+
+    latexCache.cache
+      .put({ cacheKey, content: arraybuffer, savepath, expires })
+      .then(() => {
+        pk200_cache[cacheKey] = savepath;
+				console.log("cached file ", cacheKey);
+        return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
+      })
+      .catch((err) => {
+        console.error("Error caching file ", cacheKey, ": ", err);
+      });
   } else if (xhr.status === 301) {
     console.log("TexLive File not exists " + remote_url);
     pk404_cache[cacheKey] = 1;
