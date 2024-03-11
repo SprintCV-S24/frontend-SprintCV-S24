@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
@@ -24,6 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ResumeItem } from "types";
+import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
 import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
@@ -31,16 +32,25 @@ import { generateLatex } from "@/latexUtils/latexString";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInBank } from "@/hooks/mutations";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { deleteItem } from "@/api/resumeItemInterface";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
-import ECHelper from "@/components/ec-helper";
 
 const Editor: React.FC = () => {
+  const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+  const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
 
   const [itemsInBank, setItemsInBank] = useState<
     Array<BaseItem & { id: string }> | undefined
@@ -193,6 +203,19 @@ const Editor: React.FC = () => {
       try {
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
+
+        const payloadHeader = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        // below, the /api is replaced with the server url defined in vite.config.ts
+        // so, if the server is defined as "localhost:3001" in that file,
+        // the fetch url will be "localhost:3001/example"
+        //const res = await fetch("/api/example", payloadHeader);
+        // setFact(await res.text());
       } catch (err) {
         console.log(err);
       }
@@ -201,31 +224,31 @@ const Editor: React.FC = () => {
     void fetchFact();
   }, [currentUser, storedToken]);
 
+  // TODO: Make this type safe, make some other changes.
   return (
     <>
-      <div className="flex-col">
-        <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
-          <Button className="absolute right-4 top-4" variant="ghost">
-            <Link to="/profile">Profile</Link>
-          </Button>
-          <MainNav className="mx-6" />
-          <div className="ml-auto flex items-center space-x-4"></div>
+      <div className="md:hidden"></div>
+      <div className="hidden flex-col md:flex">
+        <div className="border-b">
+          <div className="flex h-16 items-center px-4 shadow-xl">
+            <Button
+              className="absolute right-2 top-2 md:right-4 md:top-4"
+              variant="ghost"
+            >
+              <Link to="/profile">Profile</Link>
+            </Button>
+            <MainNav className="mx-6" />
+            <div className="ml-auto flex items-center space-x-4"></div>
+          </div>
         </div>
       </div>
-      <div className="flex flex-row bg-[#E7ECEF] h-screen">
+      <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
         <div className="w-1/2 p-4 flex-col">
-          <Card className="h-12 ">
+          <Card className="h-12">
             <div className="flex items-center justify-between">
-              <DropdownMenu
-                open={dropdownIsOpen}
-                onOpenChange={setDropdownIsOpen}
-              >
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    className="mt-1 ml-1"
-                    variant="outline"
-                    disabled={exceedsMaximumItems()}
-                  >
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
                   </Button>
                 </DropdownMenuTrigger>
@@ -234,35 +257,23 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <HeadingItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></HeadingItem>
+                  <HeadingItem></HeadingItem>
                   <DropdownMenuSeparator />
-                  <SubheadingItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></SubheadingItem>
+                  <SubheadingItem></SubheadingItem>
                   <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></EducationItem>
+                  <EducationItem></EducationItem>
                   <DropdownMenuSeparator />
-                  <ExperienceItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></ExperienceItem>
+                  <ExperienceItem></ExperienceItem>
                   <DropdownMenuSeparator />
-                  <ExtracurricularItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></ExtracurricularItem>
+                  <ExtracurricularItem></ExtracurricularItem>
                   <DropdownMenuSeparator />
-                  <ProjectItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></ProjectItem>
+                  <ProjectItem></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </Card>
-          <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
-            <div className="p-4 w-full h-full">
+          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
+            <div className="p-4">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
@@ -330,55 +341,16 @@ const Editor: React.FC = () => {
             </div>
           </ScrollArea>
         </div>
-        <div className="w-[calc(50%-4rem)] ml-8 mt-4">
-          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
-            <Button
-              className="text-red-500 font-bold"
-              variant="outline"
-              onClick={handleClearResume}
-            >
-              Clear Resume
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={!isResumeValid()}
-              onClick={() => {
-                generatePdfAndOpen(itemsInResume);
-              }}
-            >
-              {" "}
-              Download
-              <DownloadIcon className="ml-2"></DownloadIcon>
-            </Button>
-          </Card>
+        <div className="w-1/2 p-4">
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="bg-white h-[90%] w-full min-w-6">
-            {itemsInResume && id && (
-              <ReactSortable
-                animation={150}
-                list={itemsInResume}
-                setList={createCustomSetItemsInBank(
-                  id,
-                  mutate,
-                  setItemsInResume,
-                )}
-                group="ResumeItems"
-                className="h-full w-full bg-white"
-              >
-                {itemsInResume &&
-                  itemsInResume.map((item) => (
-                    <div className="w-full" key={item._id}>
-                      <LatexImage
-                        onRenderStart={() => setDummy(dummy)}
-                        onRenderEnd={() => setDummy(dummy)}
-                        latexCode={generateLatex(item)}
-                      ></LatexImage>
-                    </div>
-                  ))}
-              </ReactSortable>
-            )}
+          <div className="flex items-center justify-center">
+            <LatexImage
+              onRenderStart={() => setIsPdfRendering(true)}
+              onRenderEnd={() => setIsPdfRendering(false)}
+              latexCode={testLatex2}
+            ></LatexImage>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { createHeading } from "../api/headerInterface";
 import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
+import { updateResume } from "@/api/resumeInterface";
 import {
   createResume,
   updateResume,
@@ -35,10 +36,7 @@ import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 
 
-export const useAddActivity = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddActivity = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (activity: ActivitiesType) => {
       if (token === undefined) {
@@ -52,10 +50,7 @@ export const useAddActivity = (
   });
 };
 
-export const useAddEducation = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddEducation = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (education: EducationType) => {
       if (token === undefined) {
@@ -69,10 +64,7 @@ export const useAddEducation = (
   });
 };
 
-export const useAddExperience = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddExperience = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (experience: ExperienceType) => {
       if (token === undefined) {
@@ -86,10 +78,7 @@ export const useAddExperience = (
   });
 };
 
-export const useAddHeading = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddHeading = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (heading: HeadingsType) => {
       if (token === undefined) {
@@ -103,10 +92,7 @@ export const useAddHeading = (
   });
 };
 
-export const useAddProject = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddProject = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (project: ProjectsType) => {
       if (token === undefined) {
@@ -120,10 +106,7 @@ export const useAddProject = (
   });
 };
 
-export const useAddSectionHeading = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddSectionHeading = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (sectionHeading: SectionHeadingsType) => {
       if (token === undefined) {
@@ -137,10 +120,7 @@ export const useAddSectionHeading = (
   });
 };
 
-export const useAddSkill = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddSkill = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (skill: SkillsType) => {
       if (token === undefined) {
