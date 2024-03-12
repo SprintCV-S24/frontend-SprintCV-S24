@@ -267,6 +267,7 @@ export async function loadFilesFromCache() {
   // console.log("pulled files from cache: ", texlive200_cache);
 }
 function kpse_find_file_impl(nameptr, format, _mustexist) {
+  console.log("starting find file");
   const reqname = UTF8ToString(nameptr);
   if (reqname.includes("/")) {
     return 0;
@@ -279,6 +280,24 @@ function kpse_find_file_impl(nameptr, format, _mustexist) {
     const savepath = texlive200_cache[cacheKey];
     return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
   }
+
+  // latexCache.cache
+  //   .get(cacheKey)
+  //   .then((cachedFile) => {
+  //     if (cachedFile && cachedFile.expires > currentTime) {
+  //       console.log("Serving from Dexie cache:", cacheKey);
+  //       FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
+  //       pk200_cache[cacheKey] = cachedFile.savepath;
+  //       return allocate(
+  //         intArrayFromString(cachedFile.savepath),
+  //         "i8",
+  //         ALLOC_NORMAL,
+  //       );
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     console.error("Error getting from cache", cacheKey, ": ", err);
+  //   });
 
   const remote_url = self.texlive_endpoint + "pdftex/" + cacheKey;
   let xhr = new XMLHttpRequest();
