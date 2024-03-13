@@ -11,14 +11,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { ProjectsType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createProject } from "@/api/projectInterface";
+import { useAddProject } from "@/hooks/mutations";
+
+import { useQueryClient } from "@tanstack/react-query";
 
 export function ProjectItem() {
   const { currentUser } = useAuth();
+	const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemName, setItemName] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -27,6 +31,26 @@ export function ProjectItem() {
   const [technologies, setTechnologies] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
+
+	const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddProject(
+    queryClient,
+    storedToken,
+  );
+
+
+	useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8;
 
@@ -76,7 +100,17 @@ export function ProjectItem() {
 
     // TODO: NEED MUTATE
     try {
-      const response = createProject(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          setIsOpen(false);
+          resetForm();
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
