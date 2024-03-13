@@ -1,5 +1,5 @@
 import wasmModuleUrl from "./swiftlatexpdftex.wasm?url";
-import latexCache from "./cache";
+import { latexCache } from "./cache";
 
 const msInDay = 24 * 60 * 60 * 1000;
 
@@ -222,6 +222,20 @@ self["onmessage"] = function (ev) {
     writeFileRoutine(data["url"], data["src"]);
   } else if (cmd === "setmainfile") {
     self.mainfile = data["url"];
+  } else if (cmd === "updateFileCache") {
+    /*
+		Main application sends "updateFileCache" message to worker after other
+		initialization is complete to signal it to call loadFilesFromCache. Main application
+		can't call it directly because it exists in a different context so a different texlive200_cache
+		will be populated. Once worker finishes calling loadFilesFromCache, it sends back an ok message,
+		so the main application knows the engine initialization is fully complete
+		*/
+    loadFilesFromCache().then((res) => {
+      self.postMessage({
+        result: "ok",
+        operationCompleted: "loadFilesFromCache",
+      });
+    });
   } else if (cmd === "grace") {
     console.error("Gracefully Close");
     self.close();
@@ -233,8 +247,24 @@ self["onmessage"] = function (ev) {
 };
 let texlive404_cache = {};
 let texlive200_cache = {};
+
+/*
+Load all files cached in indexeddb as part of initializing the latex engine.
+Ideally, files would be loaded dynamically as they are needed, but indexeddb is
+async and the latex engine requires kpse_find_file_impl to be sync 
+*/
+export async function loadFilesFromCache() {
+  const start = Date.now();
+  // const cacheArray = {};
+  await latexCache.cache.each((cachedItem) => {
+    if (cachedItem.expires > Date.now()) {
+      FS.writeFile(cachedItem.savepath, new Uint8Array(cachedItem.content));
+      texlive200_cache[cachedItem.cacheKey] = cachedItem.savepath;
+    }
+  });
+  // console.log("pulled files from cache: ", texlive200_cache);
+}
 function kpse_find_file_impl(nameptr, format, _mustexist) {
-  console.log("starting find file");
   const reqname = UTF8ToString(nameptr);
   if (reqname.includes("/")) {
     return 0;
@@ -248,30 +278,12 @@ function kpse_find_file_impl(nameptr, format, _mustexist) {
     return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
   }
 
-  // latexCache.cache
-  //   .get(cacheKey)
-  //   .then((cachedFile) => {
-  //     if (cachedFile && cachedFile.expires > currentTime) {
-  //       console.log("Serving from Dexie cache:", cacheKey);
-  //       FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
-  //       pk200_cache[cacheKey] = cachedFile.savepath;
-  //       return allocate(
-  //         intArrayFromString(cachedFile.savepath),
-  //         "i8",
-  //         ALLOC_NORMAL,
-  //       );
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.error("Error getting from cache", cacheKey, ": ", err);
-  //   });
-
   const remote_url = self.texlive_endpoint + "pdftex/" + cacheKey;
   let xhr = new XMLHttpRequest();
   xhr.open("GET", remote_url, false);
   xhr.timeout = 15e4;
   xhr.responseType = "arraybuffer";
-  /*console.log("Start downloading texlive file "+remote_url);*/ try {
+  try {
     xhr.send();
   } catch (err) {
     console.log("TexLive Download Failed " + remote_url);
@@ -282,22 +294,22 @@ function kpse_find_file_impl(nameptr, format, _mustexist) {
     const fileid = xhr.getResponseHeader("fileid");
     const savepath = TEXCACHEROOT + "/" + fileid;
     FS.writeFile(savepath, new Uint8Array(arraybuffer));
-    /*
+
     //between -60 and 60
     const randomOffset = Math.floor(Math.random() * 121) - 60;
     //randomize the expiration so that all files don't expire at the same time
     const expires = Date.now() + 6 * msInDay + randomOffset * msInDay;
-    console.log("about to cache");
+
+    // console.log("trying to cache", cacheKey);
+    //Asynchronously add file to indexeddb cache
     latexCache.cache
       .put({ cacheKey, content: arraybuffer, savepath, expires })
-      .then(() => {
-        pk200_cache[cacheKey] = savepath;
-        console.log("cached file ", cacheKey);
-      })
+      // .then(() => console.log("cached file ", cacheKey))
       .catch((err) => {
         console.error("Error caching file ", cacheKey, ": ", err);
-      });*/
+      });
 
+    texlive200_cache[cacheKey] = savepath;
     return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
   } else if (xhr.status === 301) {
     /*console.log("TexLive File not exists "+remote_url);*/
@@ -308,6 +320,7 @@ function kpse_find_file_impl(nameptr, format, _mustexist) {
 }
 let pk404_cache = {};
 let pk200_cache = {};
+//Right now, I haven't added caching logic to this function bc I don't think it is used for fetching files
 function kpse_find_pk_impl(nameptr, dpi) {
   const reqname = UTF8ToString(nameptr);
   if (reqname.includes("/")) {
@@ -321,38 +334,6 @@ function kpse_find_pk_impl(nameptr, dpi) {
     const savepath = pk200_cache[cacheKey];
     return allocate(intArrayFromString(savepath), "i8", ALLOC_NORMAL);
   }
-
-  // try {
-  //   const cachedFile = await latexCache.cache.get(cacheKey);
-  //   const currentTime = Date.now();
-
-  //   if (cachedFile && cachedFile.expires > currentTime) {
-  //     console.log("Serving from Dexie cache:", cacheKey);
-  //     FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
-  //   	pk200_cache[cacheKey] = cachedFile.savepath;
-  //     return allocate(intArrayFromString(cachedFile.savepath), "i8", ALLOC_NORMAL);
-  //   }
-  // } catch (error) {
-  //   console.error("Error accessing Dexie cache:", error);
-  // }
-
-  // latexCache.cache
-  //   .get(cacheKey)
-  //   .then((cachedFile) => {
-  //     if (cachedFile && cachedFile.expires > currentTime) {
-  //       console.log("Serving from Dexie cache:", cacheKey);
-  //       FS.writeFile(cachedFile.savepath, new Uint8Array(cachedFile.content));
-  //       pk200_cache[cacheKey] = cachedFile.savepath;
-  //       return allocate(
-  //         intArrayFromString(cachedFile.savepath),
-  //         "i8",
-  //         ALLOC_NORMAL,
-  //       );
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.error("Error getting from cache", cacheKey, ": ", err);
-  //   });
 
   const remote_url = self.texlive_endpoint + "pdftex/pk/" + cacheKey;
   let xhr = new XMLHttpRequest();

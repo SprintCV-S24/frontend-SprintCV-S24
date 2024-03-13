@@ -15,6 +15,7 @@
  ********************************************************************************/
 
 import Worker from './swiftlatexpdftex.js?worker';
+import { loadFilesFromCache } from './swiftlatexpdftex';
 
 
 export enum EngineStatus {
@@ -44,14 +45,30 @@ export class PdfTeXEngine {
     }
     this.latexWorkerStatus = EngineStatus.Init;
     await new Promise<void>((resolve, reject) => {
-      // this.latexWorker = new Worker(ENGINE_PATH);
+      let firstOkReceived = false;
 			this.latexWorker = new Worker();
       this.latexWorker.onmessage = (ev: any) => {
         const data: any = ev["data"];
         const cmd: string = data["result"] as string;
         if (cmd === "ok") {
-          this.latexWorkerStatus = EngineStatus.Ready;
-          resolve();
+					/*
+					This code will first receive an ok message signaling that the main engine initialization
+					is complete. Then it will send a message telling to worker to call loadFilesFromCache. Once
+					the worker responds that it has done that successfully, this code will resolve, indicating 
+					that the engine is ready to compile latex
+					*/
+					if (data.operationCompleted === "loadFilesFromCache") {
+						this.latexWorkerStatus = EngineStatus.Ready;
+          	resolve();
+					} else if (!firstOkReceived) {
+						/*
+						using firstOkReceived because the engine code has multiple places it could send back
+						an "ok" message and I want to make sure we only send updateFileCache message once
+						*/
+						firstOkReceived = true;
+						this.latexWorker.postMessage({ cmd: 'updateFileCache' });
+					}
+          
         } else {
           this.latexWorkerStatus = EngineStatus.Error;
           reject();

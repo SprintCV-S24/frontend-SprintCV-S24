@@ -1,9 +1,13 @@
-import Dexie, { Table } from 'dexie';
+import Dexie, { Table } from "dexie";
+
+/*
+The schema and initialization for the indexeddb persistent cache
+*/
 
 export interface CacheItem {
   cacheKey: string;
   content: ArrayBuffer;
-	savepath: string,
+  savepath: string;
   expires: number;
 }
 
@@ -13,9 +17,9 @@ class LatexCache extends Dexie {
   cache!: Table<CacheItem>;
 
   constructor() {
-    super('cache');
+    super("cache");
     this.version(1).stores({
-      cache: '&cacheKey, content, savepath, expires' // Primary key and indexed props
+      cache: "&cacheKey, content, savepath, expires", // Primary key and props
     });
   }
 }
