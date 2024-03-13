@@ -11,15 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { useAuth } from "@/AuthContext";
 import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
 import { useAddHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-
-export function HeadingItem() {
+export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
@@ -88,7 +88,7 @@ export function HeadingItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
     const data: HeadingsType = {
       user: token!,
@@ -103,6 +103,7 @@ export function HeadingItem() {
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
+					setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -207,8 +208,21 @@ export function HeadingItem() {
             </div>
           </div>
           <DialogFooter>
-            <Button className="mt-2" type="submit" disabled={heading == ""}>
-              {heading == "" ? "Complete form" : "Add Item"}
+            <Button
+              className="mt-2"
+              type="submit"
+              disabled={isPending || heading == ""}
+            >
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : heading == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

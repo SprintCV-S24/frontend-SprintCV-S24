@@ -11,18 +11,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { ProjectsType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createProject } from "@/api/projectInterface";
 import { useAddProject } from "@/hooks/mutations";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-export function ProjectItem() {
+export function ProjectItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   const { currentUser } = useAuth();
-	const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemName, setItemName] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -32,14 +33,13 @@ export function ProjectItem() {
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
 
-	const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddProject(
     queryClient,
     storedToken,
   );
 
-
-	useEffect(() => {
+  useEffect(() => {
     const updateToken = async () => {
       try {
         const token = await currentUser?.getIdToken();
@@ -87,9 +87,9 @@ export function ProjectItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
-		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+    const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
     const data: ProjectsType = {
       user: token!,
@@ -104,6 +104,7 @@ export function ProjectItem() {
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
+					setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -138,7 +139,11 @@ export function ProjectItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -213,8 +218,21 @@ export function ProjectItem() {
             </div>
           </div>
           <DialogFooter>
-            <Button className="mt-2" type="submit" disabled={projectName == ""}>
-              {projectName == "" ? "Complete form" : "Add Item"}
+            <Button
+              className="mt-2"
+              type="submit"
+              disabled={isPending || projectName == ""}
+            >
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : projectName == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

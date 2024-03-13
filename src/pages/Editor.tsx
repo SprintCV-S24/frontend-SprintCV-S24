@@ -288,10 +288,11 @@ const Editor: React.FC = () => {
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+  const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
     setIsPdfRendering(newRenderingState);
-  }
+  };
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -345,7 +346,7 @@ const Editor: React.FC = () => {
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12">
             <div className="flex items-center justify-between">
-              <DropdownMenu>
+              <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
                 <DropdownMenuTrigger>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
@@ -356,17 +357,17 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <HeadingItem></HeadingItem>
+                  <HeadingItem setDropdownIsOpen={setDropdownIsOpen}></HeadingItem>
                   <DropdownMenuSeparator />
-                  <SubheadingItem></SubheadingItem>
+                  <SubheadingItem setDropdownIsOpen={setDropdownIsOpen}></SubheadingItem>
                   <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem></EducationItem>
+                  <EducationItem setDropdownIsOpen={setDropdownIsOpen}></EducationItem>
                   <DropdownMenuSeparator />
-                  <ExperienceItem></ExperienceItem>
+                  <ExperienceItem setDropdownIsOpen={setDropdownIsOpen}></ExperienceItem>
                   <DropdownMenuSeparator />
-                  <ExtracurricularItem></ExtracurricularItem>
+                  <ExtracurricularItem setDropdownIsOpen={setDropdownIsOpen}></ExtracurricularItem>
                   <DropdownMenuSeparator />
-                  <ProjectItem></ProjectItem>
+                  <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

@@ -12,15 +12,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
 import { useAddEducation } from "@/hooks/mutations";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-export function EducationItem() {
+export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -92,9 +93,9 @@ export function EducationItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
-		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+    const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
     const data: EducationType = {
       user: token!,
@@ -112,6 +113,7 @@ export function EducationItem() {
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
+					setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -146,7 +148,11 @@ export function EducationItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -235,11 +241,23 @@ export function EducationItem() {
             <Button
               className="mt-2"
               type="submit"
-              disabled={universityName == "" || majorMinor == "" || date == ""}
+              disabled={
+                isPending ||
+                universityName == "" ||
+                majorMinor == "" ||
+                date == ""
+              }
             >
-              {universityName == "" || date == "" || majorMinor == ""
-                ? "Complete form"
-                : "Add Item"}
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : universityName == "" || date == "" || majorMinor == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

@@ -10,13 +10,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useAuth } from "@/AuthContext";
 import { SectionHeadingsType } from "@/api/models/interfaces";
 import { useAddSectionHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function SubheadingItem() {
+export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
@@ -53,7 +54,7 @@ export function SubheadingItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
     const data: SectionHeadingsType = {
       user: token!,
@@ -65,6 +66,7 @@ export function SubheadingItem() {
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
+					setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -98,7 +100,11 @@ export function SubheadingItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="gap-4 flex">
             <Input
@@ -117,8 +123,21 @@ export function SubheadingItem() {
             />
           </div>
           <DialogFooter>
-            <Button className="mt-2" type="submit" disabled={subtitle == ""}>
-              {subtitle == "" ? "Complete form" : "Add Item"}
+            <Button
+              className="mt-2"
+              type="submit"
+              disabled={isPending || subtitle == ""}
+            >
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : subtitle == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

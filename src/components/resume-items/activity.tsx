@@ -12,15 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useAuth } from "@/AuthContext";
 import { ActivitiesType } from "@/api/models/interfaces";
 import { useAddActivity } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-import { generateRandomString } from "@/latexUtils/randomString";
-
-export function ExtracurricularItem() {
+export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -90,9 +89,9 @@ export function ExtracurricularItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
-		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+    const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
     const data: ActivitiesType = {
       user: token!,
@@ -110,6 +109,7 @@ export function ExtracurricularItem() {
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
+					setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -144,7 +144,11 @@ export function ExtracurricularItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -229,9 +233,18 @@ export function ExtracurricularItem() {
             <Button
               className="mt-2"
               type="submit"
-              disabled={orgName == "" || date == ""}
+              disabled={isPending || orgName == "" || date == ""}
             >
-              {orgName == "" || date == "" ? "Complete form" : "Add Item"}
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : orgName == "" || date == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>

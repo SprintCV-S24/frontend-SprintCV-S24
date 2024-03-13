@@ -11,15 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import DeleteImage from "../../assets/delete.png";
 import { ExperienceType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createExperience } from "@/api/experienceInterface";
 import { useAddExperience } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function ExperienceItem() {
+export function ExperienceItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -89,9 +90,9 @@ export function ExperienceItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
-		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+    const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
     const data: ExperienceType = {
       user: token!,
@@ -109,6 +110,7 @@ export function ExperienceItem() {
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
+					setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -144,7 +146,11 @@ export function ExperienceItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -229,9 +235,18 @@ export function ExperienceItem() {
             <Button
               className="mt-2"
               type="submit"
-              disabled={companyName == "" || date == ""}
+              disabled={isPending || companyName == "" || date == ""}
             >
-              {companyName == "" || date == "" ? "Complete form" : "Add Item"}
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : companyName == "" || date == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>
