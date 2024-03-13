@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import wasmModuleUrl from "./swiftlatexpdftex.wasm?url";
 import { latexCache } from "./cache";
 
