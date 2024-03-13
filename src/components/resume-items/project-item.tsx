@@ -89,16 +89,17 @@ export function ProjectItem() {
 
     const token = await currentUser?.getIdToken();
 
+		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+
     const data: ProjectsType = {
       user: token!,
       itemName: itemName,
       title: projectName,
       technologies: technologies,
-      bullets: bullets,
+      bullets: filteredBullets,
       year: date,
     };
 
-    // TODO: NEED MUTATE
     try {
       mutate(data, {
         onSuccess: (response) => {
@@ -137,7 +138,7 @@ export function ProjectItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input

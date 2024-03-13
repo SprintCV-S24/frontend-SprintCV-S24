@@ -91,9 +91,11 @@ export function ExperienceItem() {
 
     const token = await currentUser?.getIdToken();
 
+		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+
     const data: ExperienceType = {
       user: token!,
-      bullets: bullets,
+      bullets: filteredBullets,
       itemName: itemName,
       title: jobTitle,
       subtitle: companyName,
@@ -142,7 +144,7 @@ export function ExperienceItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input

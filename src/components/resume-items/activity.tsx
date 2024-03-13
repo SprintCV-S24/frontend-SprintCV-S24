@@ -92,12 +92,14 @@ export function ExtracurricularItem() {
 
     const token = await currentUser?.getIdToken();
 
+		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+
     const data: ActivitiesType = {
       user: token!,
       itemName: itemName,
       subtitle: orgName,
       title: role,
-      bullets: bullets,
+      bullets: filteredBullets,
       year: date,
       location: location,
     };
@@ -142,7 +144,7 @@ export function ExtracurricularItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input

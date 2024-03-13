@@ -94,10 +94,12 @@ export function EducationItem() {
 
     const token = await currentUser?.getIdToken();
 
+		const filteredBullets = bullets.filter(bullet => /\S/.test(bullet));
+
     const data: EducationType = {
       user: token!,
       itemName: itemName,
-      bullets: bullets,
+      bullets: filteredBullets,
       title: universityName,
       year: date,
       location: location,
@@ -144,7 +146,7 @@ export function EducationItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && <div className="error-message text-red-400 font-bold">{errorMessage}</div>}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
