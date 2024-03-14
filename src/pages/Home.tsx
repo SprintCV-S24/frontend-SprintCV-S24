@@ -41,9 +41,9 @@ const Home: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Your current resumes are here!
             </p>
-            <Link to="/editor">
+            {/* <Link to="/editor"> */}
               <ResumeSelector></ResumeSelector>
-              </Link>
+              {/* </Link> */}
           </div>
         </div>
       </div>

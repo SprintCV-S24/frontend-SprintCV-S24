@@ -10,33 +10,41 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Link, useNavigate } from "react-router-dom";
 import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 
 export const ResumeSelector: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <Card className="w-[150px] h-[150px]">
-      <div className="flex items-center justify-between p-1">
-        <div className="flex items-center space-x-2 ml-3">
-          <h2 className="text-xs">Resume Name</h2>
+      <Card
+        className="w-[150px] h-[150px] cursor-pointer"
+        onClick={() => {
+          navigate("/editor");
+        }}
+      >
+        <div className="flex items-center justify-between p-1">
+          <div className="flex items-center space-x-2 ml-3">
+            <h2 className="text-xs">Resume Name</h2>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" className="w-10 h-10 p-0">
+                <DotsVerticalIcon></DotsVerticalIcon>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>Rename</DropdownMenuItem>
+              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-500 font-bold">
+                Delete Resume
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" className="w-10 h-10 p-0">
-              <DotsVerticalIcon></DotsVerticalIcon>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>Rename</DropdownMenuItem>
-            <DropdownMenuItem>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-500 font-bold">
-              Delete Resume
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="flex justify-center ">
-        <FileTextIcon className="w-24 h-20 text-[#274c77]"></FileTextIcon>
-      </div>
-    </Card>
+        <div className="flex justify-center ">
+          <FileTextIcon className="w-24 h-20 text-[#274c77]"></FileTextIcon>
+        </div>
+      </Card>
   );
 };
