@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ResumeSelector } from "@/components/resume-selectors";
+import { ResumeSelector } from "@/components/ResumeSelector";
 
 
 const Home: React.FC = () => {
