@@ -12,10 +12,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ResumeSelector } from "@/components/ResumeSelector";
-
+import { useGetAllResumes } from "@/hooks/queries";
+import { ResumesServerType } from "@/api/models/resumeModel";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+  const { data, isLoading, isError, isSuccess } = useGetAllResumes(storedToken);
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   return (
     <>
@@ -35,15 +51,24 @@ const Home: React.FC = () => {
         </div>
       </div>
       <div className="lg:p-8 bg-[#E7ECEF] h-screen">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 mx-2">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome!</h1>
             <p className="text-sm text-muted-foreground">
               Your current resumes are here!
             </p>
-            {/* <Link to="/editor"> */}
-              <ResumeSelector></ResumeSelector>
-              {/* </Link> */}
+            <div
+              className="w-full h-full grid gap-4 justify-center justify-items-center"
+              style={{
+                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+              }}
+            >
+              {isSuccess &&
+                data.map((resume: ResumesServerType) => {
+                  return <ResumeSelector resume={resume}></ResumeSelector>;
+                })}
+              {/* <ResumeSelector></ResumeSelector> */}
+            </div>
           </div>
         </div>
       </div>
