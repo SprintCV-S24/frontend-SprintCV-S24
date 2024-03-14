@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
-import { usePdfRenderer } from "@/latexUtils/pdfUtils";
+import { usePdfRenderer, usePngRenderer } from "@/latexUtils/pdfUtils";
 
 const testLatex = `\\documentclass[12pt]{article}
 \\usepackage{lingmacros}
@@ -190,46 +190,45 @@ const testLatex2 = `
 //  timeout so that the engine has time to initialize, you will see in console that it instantly errors when a render is called.
 //  generatePdfBlobSafe masks the problem but you will see the pdf flash when it renders, which I think is because the render method
 //  is being called twice)
-export const LatexPdf: React.FC<{ latexCode: string; width: number }> = ({
-  latexCode,
-  width,
-}) => {
-  //these two can be turned on for testing
-  // latexCode = testLatex2;
-  // width = 500;
+export const LatexImage: React.FC<{
+  latexCode: string;
+  onRenderStart?: () => void;
+  onRenderEnd?: () => void;
+}> = ({ latexCode, onRenderStart, onRenderEnd }) => {
 
-	//TODO: improve error handling and possibly move it somewhere else
+  //TODO: improve error handling and possibly move it somewhere else
   const [error, setError] = useState<string | null>(null);
   const [blob, setBlob] = useState<Blob | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  //This custom hook renders a pdf into the provided canvas element using the
-  //  provided blob at the provided width
-  usePdfRenderer(blob, canvasRef, width);
+  const [imageSrc, setImageSrc] = useState("");
+
+  //This custom hook renders an image using the provided blob
+  usePngRenderer(blob, canvasRef, setImageSrc, setError, onRenderEnd);
 
   //Once the component mounts, generate the blob that will be used to render the pdf
   useEffect(() => {
+    onRenderStart?.(); // Call if callback is provided
+
+    const canvas = document.createElement("canvas");
+    canvasRef.current = canvas;
+
     generatePdfBlobSafe(latexCode)
       .then((res) => {
         setBlob(res);
+        onRenderEnd?.();
       })
       .catch((err) => {
         setError("Error rendering latex");
         console.log(err);
+        onRenderEnd?.();
       });
-  }, []);
+  }, [latexCode]);
 
-  // const objectURL = blob != null ? URL.createObjectURL(blob) : "";
+  //TODO: improve loading and error styling
+  if (error != null) return <div>{error}</div>;
 
-  return error == null ? <canvas ref={canvasRef}></canvas> : <div>{error}</div>;
-
-  // objectURL == "" ? (
-  //   <div></div>
-  // ) : (
-  //   <embed
-  //     src={objectURL}
-  //     width="100%"
-  //     height="400px"
-  //     type="application/pdf"
-  //   ></embed>
-  // )
+	//it ends up working better checking imageSrc directly rather than having a dedicated
+	//  loading state b/c this way there is no small period where a blank image is displayed
+	if (!imageSrc) return <div>Loading...</div>
+  return <img src={imageSrc} alt="Rendered Latex" />;
 };

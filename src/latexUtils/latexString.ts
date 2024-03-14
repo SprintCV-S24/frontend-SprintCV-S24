@@ -6,7 +6,9 @@ import {
   SkillsType,
   ActivitiesType,
   SectionHeadingsType,
-} from "@/interfaces/interfaces";
+  BaseItem,
+} from "../api/models/interfaces";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 /**
  * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
@@ -131,6 +133,7 @@ export function getLatexContentSizedPreamble(): string {
         \\usepackage{enumitem}
         \\usepackage[hidelinks]{hyperref}
         \\usepackage{fancyhdr}
+        \\usepackage{etoolbox}
         \\usepackage[english]{babel}
         \\usepackage{tabularx}
         \\input{glyphtounicode}
@@ -251,7 +254,7 @@ export function sanitize(str: string): string {
     "#": "\\#",
     _: "\\_",
     "%": "\\%",
-    "/": "\\textslash{}",
+    "/": "\\textbackslash{}",
     "[": "\\textlbrack{}",
     "]": "\\textrbrack{}",
   };
@@ -324,13 +327,17 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
       {${sanitize(educationObj.subtitle)}}{${sanitize(educationObj.year)}}
     `;
 
-  // If there are bullet points under each education entry
-  latexString += `\\resumeItemListStart\n`;
-  educationObj.bullets.forEach((bullet) => {
-    latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
-  });
-  latexString += `\\resumeItemListEnd\n`;
+  if (educationObj.bullets.length > 0) {
+    latexString += `\\resumeItemListStart\n`;
+    educationObj.bullets.forEach((bullet) => {
+      latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
+    latexString += `\\resumeItemListEnd\n`;
+  }
+
   latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
+  // If there are bullet points under each education entry
+
   return latexString;
 };
 
@@ -348,19 +355,22 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
-    activityObj.title,
-  )}}{${sanitize(activityObj.subtitle)}}{${sanitize(
+    activityObj.subtitle,
+  )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
     activityObj.location,
-  )}}{${sanitize(activityObj.date)}}
-    \\resumeItemListStart\n
+  )}}
     `;
 
-  activityObj.bullets.forEach((bulletPoint) => {
-    latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
-  });
+  if (activityObj.bullets.length > 0) {
+    latexString += `\\resumeItemListStart\n`;
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+    latexString += "\\resumeItemListEnd\n";
+  }
 
   latexString +=
-    "\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
 
   return latexString;
 };
@@ -389,13 +399,16 @@ export const generateProjectLatex = (projectObj: ProjectsType): string => {
 
   latexString += `\\resumeProjectHeading\n`;
   latexString += `{${titleWithTechnologies}}{${sanitize(projectObj.year)}}\n`;
-  latexString += `\\resumeItemListStart\n`;
 
-  projectObj.bullets.forEach((bullet) => {
-    latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
-  });
+  if (projectObj.bullets.length > 0) {
+    latexString += `\\resumeItemListStart\n`;
+    projectObj.bullets.forEach((bullet) => {
+      latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
 
-  latexString += "\\resumeItemListEnd\n";
+    latexString += "\\resumeItemListEnd\n";
+  }
+
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
 
@@ -441,18 +454,20 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
     activityObj.title,
-  )}}{${sanitize(activityObj.subtitle)}}{${sanitize(
-    activityObj.location,
-  )}}{${sanitize(activityObj.year)}}
-    \\resumeItemListStart\n
-    `;
+  )}}{${sanitize(activityObj.year)}}{${sanitize(
+    activityObj.subtitle,
+  )}}{${sanitize(activityObj.location)}}`;
 
-  activityObj.bullets.forEach((bulletPoint) => {
-    latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
-  });
+  if (activityObj.bullets.length > 0) {
+		latexString += `\\resumeItemListStart\n`;
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+		latexString += `\\resumeItemListEnd\n`;
+  }
 
   latexString +=
-    "\\resumeItemListEnd\n\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
 
   return latexString;
 };
@@ -477,4 +492,31 @@ export const generateSectionHeadingLatex = (
     activityObj.title,
   )}}\n\\vspace{-\\lastskip}\\end{document}`;
   return latexString;
+};
+
+export const generateLatex = (object: BaseItem): string => {
+  switch (object.type) {
+    case resumeItemTypes.EDUCATION:
+      return generateEducationLatex(object as EducationType);
+
+    case resumeItemTypes.EXPERIENCE:
+      return generateExperienceLatex(object as ExperienceType);
+
+    case resumeItemTypes.ACTIVITY:
+      return generateActivityLatex(object as ActivitiesType);
+
+    case resumeItemTypes.HEADING:
+      return generateHeaderLatex(object as HeadingsType);
+
+    case resumeItemTypes.PROJECT:
+      return generateProjectLatex(object as ProjectsType);
+
+    case resumeItemTypes.SECTIONHEADING:
+      return generateSectionHeadingLatex(object as SectionHeadingsType);
+
+    case resumeItemTypes.SKILL:
+      return generateSectionHeadingLatex(object as SkillsType);
+  }
+
+  return "";
 };

@@ -1,4 +1,21 @@
-interface HeadingItem {
+import { ActivitiesServerExplicitType } from "./activityModel";
+import { EducationServerExplicitType } from "./educationModel";
+import { ExperienceServerExplicitType } from "./experienceModel";
+import { HeadingServerExplicitType } from "./headingModel";
+import { ProjectServerExplicitType } from "./projectModel";
+import { SkillServerExplicitType } from "./skillModel";
+import { SectionHeadingServerExplicitType } from "./subheadingModel";
+
+export type BaseItem =
+  | ActivitiesServerExplicitType
+  | EducationServerExplicitType
+  | ExperienceServerExplicitType
+  | HeadingServerExplicitType
+  | ProjectServerExplicitType
+  | SkillServerExplicitType
+  | SectionHeadingServerExplicitType;
+
+export interface HeadingComponent {
   item: string;
   href: string | null;
 }
@@ -8,7 +25,7 @@ export interface HeadingsType {
   user: string;
   itemName: string;
   name: string;
-  items: HeadingItem[];
+  items: HeadingComponent[];
 }
 
 // Interface for Education document
@@ -29,7 +46,7 @@ export interface ExperienceType {
   bullets: string[];
   title: string;
   subtitle: string;
-  date: string;
+  year: string;
   location: string;
 }
 
@@ -67,4 +84,18 @@ export interface SectionHeadingsType {
   user: string;
   itemName: string;
   title: string;
+}
+
+export interface SkillsType {
+  user: string;
+  itemName: string;
+  title: string;
+  description: string;
+}
+
+export interface ResumesType {
+	user: string;
+	itemName: string;
+  itemIds: string[];
+  templateId: string | null;
 }

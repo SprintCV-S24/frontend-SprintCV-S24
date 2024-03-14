@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ResumeSelector } from "@/components/resume-selectors";
+
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
@@ -20,7 +22,7 @@ const Home: React.FC = () => {
       <div className="md:hidden"></div>
       <div className="hidden flex-col md:flex">
         <div className="border-b">
-          <div className="flex h-16 items-center px-4">
+          <div className="flex h-16 items-center px-4 shadow-xl">
             <Button
               className="absolute right-2 top-2 md:right-4 md:top-4"
               variant="ghost"
@@ -37,8 +39,11 @@ const Home: React.FC = () => {
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome!</h1>
             <p className="text-sm text-muted-foreground">
-              Use the navigation bar above to start making your resume!
+              Your current resumes are here!
             </p>
+            <Link to="/editor">
+              <ResumeSelector></ResumeSelector>
+              </Link>
           </div>
         </div>
       </div>
