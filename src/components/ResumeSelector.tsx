@@ -36,7 +36,7 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
           </h2>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-10 h-10 p-0">
               <DotsVerticalIcon></DotsVerticalIcon>
             </Button>

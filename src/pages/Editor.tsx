@@ -135,7 +135,7 @@ const Editor: React.FC = () => {
                 open={dropdownIsOpen}
                 onOpenChange={setDropdownIsOpen}
               >
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
                   </Button>
