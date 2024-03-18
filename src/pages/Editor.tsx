@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
@@ -21,263 +21,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResumeItem } from "types";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
+import { BaseItem } from "@/api/models/interfaces";
 import {
   generateEducationLatex,
   generateExperienceLatex,
   generateProjectLatex,
 } from "@/latexUtils/latexString";
-import { useGetAllItems } from "@/hooks/queries";
+import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
-
-const testLatex2 = `
-%-------------------------
-% Resume in Latex
-% Author : Jake Gutierrez
-% Based off of: https://github.com/sb2nov/resume
-% License : MIT
-%------------------------
-
-\\documentclass[letterpaper,11pt]{article}
-
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-\\input{glyphtounicode}
-
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \\usepackage[sfdefault]{FiraSans}
-% \\usepackage[sfdefault]{roboto}
-% \\usepackage[sfdefault]{noto-sans}
-% \\usepackage[default]{sourcesanspro}
-
-% serif
-% \\usepackage{CormorantGaramond}
-% \\usepackage{charter}
-
-
-\\pagestyle{fancy}
-\\fancyhf{} % clear all header and footer fields
-\\fancyfoot{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\topmargin}{-.5in}
-\\addtolength{\\textheight}{1.0in}
-
-\\urlstyle{same}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-  \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\\pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\\newcommand{\\resumeItem}[1]{
-  \\item\\small{
-    {#1 \\vspace{-2pt}}
-  }
-}
-
-% \\newcommand{\\resumeSubheading}[4]{
-%   \\vspace{-2pt}\\item
-%     \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-%       \\textbf{#1} & #2 \\\\
-%       \\textit{\\small#3} & \\textit{\\small #4} \\\\
-%     \\end{tabular*}\\vspace{-7pt}
-% }
-
-\\newcommand{\\resumeSubheading}[5]{
-  \\vspace{-2pt}\\item
-    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-      \\textbf{#1} \\small\\emph{#2} & #3 \\\\
-      \\textit{\\small#4} & \\textit{\\small #5} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubSubheading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-      \\textit{\\small#1} & \\textit{\\small #2} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeProjectHeading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-      \\small#1 & #2 \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-
-\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-
-\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
-
-%-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\\begin{document}
-
-%----------HEADING----------
-% \\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}
-%   \\textbf{\\href{http://sourabhbajaj.com/}{\\Large Sourabh Bajaj}} & Email : \\href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\\\
-%   \\href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\\\
-% \\end{tabular*}
-
-\\begin{center}
-  \\textbf{\\Huge \\scshape Aubrey Graham (Drake)} \\\\ \\vspace{1pt}
-  \\small 111-111-1111 $|$ \\href{aubrey.graham@gmail.com}{\\underline{aubrey.graham@gmail.com}} $|$
-  \\href{https://linkedin.com/in/aubreygraham}{\\underline{linkedin.com/in/aubreygraham}} $|$
-  \\href{https://github.com/aubreygraham}{\\underline{github.com/aubreygraham}}
-\\end{center}
-
-
-
-
-%-------------------------------------------
-\\end{document}
-`;
-
-const testlatex3 = `\\documentclass[letterpaper,11pt]{article}
-        
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-\\usepackage{etoolbox}
-\\input{glyphtounicode}
-\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \\usepackage[sfdefault]{FiraSans}
-% \\usepackage[sfdefault]{roboto}
-% \\usepackage[sfdefault]{noto-sans}
-% \\usepackage[default]{sourcesanspro}
-
-
-% serif
-% \\usepackage{CormorantGaramond}
-% \\usepackage{charter}
-
-\\pagestyle{fancy}
-\\fancyhf{} % clear all header and footer fields
-\\fancyfoot{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\textheight}{1.0in}
-
-\\urlstyle{same}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-    \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\\pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\\newcommand{\\resumeItem}[1]{
-    \\item\\small{
-    {#1 \\vspace{-2pt}}
-    }
-}
-
-\\newcommand{\\resumeSubheading}[4]{
-    \\vspace{-2pt}\\item
-    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-        \\textbf{#1} & #2 \\\\
-        \\textit{\\small#3} & \\textit{\\small #4} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubSubheading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-        \\textit{\\small#1} & \\textit{\\small #2} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeProjectHeading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-        \\small#1 & #2 \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-
-\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-
-\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-
-\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
-
-
-\\AtBeginDocument{
-    \\setbox0=\\vbox\\bgroup
-    \\preto\\enddocument{\\egroup
-        \\dimen0=\\dp0
-        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
-        \\unvbox0\\kern-\\dimen0 }
-}\\begin{document}
-\\resumeSubHeadingListStart
-\\resumeSubheading
-{Some High school}{Los Angeles, CA}
-{BS CS}{Exp 2023}
-\\resumeSubHeadingListEnd
-\\vspace{-\\lastskip}\\end{document}
-`;
+import { testLatex2 } from "@/tests/dummyData";
 
 const DOCUMENT_WIDTH = 420;
 
@@ -287,31 +41,46 @@ const Editor: React.FC = () => {
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+	const [itemsInBank, setItemsInBank] = useState<Array<BaseItem & { id: string }> | undefined>(undefined);
+	const [itemsInResume, setItemsInResume] = useState<Array<BaseItem & { id: string }> | undefined>(undefined);
+	const { id } = useParams();
   const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+  const {
+    data: resume,
+    isLoading: resumeIsLoading,
+    isError: resumeIsError,
+    isSuccess: resumeIsSuccess,
+    error: resumeError,
+  } = useGetResume(storedToken, id);
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
-
+  
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
     setIsPdfRendering(newRenderingState);
   };
+
+  useEffect(() => {
+    if(id != null && resume != null && data != null) {
+			const bankItems: Array<BaseItem & { id: string }> = [];
+			const resumeItems: Array<BaseItem & { id: string }> = [];
+			for(let item of data){
+				if(item._id in resume.itemIds){
+					resumeItems.push({...item, id: item._id});
+				} else {
+					bankItems.push({...item, id: item._id});
+				}
+			}
+			setItemsInBank(bankItems);
+			setItemsInResume(resumeItems);
+			console.log("bank items:", bankItems);
+			console.log("resume items:", resumeItems);
+		}
+  }, [id, resume, data]);
 
   useEffect(() => {
     const fetchFact = async () => {
       try {
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
-
-        const payloadHeader = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        // below, the /api is replaced with the server url defined in vite.config.ts
-        // so, if the server is defined as "localhost:3001" in that file,
-        // the fetch url will be "localhost:3001/example"
-        //const res = await fetch("/api/example", payloadHeader);
-        // setFact(await res.text());
       } catch (err) {
         console.log(err);
       }
@@ -346,7 +115,10 @@ const Editor: React.FC = () => {
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12">
             <div className="flex items-center justify-between">
-              <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
+              <DropdownMenu
+                open={dropdownIsOpen}
+                onOpenChange={setDropdownIsOpen}
+              >
                 <DropdownMenuTrigger>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
@@ -357,17 +129,29 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <HeadingItem setDropdownIsOpen={setDropdownIsOpen}></HeadingItem>
+                  <HeadingItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></HeadingItem>
                   <DropdownMenuSeparator />
-                  <SubheadingItem setDropdownIsOpen={setDropdownIsOpen}></SubheadingItem>
+                  <SubheadingItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></SubheadingItem>
                   <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem setDropdownIsOpen={setDropdownIsOpen}></EducationItem>
+                  <EducationItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></EducationItem>
                   <DropdownMenuSeparator />
-                  <ExperienceItem setDropdownIsOpen={setDropdownIsOpen}></ExperienceItem>
+                  <ExperienceItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ExperienceItem>
                   <DropdownMenuSeparator />
-                  <ExtracurricularItem setDropdownIsOpen={setDropdownIsOpen}></ExtracurricularItem>
+                  <ExtracurricularItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ExtracurricularItem>
                   <DropdownMenuSeparator />
-                  <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>
+                  <ProjectItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
