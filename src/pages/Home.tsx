@@ -61,7 +61,7 @@ const Home: React.FC = () => {
 							<Add onClick={()=>{navigate("/editor")}}></Add>
               {isSuccess &&
                 data.map((resume: ResumesServerType) => {
-                  return <ResumeSelector resume={resume}></ResumeSelector>;
+                  return <ResumeSelector resume={resume} key={resume._id}></ResumeSelector>;
                 })}
               {/* <ResumeSelector></ResumeSelector> */}
             </div>

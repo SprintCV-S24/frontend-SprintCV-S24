@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
@@ -36,15 +36,24 @@ import { testLatex2 } from "@/tests/dummyData";
 const DOCUMENT_WIDTH = 420;
 
 const Editor: React.FC = () => {
-  const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
-	const [itemsInBank, setItemsInBank] = useState<Array<BaseItem & { id: string }> | undefined>(undefined);
-	const [itemsInResume, setItemsInResume] = useState<Array<BaseItem & { id: string }> | undefined>(undefined);
-	const { id } = useParams();
-  const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+  const [itemsInBank, setItemsInBank] = useState<
+    Array<BaseItem & { id: string }> | undefined
+  >(undefined);
+  const [itemsInResume, setItemsInResume] = useState<
+    Array<BaseItem & { id: string }> | undefined
+  >(undefined);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const {
+    data: allItems,
+    isLoading: allItemsIsLoading,
+    isError: allItemsIsError,
+    isSuccess: allItemsIsSuccess,
+  } = useGetAllItems(storedToken);
   const {
     data: resume,
     isLoading: resumeIsLoading,
@@ -53,28 +62,35 @@ const Editor: React.FC = () => {
     error: resumeError,
   } = useGetResume(storedToken, id);
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
-  
+
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
     setIsPdfRendering(newRenderingState);
   };
 
   useEffect(() => {
-    if(id != null && resume != null && data != null) {
-			const bankItems: Array<BaseItem & { id: string }> = [];
-			const resumeItems: Array<BaseItem & { id: string }> = [];
-			for(let item of data){
-				if(item._id in resume.itemIds){
-					resumeItems.push({...item, id: item._id});
-				} else {
-					bankItems.push({...item, id: item._id});
-				}
-			}
-			setItemsInBank(bankItems);
-			setItemsInResume(resumeItems);
-			console.log("bank items:", bankItems);
-			console.log("resume items:", resumeItems);
-		}
-  }, [id, resume, data]);
+    if (id != null && resume !== undefined && allItems != null) {
+      //this means no resume had that id
+      if (resume === null) {
+        //TODO: home page needs to check for and display messages like these
+        navigate("/", { state: { from: "editor", error: "Resume not found" } });
+      } else {
+        const bankItems: Array<BaseItem & { id: string }> = [];
+        const resumeItems: Array<BaseItem & { id: string }> = [];
+        console.log("itemids:", resume.itemIds);
+        for (let item of allItems) {
+          if (resume.itemIds.includes(item._id)) {
+            resumeItems.push({ ...item, id: item._id });
+          } else {
+            bankItems.push({ ...item, id: item._id });
+          }
+        }
+        setItemsInBank(bankItems);
+        setItemsInResume(resumeItems);
+        console.log("bank items:", bankItems);
+        console.log("resume items:", resumeItems);
+      }
+    }
+  }, [id, resume, allItems]);
 
   useEffect(() => {
     const fetchFact = async () => {
@@ -162,8 +178,8 @@ const Editor: React.FC = () => {
                 Resume Items
               </h4>
               <Separator className="mb-2"></Separator>
-              {isSuccess &&
-                data.map((item) => (
+              {allItemsIsSuccess &&
+                allItems.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
                     <LatexImage
                       onRenderStart={() => setDummy(dummy)}

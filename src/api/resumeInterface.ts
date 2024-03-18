@@ -13,7 +13,7 @@ export const getAllResumes = async (token: string): Promise<ResumesServerType[]>
   return await handleJsonResponse(response);
 }
 
-export const getResumeById = async (itemId: string, token: string): Promise<ResumesServerType> => {
+export const getResumeById = async (itemId: string, token: string): Promise<ResumesServerType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
