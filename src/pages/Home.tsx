@@ -3,22 +3,17 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Add } from "@/components/Add";
 import { ResumeSelector } from "@/components/ResumeSelector";
 import { useGetAllResumes } from "@/hooks/queries";
 import { ResumesServerType } from "@/api/models/resumeModel";
+import { useNavigate } from "react-router-dom";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllResumes(storedToken);
+	const navigate = useNavigate();
 
   useEffect(() => {
     const updateToken = async () => {
@@ -63,6 +58,7 @@ const Home: React.FC = () => {
                 gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
               }}
             >
+							<Add onClick={()=>{navigate("/editor")}}></Add>
               {isSuccess &&
                 data.map((resume: ResumesServerType) => {
                   return <ResumeSelector resume={resume}></ResumeSelector>;

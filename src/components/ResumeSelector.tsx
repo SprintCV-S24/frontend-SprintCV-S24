@@ -27,7 +27,7 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
 
   return (
 		<ItemFrame onClick={() => {
-        navigate("/editor");
+        navigate(`/editor/${resume._id}`);
       }}>
       <div className="flex items-center justify-between p-1">
         <div className="flex items-center space-x-2 ml-3">
