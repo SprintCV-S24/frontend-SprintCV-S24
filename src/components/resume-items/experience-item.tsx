@@ -11,24 +11,57 @@ import {
 } from "@/components/ui/dialog";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import DeleteImage from "../../assets/delete.png";
-import ResumeContext from "../../components/resumecontext";
 import { ExperienceType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
 import { createExperience } from "@/api/experienceInterface";
+import { useAddExperience } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function ExperienceItem() {
+export function ExperienceItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   // Global context(s)
-  const { addResumeItem } = useContext(ResumeContext);
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
+  const [itemName, setItemName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [jobTitle, setjobTitle] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [isOpen, setIsOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddExperience(
+    queryClient,
+    storedToken,
+  );
+
+  const resetForm = () => {
+    setCompanyName("");
+    setjobTitle("");
+    setDate("");
+    setItemName("");
+    setBullets([""]); // Reset bullets
+    setLocation("");
+    setErrorMessage("");
+  };
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8;
 
@@ -57,38 +90,51 @@ export function ExperienceItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    // TODO: Test, make sure this works.
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
+
+    const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
     const data: ExperienceType = {
       user: token!,
-      bullets: bullets,
-      itemName: "TESTING", // TODO: Modify this!
+      bullets: filteredBullets,
+      itemName: itemName,
       title: jobTitle,
       subtitle: companyName,
       year: date,
       location: location,
     };
 
-    // TODO: Add to try/catch block
-    addResumeItem(data);
-
     console.log(data);
-    // API call to save data (replace placeholder with your actual implementation)
+
     try {
-      const response = await createExperience(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          setIsOpen(false);
+					setDropdownIsOpen(false);
+          resetForm();
+        },
+        onError: (error) => {
+          console.log(error);
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Experience
         </Button>
@@ -100,9 +146,20 @@ export function ExperienceItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
+            <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Unique Item Name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Input
               className="col-span-2"
               id="item-name"
@@ -129,7 +186,7 @@ export function ExperienceItem() {
                 <Input
                   className="flex-1"
                   id="date"
-                  placeholder="Set Date Range"
+                  placeholder="Date Range"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
@@ -142,7 +199,7 @@ export function ExperienceItem() {
                     {" "}
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
-                      placeholder="Enter Responsibility"
+                      placeholder="Description"
                       value={bullet}
                       onChange={(e) =>
                         handleBulletChange(index, e.target.value)
@@ -178,9 +235,18 @@ export function ExperienceItem() {
             <Button
               className="mt-2"
               type="submit"
-              disabled={companyName == "" || date == ""}
+              disabled={isPending || companyName == "" || date == ""}
             >
-              {companyName == "" || date == "" ? "Complete form" : "Add Item"}
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : companyName == "" || date == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

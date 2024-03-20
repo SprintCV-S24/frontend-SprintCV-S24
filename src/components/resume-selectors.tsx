@@ -1,6 +1,6 @@
 import { Card } from "./ui/card";
 import ResumeLogo from "../assets/resume-logo.png";
-import Select from "../assets/selector.png";
+import Select from "../assets/Selector.png";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +31,7 @@ export const ResumeSelector: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>Rename</DropdownMenuItem>
+            <DropdownMenuItem>Duplicate</DropdownMenuItem>
             <DropdownMenuItem className="text-red-500 font-bold">Delete Resume</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

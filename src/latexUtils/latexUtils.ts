@@ -26,7 +26,7 @@ const compileLatex = async (latexCode: string) => {
   let compilation = await engine.compileLaTeX();
 
   if (compilation.status === 0) {
-    console.log(compilation.log);
+    // console.log(compilation.log);
     return compilation.pdf as Uint8Array;
   } else {
     console.log(compilation.log);

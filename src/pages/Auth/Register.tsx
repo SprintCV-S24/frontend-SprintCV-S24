@@ -62,6 +62,7 @@ const Register: React.FC = () => {
     }
   };
 
+  // TODO: Modify Height: should be full
   return (
     <>
       <div className="md:hidden"></div>

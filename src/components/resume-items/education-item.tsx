@@ -12,23 +12,57 @@ import {
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from "react";
-import ResumeContext from "../../components/resumecontext";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
+import { useAddEducation } from "@/hooks/mutations";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function EducationItem() {
+import { useQueryClient } from "@tanstack/react-query";
+
+export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   // Global context(s)
   const { currentUser } = useAuth();
-  const { addResumeItem } = useContext(ResumeContext);
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
+  const [itemName, setItemName] = useState("");
   const [universityName, setUniversityName] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [majorMinor, setMajorMinor] = useState("");
   const [bullets, setBullets] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddEducation(
+    queryClient,
+    storedToken,
+  );
+
+  const resetForm = () => {
+    setUniversityName("");
+    setMajorMinor("");
+    setDate("");
+    setItemName("");
+    setBullets([""]); // Reset bullets
+    setLocation("");
+    setErrorMessage("");
+  };
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 8; // Arbitrary Max for UI
 
@@ -59,12 +93,14 @@ export function EducationItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
+
+    const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
     const data: EducationType = {
       user: token!,
-      itemName: "Testing", // TODO: Modify this!
-      bullets: bullets,
+      itemName: itemName,
+      bullets: filteredBullets,
       title: universityName,
       year: date,
       location: location,
@@ -73,24 +109,34 @@ export function EducationItem() {
 
     console.log(data);
 
-    // TODO: Modify this to be within try block! Should only add upon successful back-end submission.
-    addResumeItem(data);
-
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await createEducation(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          setIsOpen(false);
+					setDropdownIsOpen(false);
+          resetForm();
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Education
         </Button>
@@ -102,9 +148,20 @@ export function EducationItem() {
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}{" "}
+        {errorMessage && (
+          <div className="error-message text-red-400 font-bold">
+            {errorMessage}
+          </div>
+        )}{" "}
         <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-2 gap-4 flex">
+            <Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Unique Item Name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            />
             <Input
               className="col-span-2"
               id="item-name"
@@ -117,7 +174,7 @@ export function EducationItem() {
             <Input
               className="col-span-2"
               id="item-name"
-              placeholder="Major, Minor, etc."
+              placeholder="Degree"
               value={majorMinor}
               onChange={(e) => {
                 setMajorMinor(e.target.value);
@@ -135,7 +192,7 @@ export function EducationItem() {
                 <Input
                   className="flex-1"
                   id="date"
-                  placeholder="Set Date Range"
+                  placeholder="Date Range"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
@@ -148,7 +205,7 @@ export function EducationItem() {
                     {" "}
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
-                      placeholder="Enter Responsibility"
+                      placeholder="Description"
                       value={bullet}
                       onChange={(e) =>
                         handleBulletChange(index, e.target.value)
@@ -184,11 +241,23 @@ export function EducationItem() {
             <Button
               className="mt-2"
               type="submit"
-              disabled={universityName == "" || majorMinor == "" || date == ""}
+              disabled={
+                isPending ||
+                universityName == "" ||
+                majorMinor == "" ||
+                date == ""
+              }
             >
-              {universityName == "" || date == "" || majorMinor == ""
-                ? "Complete form"
-                : "Add Item"}
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : universityName == "" || date == "" || majorMinor == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

@@ -22,7 +22,7 @@ const Home: React.FC = () => {
       <div className="md:hidden"></div>
       <div className="hidden flex-col md:flex">
         <div className="border-b">
-          <div className="flex h-16 items-center px-4">
+          <div className="flex h-16 items-center px-4 shadow-xl">
             <Button
               className="absolute right-2 top-2 md:right-4 md:top-4"
               variant="ghost"

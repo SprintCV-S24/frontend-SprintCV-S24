@@ -22,9 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ResumeItem } from "types";
-import ResumeContext from "../components/resumecontext";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
-import { LatexPdf } from "@/components/Latex";
+import { LatexImage } from "@/components/Latex";
 import {
   generateEducationLatex,
   generateExperienceLatex,
@@ -288,11 +287,15 @@ const DOCUMENT_WIDTH = 420;
 const Editor: React.FC = () => {
   const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
-  const { resumeItems } = useContext(ResumeContext);
   const [isPdfRendering, setIsPdfRendering] = useState(false);
-  const [bulletRendering, setBulletRendering] = useState(false);
+  const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+  const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+
+  const handleBulletRenderingChange = (newRenderingState: boolean) => {
+    setIsPdfRendering(newRenderingState);
+  };
 
   const [tempList, setTempList] = useState([
     {
@@ -424,7 +427,6 @@ const Editor: React.FC = () => {
 
   useEffect(() => {
     const fetchFact = async () => {
-      console.log("called");
       try {
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
@@ -459,7 +461,7 @@ const Editor: React.FC = () => {
       <div className="md:hidden"></div>
       <div className="hidden flex-col md:flex">
         <div className="border-b">
-          <div className="flex h-16 items-center px-4">
+          <div className="flex h-16 items-center px-4 shadow-xl">
             <Button
               className="absolute right-2 top-2 md:right-4 md:top-4"
               variant="ghost"
@@ -475,7 +477,7 @@ const Editor: React.FC = () => {
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12">
             <div className="flex items-center justify-between">
-              <DropdownMenu>
+              <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
                 <DropdownMenuTrigger>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
@@ -486,22 +488,22 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <HeadingItem></HeadingItem>
+                  <HeadingItem setDropdownIsOpen={setDropdownIsOpen}></HeadingItem>
                   <DropdownMenuSeparator />
-                  <SubheadingItem></SubheadingItem>
+                  <SubheadingItem setDropdownIsOpen={setDropdownIsOpen}></SubheadingItem>
                   <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem></EducationItem>
+                  <EducationItem setDropdownIsOpen={setDropdownIsOpen}></EducationItem>
                   <DropdownMenuSeparator />
-                  <ExperienceItem></ExperienceItem>
+                  <ExperienceItem setDropdownIsOpen={setDropdownIsOpen}></ExperienceItem>
                   <DropdownMenuSeparator />
-                  <ExtracurricularItem></ExtracurricularItem>
+                  <ExtracurricularItem setDropdownIsOpen={setDropdownIsOpen}></ExtracurricularItem>
                   <DropdownMenuSeparator />
-                  <ProjectItem></ProjectItem>
+                  <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </Card>
-          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white">
+          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
             <div className="p-4">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
@@ -510,12 +512,11 @@ const Editor: React.FC = () => {
               {/* {isSuccess &&
                 data.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
-                    <LatexPdf
-                      onRenderStart={() => setBulletRendering(isPdfRendering)}
-                      onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
+                    <LatexImage
+                      onRenderStart={() => setDummy(dummy)}
+                      onRenderEnd={() => setDummy(dummy)}
                       latexCode={generateLatex(item)}
-                      width={DOCUMENT_WIDTH}
-                    ></LatexPdf>
+                    ></LatexImage>
                   </Card>
                 ))} */}
               <ReactSortable animation={150} list={tempList} setList={setTempList}>
@@ -535,16 +536,15 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-1/2 p-4">
-          {/* {isPdfRendering && (
+          {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
-          )}{" "} */}
+          )}{" "}
           <div className="flex items-center justify-center">
-            <LatexPdf
+            <LatexImage
               onRenderStart={() => setIsPdfRendering(true)}
               onRenderEnd={() => setIsPdfRendering(false)}
               latexCode={testLatex2}
-              width={DOCUMENT_WIDTH}
-            ></LatexPdf>
+            ></LatexImage>
           </div>
         </div>
       </div>

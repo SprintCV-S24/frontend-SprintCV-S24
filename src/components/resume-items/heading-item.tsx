@@ -11,22 +11,50 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import DeleteImage from "../../assets/delete.png";
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
-import ResumeContext from "../../components/resumecontext";
 import { useAuth } from "@/AuthContext";
 import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
-import { createHeading } from "@/api/headerInterface";
+import { useAddHeading } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function HeadingItem() {
-  const { addResumeItem } = useContext(ResumeContext);
+export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
+  const [itemName, setItemName] = useState("");
   const [heading, setHeading] = useState("");
   const [bullets, setBullets] = useState<HeadingComponent[]>([
     { item: "", href: "" },
   ]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useAddHeading(
+    queryClient,
+    storedToken,
+  );
+
+  const resetForm = () => {
+    setHeading(""), setItemName("");
+    setBullets([]); // Reset bullets
+    setErrorMessage("");
+  };
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   const MAX_BULLETS = 5;
 
@@ -60,23 +88,30 @@ export function HeadingItem() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
 
-    const token = await currentUser?.getIdToken();
+    const token = storedToken;
 
     const data: HeadingsType = {
       user: token!,
-      itemName: "TESTING", // TODO: Modify this value
+      itemName: itemName,
       name: heading,
       items: bullets,
     };
 
     console.log(data);
 
-    // TODO: Put in try/catch block
-    addResumeItem(data);
-
-    // API call to save data (replace placeholder with your actual implementation)
     try {
-      const response = await createHeading(data, token!);
+      mutate(data, {
+        onSuccess: (response) => {
+          setIsOpen(false);
+					setDropdownIsOpen(false);
+          resetForm();
+        },
+        onError: (error) => {
+          setErrorMessage(
+            "Error: Unable to submit form. Please try again later.",
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage("Error: Unable to submit form. Please try again later.");
     }
@@ -84,12 +119,15 @@ export function HeadingItem() {
 
   // TODO: Modify href to be optional!
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className="text-left h-full w-full"
           variant="ghost"
-          onClick={resetBullets}
+          onClick={() => {
+            resetBullets();
+            setIsOpen(true);
+          }}
         >
           Heading
         </Button>
@@ -112,6 +150,13 @@ export function HeadingItem() {
               <Input
                 className="mb-2 w-full"
                 id="item-name"
+                placeholder="Unique Item Name"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+              />
+              <Input
+                className="mb-2 w-full"
+                id="item-name"
                 placeholder="Your Name"
                 value={heading}
                 onChange={(e) => setHeading(e.target.value)}
@@ -122,7 +167,7 @@ export function HeadingItem() {
                     {" "}
                     <AutosizeTextarea
                       className="mb-2 resize-none h-[35px]"
-                      placeholder="Enter Description"
+                      placeholder="Contact Item"
                       value={bullet.item}
                       onChange={(e) =>
                         handleBulletChange(index, "item", e.target.value)
@@ -158,13 +203,26 @@ export function HeadingItem() {
                 onClick={handleAddBullet}
                 disabled={bullets.length >= MAX_BULLETS}
               >
-                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Bullet"}
+                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Contact Item"}
               </Button>
             </div>
           </div>
           <DialogFooter>
-            <Button className="mt-2" type="submit" disabled={heading == ""}>
-              {heading == "" ? "Complete form" : "Add Item"}
+            <Button
+              className="mt-2"
+              type="submit"
+              disabled={isPending || heading == ""}
+            >
+              {isPending ? (
+                <>
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : heading == "" ? (
+                "Complete form"
+              ) : (
+                "Add Item"
+              )}
             </Button>
             <DialogClose asChild></DialogClose>
           </DialogFooter>

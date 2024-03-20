@@ -1,6 +1,5 @@
 import React, { createContext, useState } from 'react';
-import { ResumeItem } from 'types';
-import { BaseItem } from '@/api/models/baseItem';
+import { BaseItem } from '@/api/models/interfaces';
 
 const ResumeContext = createContext<{
   resumeItems: BaseItem[];

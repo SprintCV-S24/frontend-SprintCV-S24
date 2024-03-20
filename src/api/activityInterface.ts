@@ -3,7 +3,6 @@ import { ActivitiesServerExplicitType } from "./models/activityModel";
 import { handleJsonResponse } from "./responseHelpers";
 import { resumeItemTypes } from "./models/resumeItemTypes";
 
-// TODO: Check this route
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/activities`;
 
 // POST an activity item
@@ -29,10 +28,8 @@ export const getAllActivities = async (token: string): Promise<ActivitiesServerE
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("GETTIGN ACTIVITY");
 
   const activities = await handleJsonResponse(response);
-  console.log(activities);
 	return activities.map((activity: ActivitiesType) => ({
     ...activity,
     type: resumeItemTypes.ACTIVITY,
