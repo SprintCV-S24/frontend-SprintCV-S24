@@ -17,8 +17,14 @@ import { ProjectsType } from "@/api/models/interfaces";
 import { SectionHeadingsType } from "@/api/models/interfaces";
 import { SkillsType } from "@/api/models/interfaces";
 import { ResumesType } from "@/api/models/interfaces";
+import { UseMutateFunction } from "@tanstack/react-query";
+import { ResumesServerType } from "@/api/models/resumeModel";
+import { BaseItem } from "@/api/models/interfaces";
 
-export const useAddActivity = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddActivity = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (activity: ActivitiesType) => {
       if (token === undefined) {
@@ -32,7 +38,10 @@ export const useAddActivity = (queryClient: QueryClient, token: string | undefin
   });
 };
 
-export const useAddEducation = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddEducation = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (education: EducationType) => {
       if (token === undefined) {
@@ -46,7 +55,10 @@ export const useAddEducation = (queryClient: QueryClient, token: string | undefi
   });
 };
 
-export const useAddExperience = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddExperience = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (experience: ExperienceType) => {
       if (token === undefined) {
@@ -60,7 +72,10 @@ export const useAddExperience = (queryClient: QueryClient, token: string | undef
   });
 };
 
-export const useAddHeading = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddHeading = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (heading: HeadingsType) => {
       if (token === undefined) {
@@ -74,7 +89,10 @@ export const useAddHeading = (queryClient: QueryClient, token: string | undefine
   });
 };
 
-export const useAddProject = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddProject = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (project: ProjectsType) => {
       if (token === undefined) {
@@ -88,7 +106,10 @@ export const useAddProject = (queryClient: QueryClient, token: string | undefine
   });
 };
 
-export const useAddSectionHeading = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddSectionHeading = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (sectionHeading: SectionHeadingsType) => {
       if (token === undefined) {
@@ -102,7 +123,10 @@ export const useAddSectionHeading = (queryClient: QueryClient, token: string | u
   });
 };
 
-export const useAddSkill = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddSkill = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (skill: SkillsType) => {
       if (token === undefined) {
@@ -116,9 +140,18 @@ export const useAddSkill = (queryClient: QueryClient, token: string | undefined)
   });
 };
 
-export const useUpdateResume = (queryClient: QueryClient, token: string | undefined) => {
+export const useUpdateResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
-    mutationFn: async ({ updatedFields, resumeId }: { updatedFields: Partial<ResumesType>; resumeId: string }) => {
+    mutationFn: async ({
+      updatedFields,
+      resumeId,
+    }: {
+      updatedFields: Partial<ResumesType>;
+      resumeId: string;
+    }) => {
       if (token === undefined) {
         throw new Error("Token is undefined");
       }
@@ -128,4 +161,36 @@ export const useUpdateResume = (queryClient: QueryClient, token: string | undefi
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
     },
   });
+};
+
+export const createCustomSetItemsInBank = (
+  resumeId: string,
+  mutateFn: UseMutateFunction<
+    ResumesServerType,
+    Error,
+    {
+      updatedFields: Partial<ResumesType>;
+      resumeId: string;
+    },
+    unknown
+  >,
+  setItemsInBank: React.Dispatch<
+    React.SetStateAction<
+      | (BaseItem & {
+          id: string;
+        })[]
+      | undefined
+    >
+  >,
+): ((newItems: Array<BaseItem & {
+	id: string;
+}>) => void) => {
+  const customSetItemsInBank = (newItems: Array<BaseItem & { id: string }>) => {
+		console.log("running customsetitems");
+		const idArr = newItems.map(item => item.id);
+		const updatedFields = {itemIds: idArr};
+    mutateFn({updatedFields, resumeId});
+		setItemsInBank(newItems);
+  };
+	return customSetItemsInBank;
 };

@@ -32,9 +32,9 @@ import {
 } from "@/latexUtils/latexString";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
-import { testLatex2 } from "@/tests/dummyData";
-
-const DOCUMENT_WIDTH = 420;
+import { useUpdateResume } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { createCustomSetItemsInBank } from "@/hooks/mutations";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -62,6 +62,11 @@ const Editor: React.FC = () => {
     isSuccess: resumeIsSuccess,
     error: resumeError,
   } = useGetResume(storedToken, id);
+  const queryClient = useQueryClient();
+  const { mutate, isPending, isError } = useUpdateResume(
+    queryClient,
+    storedToken,
+  );
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
@@ -215,27 +220,19 @@ const Editor: React.FC = () => {
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <style>
-            {`
-                      .sortable-ghost {
-                        
-                      }
-                      `}
-          </style>
-          {itemsInResume && (
+          {itemsInResume && id && (
             <ReactSortable
               animation={150}
               list={itemsInResume}
-              setList={setItemsInResume}
+              // setList={setItemsInResume}
+              setList={createCustomSetItemsInBank(id, mutate, setItemsInBank)}
               group="ResumeItems"
-              className="h-full w-full bg-white [&_.sortable-ghost]:h-[400px]"
+              // [&_.sortable-ghost]:h-[400px]
+              className="h-full w-full bg-white"
             >
               {itemsInResume &&
                 itemsInResume.map((item) => (
-                  <div
-                    className="w-full"
-                    key={item._id}
-                  >
+                  <div className="w-full" key={item._id}>
                     <LatexImage
                       onRenderStart={() => setDummy(dummy)}
                       onRenderEnd={() => setDummy(dummy)}
