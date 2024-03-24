@@ -69,16 +69,16 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log(id)
-    console.log(resume)
-    console.log(allItems)
+    console.log(id);
+    console.log(resume);
+    console.log(allItems);
 
     if (id != null && resume != undefined && allItems != null) {
-      console.log("In loop")
+      console.log("In loop");
       //this means no resume had that id
       if (resume == null) {
         //TODO: home page needs to check for and display messages like these
-        console.log("HERE")
+        console.log("HERE");
         navigate("/", { state: { from: "editor", error: "Resume not found" } });
       } else {
         const bankItems: Array<BaseItem & { id: string }> = [];
@@ -180,42 +180,71 @@ const Editor: React.FC = () => {
             </div>
           </Card>
           <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
-            <div className="p-4">
+            <div className="p-4 w-full h-full">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
               <Separator className="mb-2"></Separator>
-            {itemsInBank && 
-              <ReactSortable
-                animation={150}
-                list={itemsInBank}
-                setList={setItemsInBank}
-              >
-                {itemsInBank &&
-                  itemsInBank.map((item) => (
-                    <div className="w-full p-1 mb-2 bg-grey border border-grey" key={item._id}>
-                      <LatexImage
-                        onRenderStart={() => setDummy(dummy)}
-                        onRenderEnd={() => setDummy(dummy)}
-                        latexCode={generateLatex(item)}
-                      ></LatexImage>
-                    </div>
-                  ))}
-              </ReactSortable>}
+              {itemsInBank && (
+                <ReactSortable
+                  animation={150}
+                  list={itemsInBank}
+                  setList={setItemsInBank}
+                  group="ResumeItems"
+                  className="h-[500px] w-full"
+                >
+                  {itemsInBank &&
+                    itemsInBank.map((item) => (
+                      <Card
+                        className="w-full p-1 mb-2 bg-grey border border-grey"
+                        key={item._id}
+                      >
+                        <LatexImage
+                          onRenderStart={() => setDummy(dummy)}
+                          onRenderEnd={() => setDummy(dummy)}
+                          latexCode={generateLatex(item)}
+                        ></LatexImage>
+                      </Card>
+                    ))}
+                </ReactSortable>
+              )}
             </div>
           </ScrollArea>
         </div>
-        <div className="w-[calc(50%-8px)] p-4">
+        <div className="w-[calc(50%-4rem)] bg-white ml-8 mt-4">
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="flex">
-            <LatexImage
-              onRenderStart={() => setIsPdfRendering(true)}
-              onRenderEnd={() => setIsPdfRendering(false)}
-              latexCode={testLatex2}
-            ></LatexImage>
-          </div>
+          <style>
+            {`
+                      .sortable-ghost {
+                        
+                      }
+                      `}
+          </style>
+          {itemsInResume && (
+            <ReactSortable
+              animation={150}
+              list={itemsInResume}
+              setList={setItemsInResume}
+              group="ResumeItems"
+              className="h-full w-full bg-white [&_.sortable-ghost]:h-[400px]"
+            >
+              {itemsInResume &&
+                itemsInResume.map((item) => (
+                  <div
+                    className="w-full"
+                    key={item._id}
+                  >
+                    <LatexImage
+                      onRenderStart={() => setDummy(dummy)}
+                      onRenderEnd={() => setDummy(dummy)}
+                      latexCode={generateLatex(item)}
+                    ></LatexImage>
+                  </div>
+                ))}
+            </ReactSortable>
+          )}
         </div>
       </div>
     </>
