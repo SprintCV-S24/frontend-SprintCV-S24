@@ -12,6 +12,7 @@ import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -68,10 +69,15 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id != null && resume !== undefined && allItems != null) {
+    console.log(id)
+    console.log(resume)
+    console.log(allItems)
+
+    if (id !== null && resume !== undefined && allItems !== null) {
       //this means no resume had that id
-      if (resume === null) {
+      if (resume == null) {
         //TODO: home page needs to check for and display messages like these
+        console.log("HERE")
         navigate("/", { state: { from: "editor", error: "Resume not found" } });
       } else {
         const bankItems: Array<BaseItem & { id: string }> = [];
@@ -178,16 +184,23 @@ const Editor: React.FC = () => {
                 Resume Items
               </h4>
               <Separator className="mb-2"></Separator>
-              {allItemsIsSuccess &&
-                allItems.map((item) => (
-                  <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
-                    <LatexImage
-                      onRenderStart={() => setDummy(dummy)}
-                      onRenderEnd={() => setDummy(dummy)}
-                      latexCode={generateLatex(item)}
-                    ></LatexImage>
-                  </Card>
-                ))}
+            {itemsInBank && 
+              <ReactSortable
+                animation={150}
+                list={itemsInBank}
+                setList={setItemsInBank}
+              >
+                {itemsInBank &&
+                  itemsInBank.map((item) => (
+                    <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
+                      <LatexImage
+                        onRenderStart={() => setDummy(dummy)}
+                        onRenderEnd={() => setDummy(dummy)}
+                        latexCode={generateLatex(item)}
+                      ></LatexImage>
+                    </Card>
+                  ))}
+              </ReactSortable>}
             </div>
           </ScrollArea>
         </div>
