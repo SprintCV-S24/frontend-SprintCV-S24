@@ -73,7 +73,8 @@ const Editor: React.FC = () => {
     console.log(resume)
     console.log(allItems)
 
-    if (id !== null && resume !== undefined && allItems !== null) {
+    if (id != null && resume != undefined && allItems != null) {
+      console.log("In loop")
       //this means no resume had that id
       if (resume == null) {
         //TODO: home page needs to check for and display messages like these
@@ -192,23 +193,23 @@ const Editor: React.FC = () => {
               >
                 {itemsInBank &&
                   itemsInBank.map((item) => (
-                    <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
+                    <div className="w-full p-1 mb-2 bg-grey border border-grey" key={item._id}>
                       <LatexImage
                         onRenderStart={() => setDummy(dummy)}
                         onRenderEnd={() => setDummy(dummy)}
                         latexCode={generateLatex(item)}
                       ></LatexImage>
-                    </Card>
+                    </div>
                   ))}
               </ReactSortable>}
             </div>
           </ScrollArea>
         </div>
-        <div className="w-1/2 p-4">
+        <div className="w-[calc(50%-8px)] p-4">
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="flex items-center justify-center">
+          <div className="flex">
             <LatexImage
               onRenderStart={() => setIsPdfRendering(true)}
               onRenderEnd={() => setIsPdfRendering(false)}
