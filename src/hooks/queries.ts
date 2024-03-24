@@ -29,12 +29,12 @@ export const useGetAllResumes = (token: string | undefined) => {
   });
 };
 
-export const useGetResume = (token: string | undefined, resumeId: string) => {
+export const useGetResume = (token: string | undefined, resumeId: string | undefined) => {
   return useQuery({
     queryKey: ["resumes", { id: resumeId }],
     enabled: !!token,
     queryFn: async () => {
-      if (token === undefined) {
+      if (token === undefined || resumeId === undefined) {
         throw new Error("Token is undefined");
       }
       return await getResumeById(resumeId, token);
