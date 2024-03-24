@@ -3,6 +3,7 @@ import { getAllItems } from "@/api/resumeItemInterface";
 import { getAllResumes, getResumeById } from "@/api/resumeInterface";
 
 export const useGetAllItems = (token: string | undefined) => {
+  console.log("This is being called.")
   return useQuery({
     queryKey: ["items"],
     enabled: !!token,

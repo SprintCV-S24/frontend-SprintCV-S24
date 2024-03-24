@@ -21,19 +21,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResumeItem } from "types";
-import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
-import {
-  generateEducationLatex,
-  generateExperienceLatex,
-  generateProjectLatex,
-} from "@/latexUtils/latexString";
 import { useGetAllItems } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
-
 import { ReactSortable } from "react-sortablejs";
-import { BaseItem } from "@/api/models/interfaces";
 
 const testLatex2 = `
 %-------------------------
@@ -477,7 +468,10 @@ const Editor: React.FC = () => {
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12">
             <div className="flex items-center justify-between">
-              <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
+              <DropdownMenu
+                open={dropdownIsOpen}
+                onOpenChange={setDropdownIsOpen}
+              >
                 <DropdownMenuTrigger>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
@@ -488,17 +482,29 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <HeadingItem setDropdownIsOpen={setDropdownIsOpen}></HeadingItem>
+                  <HeadingItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></HeadingItem>
                   <DropdownMenuSeparator />
-                  <SubheadingItem setDropdownIsOpen={setDropdownIsOpen}></SubheadingItem>
+                  <SubheadingItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></SubheadingItem>
                   <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem setDropdownIsOpen={setDropdownIsOpen}></EducationItem>
+                  <EducationItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></EducationItem>
                   <DropdownMenuSeparator />
-                  <ExperienceItem setDropdownIsOpen={setDropdownIsOpen}></ExperienceItem>
+                  <ExperienceItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ExperienceItem>
                   <DropdownMenuSeparator />
-                  <ExtracurricularItem setDropdownIsOpen={setDropdownIsOpen}></ExtracurricularItem>
+                  <ExtracurricularItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ExtracurricularItem>
                   <DropdownMenuSeparator />
-                  <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>
+                  <ProjectItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -519,16 +525,19 @@ const Editor: React.FC = () => {
                     ></LatexImage>
                   </Card>
                 ))} */}
-              <ReactSortable animation={150} list={tempList} setList={setTempList}>
+              <ReactSortable
+                animation={150}
+                list={tempList}
+                setList={setTempList}
+              >
                 {isSuccess &&
-                  tempList.map((item) => (
-                    <Card className="w-full p-2 mb-2 bg-grey" key={item.id}>
-                      <LatexPdf
-                        onRenderStart={() => setBulletRendering(isPdfRendering)}
-                        onRenderEnd={() => setIsPdfRendering(isPdfRendering)}
-                        latexCode={generateLatex(item as BaseItem)}
-                        width={DOCUMENT_WIDTH}
-                      ></LatexPdf>
+                  data.map((item) => (
+                    <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
+                      <LatexImage
+                        onRenderStart={() => setDummy(dummy)}
+                        onRenderEnd={() => setDummy(dummy)}
+                        latexCode={generateLatex(item)}
+                      ></LatexImage>
                     </Card>
                   ))}
               </ReactSortable>
