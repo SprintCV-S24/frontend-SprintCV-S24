@@ -225,7 +225,7 @@ const Editor: React.FC = () => {
               animation={150}
               list={itemsInResume}
               // setList={setItemsInResume}
-              setList={createCustomSetItemsInBank(id, mutate, setItemsInBank)}
+              setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
               group="ResumeItems"
               // [&_.sortable-ghost]:h-[400px]
               className="h-full w-full bg-white"
