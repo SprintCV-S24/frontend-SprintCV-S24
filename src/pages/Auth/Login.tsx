@@ -65,12 +65,8 @@ const Login: React.FC = () => {
   // TODO: Modify Height: should be full
   return (
     <>
-      <div className="md:hidden"></div>
-      <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <Button
-          className="absolute right-4 top-4 md:right-8 md:top-8"
-          variant="ghost"
-        >
+      <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+        <Button className="absolute right-8 top-8" variant="ghost">
           <Link to="/register">Create Account</Link>
         </Button>
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
@@ -95,55 +91,53 @@ const Login: React.FC = () => {
           </div>
           <BackgroundBeams />
         </div>
-        <div className="lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-            <div className="flex flex-col space-y-2 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
-              <Card>
-                <CardHeader>
-                  <CardDescription>Enter email and password</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      className="mt-2 mb-2"
-                      type="email"
-                      id="email"
-                      placeholder="Enter Email"
-                      {...register("email")}
-                    />
-                    {errors.email != null && (
-                      <FormError>{errors.email.message}</FormError>
-                    )}
-                    {error && <FormError>{error}</FormError>}
-                    <Label className="mt-4" htmlFor="password">
-                      Password
-                    </Label>
-                    <Input
-                      className="mt-2"
-                      type="password"
-                      id="password"
-                      placeholder="Choose Password"
-                      {...register("password")}
-                    />
-                    {errors.password != null && (
-                      <FormError>{errors.password.message}</FormError>
-                    )}
-                    <Button
-                      className="mt-4"
-                      disabled={isSubmitting}
-                      type="submit"
-                    >
-                      {isSubmitting ? "Submitting" : "Login"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-              <p className="text-sm text-muted-foreground">
-                <Link to="/forgot-password">Forgot password?</Link>
-              </p>
-            </div>
+        <div className="mx-auto flex flex-col justify-center space-y-6 w-[350px]">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
+            <Card>
+              <CardHeader>
+                <CardDescription>Enter email and password</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    className="mt-2 mb-2"
+                    type="email"
+                    id="email"
+                    placeholder="Enter Email"
+                    {...register("email")}
+                  />
+                  {errors.email != null && (
+                    <FormError>{errors.email.message}</FormError>
+                  )}
+                  {error && <FormError>{error}</FormError>}
+                  <Label className="mt-4" htmlFor="password">
+                    Password
+                  </Label>
+                  <Input
+                    className="mt-2"
+                    type="password"
+                    id="password"
+                    placeholder="Choose Password"
+                    {...register("password")}
+                  />
+                  {errors.password != null && (
+                    <FormError>{errors.password.message}</FormError>
+                  )}
+                  <Button
+                    className="mt-4"
+                    disabled={isSubmitting}
+                    type="submit"
+                  >
+                    {isSubmitting ? "Submitting" : "Login"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+            <p className="text-sm text-muted-foreground">
+              <Link to="/forgot-password">Forgot password?</Link>
+            </p>
           </div>
         </div>
       </div>
