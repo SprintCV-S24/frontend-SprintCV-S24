@@ -22,14 +22,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
 import { BaseItem } from "@/api/models/interfaces";
-import {
-  generateEducationLatex,
-  generateExperienceLatex,
-  generateProjectLatex,
-} from "@/latexUtils/latexString";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
 import { useUpdateResume } from "@/hooks/mutations";
@@ -41,20 +35,25 @@ const Editor: React.FC = () => {
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+
   const [itemsInBank, setItemsInBank] = useState<
     Array<BaseItem & { id: string }> | undefined
   >(undefined);
+
   const [itemsInResume, setItemsInResume] = useState<
     Array<BaseItem & { id: string }> | undefined
   >(undefined);
+
   const { id } = useParams();
   const navigate = useNavigate();
+
   const {
     data: allItems,
     isLoading: allItemsIsLoading,
     isError: allItemsIsError,
     isSuccess: allItemsIsSuccess,
   } = useGetAllItems(storedToken);
+
   const {
     data: resume,
     isLoading: resumeIsLoading,
@@ -62,11 +61,14 @@ const Editor: React.FC = () => {
     isSuccess: resumeIsSuccess,
     error: resumeError,
   } = useGetResume(storedToken, id);
+
   const queryClient = useQueryClient();
+
   const { mutate, isPending, isError } = useUpdateResume(
     queryClient,
     storedToken,
   );
+  
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
@@ -78,17 +80,18 @@ const Editor: React.FC = () => {
     console.log(resume);
     console.log(allItems);
 
-    if (id != null && resume != undefined && allItems != null) {
+    if (id != null && allItems != null) {
       console.log("In loop");
-      //this means no resume had that id
+      // this means no resume had that id
       if (resume == null) {
         //TODO: home page needs to check for and display messages like these
         console.log("HERE");
         navigate("/", { state: { from: "editor", error: "Resume not found" } });
       } else {
-        const bankItems: Array<BaseItem & { id: string }> = [];
-        const resumeItems: Array<BaseItem & { id: string }> = [];
+        //const bankItems: Array<BaseItem & { id: string }> = [];
+         //const resumeItems: Array<BaseItem & { id: string }> = [];
         console.log("itemids:", resume.itemIds);
+        /*
         for (let item of allItems) {
           if (resume.itemIds.includes(item._id)) {
             resumeItems.push({ ...item, id: item._id });
@@ -96,14 +99,32 @@ const Editor: React.FC = () => {
             bankItems.push({ ...item, id: item._id });
           }
         }
-        setItemsInBank(bankItems);
-        setItemsInResume(resumeItems);
-        console.log("bank items:", bankItems);
-        console.log("resume items:", resumeItems);
+        */
+        const result = allItems.reduce(
+          (accumulator, item) => {
+            if (resume.itemIds.includes(item._id)) {
+              accumulator.resumeItems.push({ ...item, id: item._id });
+            } else {
+              accumulator.bankItems.push({ ...item, id: item._id });
+            }
+            return accumulator;
+          },
+          { resumeItems: [], bankItems: [] } as { resumeItems:  Array<BaseItem & {id: string}>, bankItems: Array<BaseItem & {id: string}>} // Correcting the type assertion
+        );
+
+        setItemsInBank(result.bankItems);
+        setItemsInResume(result.resumeItems);
+        
+        console.log("bank items:", result.resumeItems);
+        console.log("resume items:", result.bankItems);
       }
     }
-  }, [id, resume, allItems]);
+  }, [id, allItems]);
 
+  useEffect(() => {
+    console.log("Use effect ran for resume");
+  }, [resume])
+  
   useEffect(() => {
     const fetchFact = async () => {
       try {
@@ -116,10 +137,6 @@ const Editor: React.FC = () => {
 
     void fetchFact();
   }, [currentUser, storedToken]);
-
-  const tags = Array.from({ length: 50 }).map(
-    (_, i, a) => `Resume Item ${a.length - i}`,
-  );
 
   // TODO: Make this type safe, make some other changes.
   return (

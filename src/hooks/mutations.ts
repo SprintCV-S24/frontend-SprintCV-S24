@@ -174,7 +174,7 @@ export const createCustomSetItemsInBank = (
     },
     unknown
   >,
-  setItemsInBank: React.Dispatch<
+  setItemsInResume: React.Dispatch<
     React.SetStateAction<
       | (BaseItem & {
           id: string;
@@ -187,10 +187,16 @@ export const createCustomSetItemsInBank = (
 }>) => void) => {
   const customSetItemsInBank = (newItems: Array<BaseItem & { id: string }>) => {
 		console.log("running customsetitems");
+
 		const idArr = newItems.map(item => item.id);
 		const updatedFields = {itemIds: idArr};
+
+    console.log("Updated Fields");
+    console.log(updatedFields);
+    
     mutateFn({updatedFields, resumeId});
-		setItemsInBank(newItems);
+    setItemsInResume(newItems);
+
   };
 	return customSetItemsInBank;
 };
