@@ -66,7 +66,7 @@ const Login: React.FC = () => {
   return (
     <>
       <div className="md:hidden"></div>
-      <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Button
           className="absolute right-4 top-4 md:right-8 md:top-8"
           variant="ghost"
