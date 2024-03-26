@@ -190,7 +190,7 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
                 />
               </div>
             </div>
-            <div className="flex flex-col w-[550px]">
+            <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
                 {bullets.map((bullet, index) => (
                   <div key={index} className="ml-1 mt-2 flex">
