@@ -228,18 +228,13 @@ const Editor: React.FC = () => {
   return (
     <>
       <div className="md:hidden"></div>
-      <div className="hidden flex-col md:flex">
-        <div className="border-b">
-          <div className="flex h-16 items-center px-4 shadow-xl">
-            <Button
-              className="absolute right-2 top-2 md:right-4 md:top-4"
-              variant="ghost"
-            >
-              <Link to="/profile">Profile</Link>
-            </Button>
-            <MainNav className="mx-6" />
-            <div className="ml-auto flex items-center space-x-4"></div>
-          </div>
+      <div className="flex-col">
+        <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
+          <Button className="absolute right-4 top-4" variant="ghost">
+            <Link to="/profile">Profile</Link>
+          </Button>
+          <MainNav className="mx-6" />
+          <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
@@ -257,17 +252,29 @@ const Editor: React.FC = () => {
                     Item Type
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <HeadingItem></HeadingItem>
+                  <HeadingItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></HeadingItem>
                   <DropdownMenuSeparator />
-                  <SubheadingItem></SubheadingItem>
+                  <SubheadingItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></SubheadingItem>
                   <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem></EducationItem>
+                  <EducationItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></EducationItem>
                   <DropdownMenuSeparator />
-                  <ExperienceItem></ExperienceItem>
+                  <ExperienceItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ExperienceItem>
                   <DropdownMenuSeparator />
-                  <ExtracurricularItem></ExtracurricularItem>
+                  <ExtracurricularItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ExtracurricularItem>
                   <DropdownMenuSeparator />
-                  <ProjectItem></ProjectItem>
+                  <ProjectItem
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
