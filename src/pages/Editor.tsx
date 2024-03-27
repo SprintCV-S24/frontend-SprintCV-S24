@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ReactSortable } from "react-sortablejs";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
 import { BaseItem } from "@/api/models/interfaces";
@@ -200,7 +201,7 @@ const Editor: React.FC = () => {
               animation={150}
               list={itemsInResume}
               setList={setItemsInResume}
-              // setList={createCustomSetItemsInBank(id, mutate, setItemsInBank)}
+              // setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
               group="ResumeItems"
               // [&_.sortable-ghost]:h-[400px]
               className="h-full w-full bg-white"
