@@ -195,13 +195,28 @@ const Editor: React.FC = () => {
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="flex items-center justify-center">
-            <LatexImage
-              onRenderStart={() => setIsPdfRendering(true)}
-              onRenderEnd={() => setIsPdfRendering(false)}
-              latexCode={testLatex2}
-            ></LatexImage>
-          </div>
+          {itemsInResume && id && (
+            <ReactSortable
+              animation={150}
+              list={itemsInResume}
+              setList={setItemsInResume}
+              // setList={createCustomSetItemsInBank(id, mutate, setItemsInBank)}
+              group="ResumeItems"
+              // [&_.sortable-ghost]:h-[400px]
+              className="h-full w-full bg-white"
+            >
+              {itemsInResume &&
+                itemsInResume.map((item) => (
+                  <div className="w-full" key={item._id}>
+                    <LatexImage
+                      onRenderStart={() => setDummy(dummy)}
+                      onRenderEnd={() => setDummy(dummy)}
+                      latexCode={generateLatex(item)}
+                    ></LatexImage>
+                  </div>
+                ))}
+            </ReactSortable>
+          )}
         </div>
       </div>
     </>

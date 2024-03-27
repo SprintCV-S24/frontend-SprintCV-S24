@@ -8,12 +8,44 @@ import { ResumeSelector } from "@/components/ResumeSelector";
 import { useGetAllResumes } from "@/hooks/queries";
 import { ResumesServerType } from "@/api/models/resumeModel";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAddResume } from "@/hooks/mutations";
+import { ResumesType } from "@/api/models/interfaces";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
-  const { data, isLoading, isError, isSuccess } = useGetAllResumes(storedToken);
-	const navigate = useNavigate();
+  const {
+    data,
+    isLoading,
+    isError: isGetAllResumesError,
+    isSuccess,
+  } = useGetAllResumes(storedToken);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const {
+    mutate,
+    isPending,
+    isError: isAddResumeError,
+  } = useAddResume(queryClient, storedToken);
+
+  const onClickAddResume = () => {
+    const blankResume: ResumesType = {
+      itemName: "Untitled resume",
+			itemIds: [],
+			templateId: null,
+    };
+
+    mutate(blankResume, {
+			onSuccess: (response) => {
+				console.log("response:", response);
+				navigate(`/editor/${response._id}`);
+			},
+			onError: () => {
+				//TODO
+			}
+		});
+  };
 
   useEffect(() => {
     const updateToken = async () => {
@@ -58,12 +90,21 @@ const Home: React.FC = () => {
                 gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
               }}
             >
-							<Add onClick={()=>{navigate("/editor")}}></Add>
+              <Add
+                onClick={onClickAddResume
+									/*() => {
+                  navigate("/editor");
+                }*/}
+              ></Add>
               {isSuccess &&
                 data.map((resume: ResumesServerType) => {
-                  return <ResumeSelector resume={resume} key={resume._id}></ResumeSelector>;
+                  return (
+                    <ResumeSelector
+                      resume={resume}
+                      key={resume._id}
+                    ></ResumeSelector>
+                  );
                 })}
-              {/* <ResumeSelector></ResumeSelector> */}
             </div>
           </div>
         </div>

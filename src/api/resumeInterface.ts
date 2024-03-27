@@ -22,12 +22,7 @@ export const getResumeById = async (itemId: string, token: string): Promise<Resu
   return await handleJsonResponse(response);
 }
 
-export const createResume = async (itemName: string, token: string): Promise<ResumesServerType> => {
-  const resume = {
-    itemName,
-    itemIds: [],
-  };
-
+export const createResume = async (resume: ResumesType, token: string): Promise<ResumesServerType> => {
   const response = await fetch(`${BACKEND_ROUTE}`, {
     method: "POST",
     body: JSON.stringify(resume),

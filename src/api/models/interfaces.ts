@@ -94,7 +94,6 @@ export interface SkillsType {
 }
 
 export interface ResumesType {
-	user: string;
 	itemName: string;
   itemIds: string[];
   templateId: string | null;
