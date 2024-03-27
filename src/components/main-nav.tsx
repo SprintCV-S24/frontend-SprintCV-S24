@@ -17,9 +17,6 @@ export function MainNav({
         ></img>
       </Link>
       <Button className="mr-4" variant="secondary">
-        <Link to="/editor">Editor</Link>
-      </Button>
-      <Button className="mr-4" variant="secondary">
         Suggested Items
       </Button>
     </NavigationMenu>
