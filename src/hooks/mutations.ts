@@ -7,7 +7,7 @@ import { createHeading } from "../api/headerInterface";
 import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
-import { createResume, updateResume } from "@/api/resumeInterface";
+import { createResume, updateResume, deleteResume } from "@/api/resumeInterface";
 
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
@@ -149,6 +149,23 @@ export const useUpdateResume = (
         throw new Error("Token is undefined");
       }
       return await updateResume(updatedFields, resumeId, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
+};
+
+export const useDeleteResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      return await deleteResume(itemId, token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });

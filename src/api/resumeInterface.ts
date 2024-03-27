@@ -50,3 +50,13 @@ export const updateResume = async (
   });
   return await handleJsonResponse(response);
 };
+
+export const deleteResume = async (itemId: string, token: string): Promise<ResumesServerType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}

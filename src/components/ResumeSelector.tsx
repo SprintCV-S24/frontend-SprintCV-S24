@@ -14,7 +14,7 @@ import { ResumesServerType } from "@/api/models/resumeModel";
 import { ItemFrame } from "./ItemFrame";
 import { useAuth } from "@/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAddResume } from "@/hooks/mutations";
+import { useAddResume, useDeleteResume } from "@/hooks/mutations";
 import { ResumesType } from "@/api/models/interfaces";
 
 const MAX_LENGTH_DISPLAYED_NAME = 22;
@@ -31,6 +31,11 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
     isPending: addResumePending,
     isError: addResumeError,
   } = useAddResume(queryClient, storedToken);
+  const {
+    mutate: deleteResume,
+    isPending: deleteResumePending,
+    isError: deleteResumeError,
+  } = useDeleteResume(queryClient, storedToken);
 
   useEffect(() => {
     const updateToken = async () => {
@@ -71,19 +76,29 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
             <DropdownMenuItem>Rename</DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
-								
-                const {_id, ...newResume} = resume;
+                //this removes the id field
+                const { _id, ...newResume } = resume;
                 addResume(newResume, {
                   onError: () => {
                     //TODO
                   },
                 });
-								e.stopPropagation();
+                e.stopPropagation();
               }}
             >
               Duplicate
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-500 font-bold">
+            <DropdownMenuItem
+              className="text-red-500 font-bold"
+              onClick={(e) => {
+                deleteResume(resume._id, {
+                  onError: () => {
+                    //TODO
+                  },
+                });
+                e.stopPropagation();
+              }}
+            >
               Delete Resume
             </DropdownMenuItem>
           </DropdownMenuContent>
