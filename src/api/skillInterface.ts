@@ -45,3 +45,14 @@ export const getSkillById = async (itemId: string, token: string): Promise<Skill
 		type: resumeItemTypes.SKILL,
 	};
 };
+
+// Delete skill item
+export const deleteSkill = async (itemId: string, token: string): Promise<SkillServerExplicitType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}

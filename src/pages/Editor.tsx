@@ -29,6 +29,12 @@ import { generateLatex } from "@/latexUtils/latexString";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInBank } from "@/hooks/mutations";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -71,8 +77,26 @@ const Editor: React.FC = () => {
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
-  const handleBulletRenderingChange = (newRenderingState: boolean) => {
-    setIsPdfRendering(newRenderingState);
+  const handleClearResume = () => {
+    if (itemsInBank && itemsInResume && id && resume) {
+      const combinedItems: Array<BaseItem & { id: string }> = [
+        ...itemsInBank,
+        ...itemsInResume,
+      ];
+
+      const handleClearResume = createCustomSetItemsInBank(
+        id,
+        mutate,
+        setItemsInResume,
+      );
+
+      handleClearResume([]);
+      setItemsInBank(combinedItems);
+
+      console.log("Clearign Resume");
+      console.log(itemsInBank);
+      console.log(itemsInResume);
+    }
   };
 
   useEffect(() => {
@@ -161,7 +185,7 @@ const Editor: React.FC = () => {
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
         <div className="w-1/2 p-4 flex-col">
-          <Card className="h-12">
+          <Card className="h-12 ">
             <div className="flex items-center justify-between">
               <DropdownMenu
                 open={dropdownIsOpen}
@@ -202,6 +226,13 @@ const Editor: React.FC = () => {
                   ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button
+                className="mt-1 mr-1 text-red-500 font-bold"
+                variant="outline"
+                onClick={handleClearResume}
+              >
+                Clear Resume
+              </Button>
             </div>
           </Card>
           <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
@@ -244,10 +275,8 @@ const Editor: React.FC = () => {
             <ReactSortable
               animation={150}
               list={itemsInResume}
-              // setList={setItemsInResume}
               setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
               group="ResumeItems"
-              // [&_.sortable-ghost]:h-[400px]
               className="h-full w-full bg-white"
             >
               {itemsInResume &&

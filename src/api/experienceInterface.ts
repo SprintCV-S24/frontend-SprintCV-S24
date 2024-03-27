@@ -48,3 +48,14 @@ export const getExperienceById = async (itemId: string, token: string): Promise<
 		type: resumeItemTypes.EXPERIENCE,
 	};
 };
+
+// Delete experience item
+export const deleteExperience = async (itemId: string, token: string): Promise<ExperienceServerExplicitType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}

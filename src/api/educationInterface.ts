@@ -50,3 +50,15 @@ export const getEducationById = async (itemId: string, token: string): Promise<E
 		type: resumeItemTypes.EDUCATION,
 	};
 };
+
+// Delete education item
+export const deleteEducation = async (itemId: string, token: string): Promise<EducationServerExplicitType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}
+

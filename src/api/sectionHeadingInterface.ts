@@ -48,3 +48,13 @@ export const getSectionHeadingById = async (itemId: string, token: string): Prom
 		type: resumeItemTypes.SECTIONHEADING,
 	};
 };
+
+// Delete section heading item
+export const deleteSectionHeading = async (itemId: string, token: string): Promise<SectionHeadingServerExplicitType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
