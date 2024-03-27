@@ -68,7 +68,7 @@ const Editor: React.FC = () => {
     queryClient,
     storedToken,
   );
-  
+
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
@@ -86,45 +86,43 @@ const Editor: React.FC = () => {
       if (resume == null) {
         //TODO: home page needs to check for and display messages like these
         console.log("HERE");
-        navigate("/", { state: { from: "editor", error: "Resume not found" } });
       } else {
-        //const bankItems: Array<BaseItem & { id: string }> = [];
-         //const resumeItems: Array<BaseItem & { id: string }> = [];
         console.log("itemids:", resume.itemIds);
-        /*
-        for (let item of allItems) {
-          if (resume.itemIds.includes(item._id)) {
-            resumeItems.push({ ...item, id: item._id });
-          } else {
-            bankItems.push({ ...item, id: item._id });
-          }
-        }
-        */
-        const result = allItems.reduce(
-          (accumulator, item) => {
-            if (resume.itemIds.includes(item._id)) {
+
+        const resumeResult = resume.itemIds.reduce(
+          (accumulator, itemId) => {
+            const item = allItems.find((item) => item._id === itemId);
+            if (item) {
               accumulator.resumeItems.push({ ...item, id: item._id });
             } else {
+              console.log(`Item with ID ${itemId} not found in allItems.`);
+            }
+            return accumulator;
+          },
+          { resumeItems: [] } as {
+            resumeItems: Array<BaseItem & { id: string }>;
+          },
+        );
+
+        const bankResult = allItems.reduce(
+          (accumulator, item) => {
+            if (!resume.itemIds.includes(item._id)) {
               accumulator.bankItems.push({ ...item, id: item._id });
             }
             return accumulator;
           },
-          { resumeItems: [], bankItems: [] } as { resumeItems:  Array<BaseItem & {id: string}>, bankItems: Array<BaseItem & {id: string}>} // Correcting the type assertion
+          { bankItems: [] } as { bankItems: Array<BaseItem & { id: string }> },
         );
 
-        setItemsInBank(result.bankItems);
-        setItemsInResume(result.resumeItems);
-        
-        console.log("bank items:", result.resumeItems);
-        console.log("resume items:", result.bankItems);
+        setItemsInBank(bankResult.bankItems);
+        setItemsInResume(resumeResult.resumeItems);
+
+        console.log("bank items:", bankResult.bankItems);
+        console.log("resume items:", resumeResult.resumeItems);
       }
     }
-  }, [id, allItems]);
+  }, [id, allItems, resume]);
 
-  useEffect(() => {
-    console.log("Use effect ran for resume");
-  }, [resume])
-  
   useEffect(() => {
     const fetchFact = async () => {
       try {
