@@ -76,6 +76,7 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
+    // TODO: Remove debugging logging.
     console.log(id);
     console.log(resume);
     console.log(allItems);
@@ -84,11 +85,12 @@ const Editor: React.FC = () => {
       console.log("In loop");
       // this means no resume had that id
       if (resume == null) {
-        //TODO: home page needs to check for and display messages like these
+        // TODO: home page needs to check for and display messages like these
         console.log("HERE");
       } else {
         console.log("itemids:", resume.itemIds);
 
+        // This extracts the resumeItems in the specific order provided
         const resumeResult = resume.itemIds.reduce(
           (accumulator, itemId) => {
             const item = allItems.find((item) => item._id === itemId);
@@ -104,6 +106,7 @@ const Editor: React.FC = () => {
           },
         );
 
+        // This extracts the rest of the items, represented as bankItems
         const bankResult = allItems.reduce(
           (accumulator, item) => {
             if (!resume.itemIds.includes(item._id)) {
@@ -114,9 +117,11 @@ const Editor: React.FC = () => {
           { bankItems: [] } as { bankItems: Array<BaseItem & { id: string }> },
         );
 
+        // Sets the items in the respective fields
         setItemsInBank(bankResult.bankItems);
         setItemsInResume(resumeResult.resumeItems);
 
+        // TODO: Remove logging for debugging
         console.log("bank items:", bankResult.bankItems);
         console.log("resume items:", resumeResult.resumeItems);
       }
