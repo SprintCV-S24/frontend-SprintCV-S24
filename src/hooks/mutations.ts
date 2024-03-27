@@ -128,7 +128,7 @@ export const useAddResume = (
       return await createResume(resume, token);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
     },
   });
 };

@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
 import { useAddEducation } from "@/hooks/mutations";
