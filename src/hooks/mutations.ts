@@ -1,5 +1,4 @@
-import { useMutation, QueryClient } from "@tanstack/react-query";
-
+import { useMutation, QueryClient, UseMutateFunction } from "@tanstack/react-query";
 import { createActivity } from "../api/activityInterface";
 import { createEducation } from "../api/educationInterface";
 import { createExperience } from "../api/experienceInterface";
@@ -7,7 +6,7 @@ import { createHeading } from "../api/headerInterface";
 import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
-import { updateResume } from "@/api/resumeInterface";
+import { createResume, updateResume, deleteResume } from "@/api/resumeInterface";
 
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
@@ -17,7 +16,6 @@ import { ProjectsType } from "@/api/models/interfaces";
 import { SectionHeadingsType } from "@/api/models/interfaces";
 import { SkillsType } from "@/api/models/interfaces";
 import { ResumesType } from "@/api/models/interfaces";
-import { UseMutateFunction } from "@tanstack/react-query";
 import { ResumesServerType } from "@/api/models/resumeModel";
 import { BaseItem } from "@/api/models/interfaces";
 
@@ -140,6 +138,23 @@ export const useAddSkill = (
   });
 };
 
+export const useAddResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  return useMutation({
+    mutationFn: async (resume: ResumesType) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      return await createResume(resume, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
+};
+
 export const useUpdateResume = (
   queryClient: QueryClient,
   token: string | undefined,
@@ -156,6 +171,23 @@ export const useUpdateResume = (
         throw new Error("Token is undefined");
       }
       return await updateResume(updatedFields, resumeId, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
+};
+
+export const useDeleteResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      return await deleteResume(itemId, token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
