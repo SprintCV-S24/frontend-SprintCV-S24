@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,9 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { deleteItem } from "@/api/resumeItemInterface";
+
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -77,6 +81,18 @@ const Editor: React.FC = () => {
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
+  const handleItemDeletion = (item: BaseItem, itemId: string, token: string) => {
+    // Calls a generalization of delete that is type agnostic.
+    deleteItem(item, itemId, token);
+
+    // Update if necessary
+    if (itemsInBank) {
+      const updatedItemsInBank = itemsInBank.filter(item => item._id !== itemId); // Add this for item removal 
+      setItemsInBank(updatedItemsInBank);
+    }
+  };
+
+
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
       const combinedItems: Array<BaseItem & { id: string }> = [
@@ -84,16 +100,16 @@ const Editor: React.FC = () => {
         ...itemsInResume,
       ];
 
-      const handleClearResume = createCustomSetItemsInBank(
+      const clearResumeHelper = createCustomSetItemsInBank(
         id,
         mutate,
         setItemsInResume,
       );
 
-      handleClearResume([]);
+      clearResumeHelper([]);
       setItemsInBank(combinedItems);
 
-      console.log("Clearign Resume");
+      console.log("Clearing Resume");
       console.log(itemsInBank);
       console.log(itemsInResume);
     }
@@ -235,7 +251,7 @@ const Editor: React.FC = () => {
               </Button>
             </div>
           </Card>
-          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
+          <ScrollArea className="h-[600px] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
             <div className="p-4 w-full h-full">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
@@ -247,19 +263,35 @@ const Editor: React.FC = () => {
                   list={itemsInBank}
                   setList={setItemsInBank}
                   group="ResumeItems"
-                  className="h-[500px] w-full"
+                  className="h-[500px] w-full mb-2"
                 >
                   {itemsInBank &&
                     itemsInBank.map((item) => (
                       <Card
-                        className="w-full p-1 mb-2 bg-grey border border-grey"
+                        className="w-full p-1 mb-2 bg-grey border border-grey flex items-center justify-between"
                         key={item._id}
                       >
-                        <LatexImage
-                          onRenderStart={() => setDummy(dummy)}
-                          onRenderEnd={() => setDummy(dummy)}
-                          latexCode={generateLatex(item)}
-                        ></LatexImage>
+                        <div>
+                          <LatexImage
+                            onRenderStart={() => setDummy(dummy)}
+                            onRenderEnd={() => setDummy(dummy)}
+                            latexCode={generateLatex(item)}
+                          ></LatexImage>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger>
+                            <DotsVerticalIcon></DotsVerticalIcon>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem>Clone Item</DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-red-500 font-bold"
+                              onClick={() => handleItemDeletion(item, item._id, storedToken!)}
+                            >
+                              Delete Item
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </Card>
                     ))}
                 </ReactSortable>

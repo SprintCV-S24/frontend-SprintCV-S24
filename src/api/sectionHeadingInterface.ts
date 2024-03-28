@@ -58,3 +58,4 @@ export const deleteSectionHeading = async (itemId: string, token: string): Promi
     },
   });
   return await handleJsonResponse(response);
+}
