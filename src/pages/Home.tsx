@@ -3,6 +3,14 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
+import { Add } from "@/components/Add";
+import { ResumeSelector } from "@/components/ResumeSelector";
+import { useGetAllResumes } from "@/hooks/queries";
+import { ResumesServerType } from "@/api/models/resumeModel";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAddResume } from "@/hooks/mutations";
+import { ResumesType } from "@/api/models/interfaces";
 import {
   Card,
   CardContent,
@@ -15,6 +23,51 @@ import { ResumeSelector } from "@/components/resume-selectors";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
+  const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+  const {
+    data,
+    isLoading,
+    isError: isGetAllResumesError,
+    isSuccess,
+  } = useGetAllResumes(storedToken);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const {
+    mutate,
+    isPending,
+    isError: isAddResumeError,
+  } = useAddResume(queryClient, storedToken);
+
+  const onClickAddResume = () => {
+    const blankResume: ResumesType = {
+      itemName: "Untitled resume",
+			itemIds: [],
+			templateId: null,
+    };
+
+    mutate(blankResume, {
+			onSuccess: (response) => {
+				console.log("response:", response);
+				navigate(`/editor/${response._id}`);
+			},
+			onError: () => {
+				//TODO
+			}
+		});
+  };
+
+  useEffect(() => {
+    const updateToken = async () => {
+      try {
+        const token = await currentUser?.getIdToken();
+        setStoredToken(token);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    void updateToken();
+  }, [currentUser]);
 
   return (
     <>
@@ -28,16 +81,35 @@ const Home: React.FC = () => {
           <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
-      <div className="p-8 bg-[#E7ECEF] h-screen">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+      <div className="lg:p-8 bg-[#E7ECEF] h-screen">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 mx-2">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome!</h1>
             <p className="text-sm text-muted-foreground">
               Your current resumes are here!
             </p>
-            <Link to="/editor">
-              <ResumeSelector></ResumeSelector>
-            </Link>
+            <div
+              className="w-full h-full grid gap-4 justify-center justify-items-center"
+              style={{
+                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+              }}
+            >
+              <Add
+                onClick={onClickAddResume
+									/*() => {
+                  navigate("/editor");
+                }*/}
+              ></Add>
+              {isSuccess &&
+                data.map((resume: ResumesServerType) => {
+                  return (
+                    <ResumeSelector
+                      resume={resume}
+                      key={resume._id}
+                    ></ResumeSelector>
+                  );
+                })}
+            </div>
           </div>
         </div>
       </div>

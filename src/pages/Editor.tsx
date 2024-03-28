@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
@@ -21,273 +21,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResumeItem } from "types";
+import { ReactSortable } from "react-sortablejs";
 import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
+import { BaseItem } from "@/api/models/interfaces";
 import {
   generateEducationLatex,
   generateExperienceLatex,
   generateProjectLatex,
 } from "@/latexUtils/latexString";
-import { useGetAllItems } from "@/hooks/queries";
+import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
-
-const testLatex2 = `
-%-------------------------
-% Resume in Latex
-% Author : Jake Gutierrez
-% Based off of: https://github.com/sb2nov/resume
-% License : MIT
-%------------------------
-
-\\documentclass[letterpaper,11pt]{article}
-
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-\\input{glyphtounicode}
-
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \\usepackage[sfdefault]{FiraSans}
-% \\usepackage[sfdefault]{roboto}
-% \\usepackage[sfdefault]{noto-sans}
-% \\usepackage[default]{sourcesanspro}
-
-% serif
-% \\usepackage{CormorantGaramond}
-% \\usepackage{charter}
-
-
-\\pagestyle{fancy}
-\\fancyhf{} % clear all header and footer fields
-\\fancyfoot{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\topmargin}{-.5in}
-\\addtolength{\\textheight}{1.0in}
-
-\\urlstyle{same}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-  \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\\pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\\newcommand{\\resumeItem}[1]{
-  \\item\\small{
-    {#1 \\vspace{-2pt}}
-  }
-}
-
-% \\newcommand{\\resumeSubheading}[4]{
-%   \\vspace{-2pt}\\item
-%     \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-%       \\textbf{#1} & #2 \\\\
-%       \\textit{\\small#3} & \\textit{\\small #4} \\\\
-%     \\end{tabular*}\\vspace{-7pt}
-% }
-
-\\newcommand{\\resumeSubheading}[5]{
-  \\vspace{-2pt}\\item
-    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-      \\textbf{#1} \\small\\emph{#2} & #3 \\\\
-      \\textit{\\small#4} & \\textit{\\small #5} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubSubheading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-      \\textit{\\small#1} & \\textit{\\small #2} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeProjectHeading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-      \\small#1 & #2 \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-
-\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-
-\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
-
-%-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\\begin{document}
-
-%----------HEADING----------
-% \\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}
-%   \\textbf{\\href{http://sourabhbajaj.com/}{\\Large Sourabh Bajaj}} & Email : \\href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\\\
-%   \\href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\\\
-% \\end{tabular*}
-
-\\begin{center}
-  \\textbf{\\Huge \\scshape Aubrey Graham (Drake)} \\\\ \\vspace{1pt}
-  \\small 111-111-1111 $|$ \\href{aubrey.graham@gmail.com}{\\underline{aubrey.graham@gmail.com}} $|$
-  \\href{https://linkedin.com/in/aubreygraham}{\\underline{linkedin.com/in/aubreygraham}} $|$
-  \\href{https://github.com/aubreygraham}{\\underline{github.com/aubreygraham}}
-\\end{center}
-
-
-
-
-%-------------------------------------------
-\\end{document}
-`;
-
-const testlatex3 = `\\documentclass[letterpaper,11pt]{article}
-        
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-\\usepackage{etoolbox}
-\\input{glyphtounicode}
-\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \\usepackage[sfdefault]{FiraSans}
-% \\usepackage[sfdefault]{roboto}
-% \\usepackage[sfdefault]{noto-sans}
-% \\usepackage[default]{sourcesanspro}
-
-
-% serif
-% \\usepackage{CormorantGaramond}
-% \\usepackage{charter}
-
-\\pagestyle{fancy}
-\\fancyhf{} % clear all header and footer fields
-\\fancyfoot{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\textheight}{1.0in}
-
-\\urlstyle{same}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-    \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\\pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\\newcommand{\\resumeItem}[1]{
-    \\item\\small{
-    {#1 \\vspace{-2pt}}
-    }
-}
-
-\\newcommand{\\resumeSubheading}[4]{
-    \\vspace{-2pt}\\item
-    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-        \\textbf{#1} & #2 \\\\
-        \\textit{\\small#3} & \\textit{\\small #4} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubSubheading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-        \\textit{\\small#1} & \\textit{\\small #2} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeProjectHeading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-        \\small#1 & #2 \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-
-\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-
-\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-
-\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
-
-
-\\AtBeginDocument{
-    \\setbox0=\\vbox\\bgroup
-    \\preto\\enddocument{\\egroup
-        \\dimen0=\\dp0
-        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
-        \\unvbox0\\kern-\\dimen0 }
-}\\begin{document}
-\\resumeSubHeadingListStart
-\\resumeSubheading
-{Some High school}{Los Angeles, CA}
-{BS CS}{Exp 2023}
-\\resumeSubHeadingListEnd
-\\vspace{-\\lastskip}\\end{document}
-`;
+import { testLatex2 } from "@/tests/dummyData";
 
 const DOCUMENT_WIDTH = 420;
 
 const Editor: React.FC = () => {
-  const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
-  const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+  const [itemsInBank, setItemsInBank] = useState<
+    Array<BaseItem & { id: string }> | undefined
+  >(undefined);
+  const [itemsInResume, setItemsInResume] = useState<
+    Array<BaseItem & { id: string }> | undefined
+  >(undefined);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const {
+    data: allItems,
+    isLoading: allItemsIsLoading,
+    isError: allItemsIsError,
+    isSuccess: allItemsIsSuccess,
+  } = useGetAllItems(storedToken);
+  const {
+    data: resume,
+    isLoading: resumeIsLoading,
+    isError: resumeIsError,
+    isSuccess: resumeIsSuccess,
+    error: resumeError,
+  } = useGetResume(storedToken, id);
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
   const handleBulletRenderingChange = (newRenderingState: boolean) => {
@@ -295,23 +69,35 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
+    if (id != null && resume !== undefined && allItems != null) {
+      //this means no resume had that id
+      if (resume === null) {
+        //TODO: home page needs to check for and display messages like these
+        navigate("/", { state: { from: "editor", error: "Resume not found" } });
+      } else {
+        const bankItems: Array<BaseItem & { id: string }> = [];
+        const resumeItems: Array<BaseItem & { id: string }> = [];
+        console.log("itemids:", resume.itemIds);
+        for (let item of allItems) {
+          if (resume.itemIds.includes(item._id)) {
+            resumeItems.push({ ...item, id: item._id });
+          } else {
+            bankItems.push({ ...item, id: item._id });
+          }
+        }
+        setItemsInBank(bankItems);
+        setItemsInResume(resumeItems);
+        console.log("bank items:", bankItems);
+        console.log("resume items:", resumeItems);
+      }
+    }
+  }, [id, resume, allItems]);
+
+  useEffect(() => {
     const fetchFact = async () => {
       try {
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
-
-        const payloadHeader = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        // below, the /api is replaced with the server url defined in vite.config.ts
-        // so, if the server is defined as "localhost:3001" in that file,
-        // the fetch url will be "localhost:3001/example"
-        //const res = await fetch("/api/example", payloadHeader);
-        // setFact(await res.text());
       } catch (err) {
         console.log(err);
       }
@@ -345,7 +131,7 @@ const Editor: React.FC = () => {
                 open={dropdownIsOpen}
                 onOpenChange={setDropdownIsOpen}
               >
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
                   </Button>
@@ -388,8 +174,8 @@ const Editor: React.FC = () => {
                 Resume Items
               </h4>
               <Separator className="mb-2"></Separator>
-              {isSuccess &&
-                data.map((item) => (
+              {allItemsIsSuccess &&
+                allItems.map((item) => (
                   <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
                     <LatexImage
                       onRenderStart={() => setDummy(dummy)}
@@ -405,13 +191,28 @@ const Editor: React.FC = () => {
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="flex items-center justify-center">
-            <LatexImage
-              onRenderStart={() => setIsPdfRendering(true)}
-              onRenderEnd={() => setIsPdfRendering(false)}
-              latexCode={testLatex2}
-            ></LatexImage>
-          </div>
+          {itemsInResume && id && (
+            <ReactSortable
+              animation={150}
+              list={itemsInResume}
+              setList={setItemsInResume}
+              // setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
+              group="ResumeItems"
+              // [&_.sortable-ghost]:h-[400px]
+              className="h-full w-full bg-white"
+            >
+              {itemsInResume &&
+                itemsInResume.map((item) => (
+                  <div className="w-full" key={item._id}>
+                    <LatexImage
+                      onRenderStart={() => setDummy(dummy)}
+                      onRenderEnd={() => setDummy(dummy)}
+                      latexCode={generateLatex(item)}
+                    ></LatexImage>
+                  </div>
+                ))}
+            </ReactSortable>
+          )}
         </div>
       </div>
     </>

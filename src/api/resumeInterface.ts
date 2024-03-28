@@ -1,9 +1,10 @@
 import { ResumesType } from "./models/interfaces";
+import { ResumesServerType } from "./models/resumeModel";
 import { handleJsonResponse } from "./responseHelpers";
 
 const BACKEND_ROUTE = `${import.meta.env.VITE_BACKEND_ROUTE}/resumes`;
 
-export const getAllResumes = async (token: string) => {
+export const getAllResumes = async (token: string): Promise<ResumesServerType[]> => {
 	const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -12,7 +13,7 @@ export const getAllResumes = async (token: string) => {
   return await handleJsonResponse(response);
 }
 
-export const getResumeById = async (itemId: string, token: string) => {
+export const getResumeById = async (itemId: string, token: string): Promise<ResumesServerType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -21,12 +22,7 @@ export const getResumeById = async (itemId: string, token: string) => {
   return await handleJsonResponse(response);
 }
 
-export const createResume = async (itemName: string, token: string) => {
-  const resume = {
-    itemName,
-    itemIds: [],
-  };
-
+export const createResume = async (resume: ResumesType, token: string): Promise<ResumesServerType> => {
   const response = await fetch(`${BACKEND_ROUTE}`, {
     method: "POST",
     body: JSON.stringify(resume),
@@ -42,7 +38,7 @@ export const updateResume = async (
   updatedFields: Partial<ResumesType>,
   resumeId: string,
   token: string,
-) => {
+): Promise<ResumesServerType> => {
 
   const response = await fetch(`${BACKEND_ROUTE}/${resumeId}`, {
     method: "PUT",
@@ -54,3 +50,13 @@ export const updateResume = async (
   });
   return await handleJsonResponse(response);
 };
+
+export const deleteResume = async (itemId: string, token: string): Promise<ResumesServerType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}

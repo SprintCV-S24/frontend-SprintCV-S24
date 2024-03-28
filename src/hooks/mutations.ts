@@ -7,7 +7,7 @@ import { createHeading } from "../api/headerInterface";
 import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
-import { updateResume } from "@/api/resumeInterface";
+import { createResume, updateResume, deleteResume } from "@/api/resumeInterface";
 
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
@@ -116,13 +116,56 @@ export const useAddSkill = (queryClient: QueryClient, token: string | undefined)
   });
 };
 
-export const useUpdateResume = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
-    mutationFn: async ({ updatedFields, resumeId }: { updatedFields: Partial<ResumesType>; resumeId: string }) => {
+    mutationFn: async (resume: ResumesType) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      return await createResume(resume, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
+};
+
+export const useUpdateResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  return useMutation({
+    mutationFn: async ({
+      updatedFields,
+      resumeId,
+    }: {
+      updatedFields: Partial<ResumesType>;
+      resumeId: string;
+    }) => {
       if (token === undefined) {
         throw new Error("Token is undefined");
       }
       return await updateResume(updatedFields, resumeId, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resumes"] });
+    },
+  });
+};
+
+export const useDeleteResume = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      return await deleteResume(itemId, token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resumes"] });
