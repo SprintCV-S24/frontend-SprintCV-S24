@@ -8,6 +8,7 @@ export function MainNav({
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   return (
+    <div className="w-full">
     <NavigationMenu className="drop-shadow-sm">
       <Link to="/">
         <img
@@ -23,5 +24,6 @@ export function MainNav({
         Suggested Items
       </Button>
     </NavigationMenu>
+    </div>
   );
 }

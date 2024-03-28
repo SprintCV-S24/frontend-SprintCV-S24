@@ -65,10 +65,9 @@ const Register: React.FC = () => {
   // TODO: Modify Height: should be full
   return (
     <>
-      <div className="md:hidden"></div>
-      <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Button
-          className="absolute right-4 top-4 md:right-8 md:top-8"
+          className="absolute right-8 top-8"
           variant="ghost"
         >
           <Link to="/login">Login</Link>
@@ -96,7 +95,7 @@ const Register: React.FC = () => {
           <BackgroundBeams />
         </div>
         <div className="lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <div className="mx-auto flex flex-col justify-center space-y-6 w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Create an Account
