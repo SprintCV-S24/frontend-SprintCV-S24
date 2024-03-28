@@ -48,3 +48,14 @@ export const getProjectById = async (itemId: string, token: string): Promise<Pro
 		type: resumeItemTypes.PROJECT,
 	};
 };
+
+// Delete project item
+export const deleteProject = async (itemId: string, token: string): Promise<ProjectServerExplicitType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}

@@ -19,11 +19,14 @@ import Profile from "./pages/Profile";
 import Editor from "./pages/Editor";
 import ResumeContext from "@/components/resumecontext";
 import { BaseItem } from "./api/models/interfaces";
-import { generatePdfBlobSafe, initializeLatexEngines } from "./latexUtils/latexUtils";
+import {
+  generatePdfBlobSafe,
+  initializeLatexEngines,
+} from "./latexUtils/latexUtils";
 import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { testlatex3 } from "./tests/dummyData";
+import { testlatex4 } from "./tests/dummyData";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,7 +36,10 @@ const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/editor" element={<PrivateRoute element={<Editor />} />} />
+      <Route
+        path="/editor/:id?"
+        element={<PrivateRoute element={<Editor />} />}
+      />
     </>,
   ),
 );
@@ -60,7 +66,7 @@ const App: React.FC = () => {
       console.log("engine initialized");
     });
     pdfInit();
-    generatePdfBlobSafe(testlatex3);
+    generatePdfBlobSafe(testlatex4);
   }, []);
 
   return (

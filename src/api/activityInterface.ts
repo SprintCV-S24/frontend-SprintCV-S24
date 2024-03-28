@@ -50,3 +50,13 @@ export const getActivityById = async (itemId: string, token: string): Promise<Ac
 	};
 };
 
+// Delete activity item
+export const deleteActivity = async (itemId: string, token: string): Promise<ActivitiesServerExplicitType | null> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+		method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleJsonResponse(response);
+}

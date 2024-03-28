@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { MainNav } from "../components/main-nav";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,9 @@ import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,297 +23,156 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResumeItem } from "types";
-import HeadingScrollItem from "../components/scrollarea-items/heading-scroll";
 import { LatexImage } from "@/components/Latex";
-import {
-  generateEducationLatex,
-  generateExperienceLatex,
-  generateProjectLatex,
-} from "@/latexUtils/latexString";
-import { useGetAllItems } from "@/hooks/queries";
+import { BaseItem } from "@/api/models/interfaces";
+import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
+import { useUpdateResume } from "@/hooks/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { createCustomSetItemsInBank } from "@/hooks/mutations";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { deleteItem } from "@/api/resumeItemInterface";
 
-const testLatex2 = `
-%-------------------------
-% Resume in Latex
-% Author : Jake Gutierrez
-% Based off of: https://github.com/sb2nov/resume
-% License : MIT
-%------------------------
-
-\\documentclass[letterpaper,11pt]{article}
-
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-\\input{glyphtounicode}
-
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \\usepackage[sfdefault]{FiraSans}
-% \\usepackage[sfdefault]{roboto}
-% \\usepackage[sfdefault]{noto-sans}
-% \\usepackage[default]{sourcesanspro}
-
-% serif
-% \\usepackage{CormorantGaramond}
-% \\usepackage{charter}
-
-
-\\pagestyle{fancy}
-\\fancyhf{} % clear all header and footer fields
-\\fancyfoot{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\topmargin}{-.5in}
-\\addtolength{\\textheight}{1.0in}
-
-\\urlstyle{same}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-  \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\\pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\\newcommand{\\resumeItem}[1]{
-  \\item\\small{
-    {#1 \\vspace{-2pt}}
-  }
-}
-
-% \\newcommand{\\resumeSubheading}[4]{
-%   \\vspace{-2pt}\\item
-%     \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-%       \\textbf{#1} & #2 \\\\
-%       \\textit{\\small#3} & \\textit{\\small #4} \\\\
-%     \\end{tabular*}\\vspace{-7pt}
-% }
-
-\\newcommand{\\resumeSubheading}[5]{
-  \\vspace{-2pt}\\item
-    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-      \\textbf{#1} \\small\\emph{#2} & #3 \\\\
-      \\textit{\\small#4} & \\textit{\\small #5} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubSubheading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-      \\textit{\\small#1} & \\textit{\\small #2} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeProjectHeading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-      \\small#1 & #2 \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-
-\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-
-\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
-
-%-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\\begin{document}
-
-%----------HEADING----------
-% \\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}
-%   \\textbf{\\href{http://sourabhbajaj.com/}{\\Large Sourabh Bajaj}} & Email : \\href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\\\
-%   \\href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\\\
-% \\end{tabular*}
-
-\\begin{center}
-  \\textbf{\\Huge \\scshape Aubrey Graham (Drake)} \\\\ \\vspace{1pt}
-  \\small 111-111-1111 $|$ \\href{aubrey.graham@gmail.com}{\\underline{aubrey.graham@gmail.com}} $|$
-  \\href{https://linkedin.com/in/aubreygraham}{\\underline{linkedin.com/in/aubreygraham}} $|$
-  \\href{https://github.com/aubreygraham}{\\underline{github.com/aubreygraham}}
-\\end{center}
-
-
-
-
-%-------------------------------------------
-\\end{document}
-`;
-
-const testlatex3 = `\\documentclass[letterpaper,11pt]{article}
-        
-\\usepackage{latexsym}
-\\usepackage[empty]{fullpage}
-\\usepackage{titlesec}
-\\usepackage{marvosym}
-\\usepackage[usenames,dvipsnames]{color}
-\\usepackage{verbatim}
-\\usepackage{enumitem}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{fancyhdr}
-\\usepackage[english]{babel}
-\\usepackage{tabularx}
-\\usepackage{etoolbox}
-\\input{glyphtounicode}
-\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
-
-%----------FONT OPTIONS----------
-% sans-serif
-% \\usepackage[sfdefault]{FiraSans}
-% \\usepackage[sfdefault]{roboto}
-% \\usepackage[sfdefault]{noto-sans}
-% \\usepackage[default]{sourcesanspro}
-
-
-% serif
-% \\usepackage{CormorantGaramond}
-% \\usepackage{charter}
-
-\\pagestyle{fancy}
-\\fancyhf{} % clear all header and footer fields
-\\fancyfoot{}
-\\renewcommand{\\headrulewidth}{0pt}
-\\renewcommand{\\footrulewidth}{0pt}
-
-% Adjust margins
-\\addtolength{\\oddsidemargin}{-0.5in}
-\\addtolength{\\evensidemargin}{-0.5in}
-\\addtolength{\\textwidth}{1in}
-\\addtolength{\\textheight}{1.0in}
-
-\\urlstyle{same}
-
-\\raggedbottom
-\\raggedright
-\\setlength{\\tabcolsep}{0in}
-
-% Sections formatting
-\\titleformat{\\section}{
-    \\vspace{-4pt}\\scshape\\raggedright\\large
-}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\\pdfgentounicode=1
-
-%-------------------------
-% Custom commands
-\\newcommand{\\resumeItem}[1]{
-    \\item\\small{
-    {#1 \\vspace{-2pt}}
-    }
-}
-
-\\newcommand{\\resumeSubheading}[4]{
-    \\vspace{-2pt}\\item
-    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-        \\textbf{#1} & #2 \\\\
-        \\textit{\\small#3} & \\textit{\\small #4} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubSubheading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-        \\textit{\\small#1} & \\textit{\\small #2} \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeProjectHeading}[2]{
-    \\item
-    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-        \\small#1 & #2 \\\\
-    \\end{tabular*}\\vspace{-7pt}
-}
-
-\\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-
-\\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-
-\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-
-\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
-
-
-\\AtBeginDocument{
-    \\setbox0=\\vbox\\bgroup
-    \\preto\\enddocument{\\egroup
-        \\dimen0=\\dp0
-        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
-        \\unvbox0\\kern-\\dimen0 }
-}\\begin{document}
-\\resumeSubHeadingListStart
-\\resumeSubheading
-{Some High school}{Los Angeles, CA}
-{BS CS}{Exp 2023}
-\\resumeSubHeadingListEnd
-\\vspace{-\\lastskip}\\end{document}
-`;
-
-const DOCUMENT_WIDTH = 420;
 
 const Editor: React.FC = () => {
-  const [fact, setFact] = useState<string>("");
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
-  const { data, isLoading, isError, isSuccess } = useGetAllItems(storedToken);
+
+  const [itemsInBank, setItemsInBank] = useState<
+    Array<BaseItem & { id: string }> | undefined
+  >(undefined);
+
+  const [itemsInResume, setItemsInResume] = useState<
+    Array<BaseItem & { id: string }> | undefined
+  >(undefined);
+
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const {
+    data: allItems,
+    isLoading: allItemsIsLoading,
+    isError: allItemsIsError,
+    isSuccess: allItemsIsSuccess,
+  } = useGetAllItems(storedToken);
+
+  const {
+    data: resume,
+    isLoading: resumeIsLoading,
+    isError: resumeIsError,
+    isSuccess: resumeIsSuccess,
+    error: resumeError,
+  } = useGetResume(storedToken, id);
+
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending, isError } = useUpdateResume(
+    queryClient,
+    storedToken,
+  );
+
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
-  const handleBulletRenderingChange = (newRenderingState: boolean) => {
-    setIsPdfRendering(newRenderingState);
+  const handleItemDeletion = (item: BaseItem, itemId: string, token: string) => {
+    // Calls a generalization of delete that is type agnostic.
+    deleteItem(item, itemId, token);
+
+    // Update if necessary
+    if (itemsInBank) {
+      const updatedItemsInBank = itemsInBank.filter(item => item._id !== itemId); // Add this for item removal 
+      setItemsInBank(updatedItemsInBank);
+    }
   };
+
+
+  const handleClearResume = () => {
+    if (itemsInBank && itemsInResume && id && resume) {
+      const combinedItems: Array<BaseItem & { id: string }> = [
+        ...itemsInBank,
+        ...itemsInResume,
+      ];
+
+      const clearResumeHelper = createCustomSetItemsInBank(
+        id,
+        mutate,
+        setItemsInResume,
+      );
+
+      clearResumeHelper([]);
+      setItemsInBank(combinedItems);
+
+      console.log("Clearing Resume");
+      console.log(itemsInBank);
+      console.log(itemsInResume);
+    }
+  };
+
+  useEffect(() => {
+    // TODO: Remove debugging logging.
+    console.log(id);
+    console.log(resume);
+    console.log(allItems);
+
+    if (id != null && allItems != null) {
+      console.log("In loop");
+      // this means no resume had that id
+      if (resume == null) {
+        // TODO: home page needs to check for and display messages like these
+        console.log("HERE");
+      } else {
+        console.log("itemids:", resume.itemIds);
+
+        // This extracts the resumeItems in the specific order provided
+        const resumeResult = resume.itemIds.reduce(
+          (accumulator, itemId) => {
+            const item = allItems.find((item) => item._id === itemId);
+            if (item) {
+              accumulator.resumeItems.push({ ...item, id: item._id });
+            } else {
+              console.log(`Item with ID ${itemId} not found in allItems.`);
+            }
+            return accumulator;
+          },
+          { resumeItems: [] } as {
+            resumeItems: Array<BaseItem & { id: string }>;
+          },
+        );
+
+        // This extracts the rest of the items, represented as bankItems
+        const bankResult = allItems.reduce(
+          (accumulator, item) => {
+            if (!resume.itemIds.includes(item._id)) {
+              accumulator.bankItems.push({ ...item, id: item._id });
+            }
+            return accumulator;
+          },
+          { bankItems: [] } as { bankItems: Array<BaseItem & { id: string }> },
+        );
+
+        // Sets the items in the respective fields
+        setItemsInBank(bankResult.bankItems);
+        setItemsInResume(resumeResult.resumeItems);
+
+        // TODO: Remove logging for debugging
+        console.log("bank items:", bankResult.bankItems);
+        console.log("resume items:", resumeResult.resumeItems);
+      }
+    }
+  }, [id, allItems, resume]);
 
   useEffect(() => {
     const fetchFact = async () => {
       try {
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
-
-        const payloadHeader = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        // below, the /api is replaced with the server url defined in vite.config.ts
-        // so, if the server is defined as "localhost:3001" in that file,
-        // the fetch url will be "localhost:3001/example"
-        //const res = await fetch("/api/example", payloadHeader);
-        // setFact(await res.text());
       } catch (err) {
         console.log(err);
       }
@@ -319,10 +180,6 @@ const Editor: React.FC = () => {
 
     void fetchFact();
   }, [currentUser, storedToken]);
-
-  const tags = Array.from({ length: 50 }).map(
-    (_, i, a) => `Resume Item ${a.length - i}`,
-  );
 
   // TODO: Make this type safe, make some other changes.
   return (
@@ -339,13 +196,13 @@ const Editor: React.FC = () => {
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
         <div className="w-1/2 p-4 flex-col">
-          <Card className="h-12">
+          <Card className="h-12 ">
             <div className="flex items-center justify-between">
               <DropdownMenu
                 open={dropdownIsOpen}
                 onOpenChange={setDropdownIsOpen}
               >
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
                   <Button className="mt-1 ml-1" variant="outline">
                     Add Resume Item
                   </Button>
@@ -380,38 +237,87 @@ const Editor: React.FC = () => {
                   ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button
+                className="mt-1 mr-1 text-red-500 font-bold"
+                variant="outline"
+                onClick={handleClearResume}
+              >
+                Clear Resume
+              </Button>
             </div>
           </Card>
-          <ScrollArea className="h-[600px] w-full rounded-md mt-4 border bg-white shadow-md">
-            <div className="p-4">
+          <ScrollArea className="h-[600px] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
+            <div className="p-4 w-full h-full">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
               </h4>
               <Separator className="mb-2"></Separator>
-              {isSuccess &&
-                data.map((item) => (
-                  <Card className="w-full p-2 mb-2 bg-grey" key={item._id}>
+              {itemsInBank && (
+                <ReactSortable
+                  animation={150}
+                  list={itemsInBank}
+                  setList={setItemsInBank}
+                  group="ResumeItems"
+                  className="h-[500px] w-full mb-2"
+                >
+                  {itemsInBank &&
+                    itemsInBank.map((item) => (
+                      <Card
+                        className="w-full p-1 mb-2 bg-grey border border-grey flex items-center justify-between"
+                        key={item._id}
+                      >
+                        <div>
+                          <LatexImage
+                            onRenderStart={() => setDummy(dummy)}
+                            onRenderEnd={() => setDummy(dummy)}
+                            latexCode={generateLatex(item)}
+                          ></LatexImage>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger>
+                            <DotsVerticalIcon></DotsVerticalIcon>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem>Clone Item</DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-red-500 font-bold"
+                              onClick={() => handleItemDeletion(item, item._id, storedToken!)}
+                            >
+                              Delete Item
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </Card>
+                    ))}
+                </ReactSortable>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+        <div className="w-[calc(50%-4rem)] bg-white ml-8 mt-4">
+          {isPdfRendering && (
+            <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
+          )}{" "}
+          {itemsInResume && id && (
+            <ReactSortable
+              animation={150}
+              list={itemsInResume}
+              setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
+              group="ResumeItems"
+              className="h-full w-full bg-white"
+            >
+              {itemsInResume &&
+                itemsInResume.map((item) => (
+                  <div className="w-full" key={item._id}>
                     <LatexImage
                       onRenderStart={() => setDummy(dummy)}
                       onRenderEnd={() => setDummy(dummy)}
                       latexCode={generateLatex(item)}
                     ></LatexImage>
-                  </Card>
+                  </div>
                 ))}
-            </div>
-          </ScrollArea>
-        </div>
-        <div className="w-1/2 p-4">
-          {isPdfRendering && (
-            <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
-          )}{" "}
-          <div className="flex items-center justify-center">
-            <LatexImage
-              onRenderStart={() => setIsPdfRendering(true)}
-              onRenderEnd={() => setIsPdfRendering(false)}
-              latexCode={testLatex2}
-            ></LatexImage>
-          </div>
+            </ReactSortable>
+          )}
         </div>
       </div>
     </>
