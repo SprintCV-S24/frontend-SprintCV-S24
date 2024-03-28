@@ -8,20 +8,21 @@ import { ResumeSelector } from "@/components/ResumeSelector";
 import { useGetAllResumes } from "@/hooks/queries";
 import { ResumesServerType } from "@/api/models/resumeModel";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ResumesType } from "@/api/models/interfaces";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAddResume } from "@/hooks/mutations";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const { data, isLoading, isError, isSuccess } = useGetAllResumes(storedToken);
-	const navigate = useNavigate();
+  const navigate = useNavigate();
+	const queryClient = useQueryClient();
+  const {
+    mutate,
+    isPending,
+    isError: isAddResumeError,
+  } = useAddResume(queryClient, storedToken);
 
   useEffect(() => {
     const updateToken = async () => {
@@ -32,9 +33,26 @@ const Home: React.FC = () => {
         console.log(err);
       }
     };
-
     void updateToken();
   }, [currentUser]);
+
+	const onClickAddResume = () => {
+    const blankResume: ResumesType = {
+      itemName: "Untitled resume",
+			itemIds: [],
+			templateId: null,
+    };
+
+    mutate(blankResume, {
+			onSuccess: (response) => {
+				console.log("response:", response);
+				navigate(`/editor/${response._id}`);
+			},
+			onError: () => {
+				//TODO
+			}
+		});
+  };
 
   return (
     <>
@@ -49,8 +67,8 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-8 bg-[#E7ECEF] h-screen">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+      <div className="lg:p-8 bg-[#E7ECEF] h-screen">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome!</h1>
             <p className="text-sm text-muted-foreground">
@@ -62,12 +80,18 @@ const Home: React.FC = () => {
                 gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
               }}
             >
-							<Add onClick={()=>{navigate("/editor")}}></Add>
+              <Add
+                onClick={onClickAddResume}
+              ></Add>
               {isSuccess &&
                 data.map((resume: ResumesServerType) => {
-                  return <ResumeSelector resume={resume} key={resume._id}></ResumeSelector>;
+                  return (
+                    <ResumeSelector
+                      resume={resume}
+                      key={resume._id}
+                    ></ResumeSelector>
+                  );
                 })}
-              {/* <ResumeSelector></ResumeSelector> */}
             </div>
           </div>
         </div>
