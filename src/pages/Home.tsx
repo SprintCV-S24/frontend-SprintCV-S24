@@ -16,7 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ResumeSelector } from "@/components/resume-selectors";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
