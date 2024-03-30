@@ -430,7 +430,7 @@ export const generateProjectLatex = (projectObj: ProjectsType): string => {
   let latexString = getLatexContentSizedPreamble();
   latexString += "\\begin{document}\n";
 
-  latexString += generateProjectLatexHelper(projectObj as ProjectsType)
+  latexString += generateProjectLatexHelper(projectObj as ProjectsType);
 
   latexString += "\\end{document}\n";
 
@@ -513,7 +513,17 @@ export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
  */
 export const generateActivityLatex = (activityObj: ActivitiesType) => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
+  latexString += `\\begin{document}\n`;
+
+  latexString += generateActivityLatexHelper(activityObj as ActivitiesType);
+  
+  latexString += "\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
+  let latexString = `\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
     activityObj.title,
   )}}{${sanitize(activityObj.year)}}{${sanitize(
     activityObj.subtitle,
@@ -528,7 +538,7 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   }
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n";
 
   return latexString;
 };
@@ -549,11 +559,22 @@ export const generateSectionHeadingLatex = (
   activityObj: SectionHeadingsType,
 ) => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n\\section{${sanitize(
-    activityObj.title,
-  )}}\n\\vspace{-\\lastskip}\\end{document}`;
+  latexString += `\\begin{document}`;
+
+  latexString += generateSectionHeadingLatexHelper(activityObj as SectionHeadingsType);
+
   return latexString;
 };
+
+export const generateSectionHeadingLatexHelper = (
+  activityObj: SectionHeadingsType,
+) => {
+  let latexString = `\n\\section{${sanitize(
+    activityObj.title,
+  )}}\n\\vspace{-\\lastskip}`;
+  return latexString;
+};
+
 
 export const generateLatex = (object: BaseItem): string => {
   switch (object.type) {
@@ -616,22 +637,22 @@ export const generateFullResume = (resumeItems: BaseItem[]): string => {
 
       switch (item.type) {
         case resumeItemTypes.EDUCATION:
-          latexString += generateEducationLatex2(item as EducationType);
+          latexString += generateEducationLatexHelper(item as EducationType);
           break;
         case resumeItemTypes.EXPERIENCE:
-          latexString += generateExperienceLatex2(item as ExperienceType);
+          latexString += generateExperienceLatexHelper(item as ExperienceType);
           break;
         case resumeItemTypes.ACTIVITY:
-          latexString += generateActivityLatex2(item as ActivitiesType);
+          latexString += generateActivityLatexHelper(item as ActivitiesType);
           break;
         case resumeItemTypes.HEADING:
-          latexString += generateHeaderLatex2(item as HeadingsType);
+          latexString += generateHeaderLatexHelper(item as HeadingsType);
           break;
         case resumeItemTypes.PROJECT:
-          latexString += generateProjectLatex2(item as ProjectsType);
+          latexString += generateProjectLatexHelper(item as ProjectsType);
           break;
         case resumeItemTypes.SKILL:
-          latexString += generateSkillsLatex2(item as SkillsType);
+          latexString += generateSkillsLatexHelper(item as SkillsType);
           break;
       }
     }
