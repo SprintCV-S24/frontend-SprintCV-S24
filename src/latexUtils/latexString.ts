@@ -337,7 +337,18 @@ export const generateHeaderLatexHelper = (activityObj: HeadingsType): string => 
  */
 export const generateEducationLatex = (educationObj: EducationType): string => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
+  latexString += `\\begin{document}\n`;
+
+  latexString += generateEducationLatexHelper(educationObj as EducationType);
+
+  latexString += `\\end{document}\n`;
+  // If there are bullet points under each education entry
+
+  return latexString;
+};
+
+export const generateEducationLatexHelper = (educationObj: EducationType): string => {
+  let latexString = `\n\\resumeSubHeadingListStart\n`;
 
   // Assuming educationObj is a single object and not an array here
   latexString += `\\resumeSubheading
@@ -353,11 +364,12 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
     latexString += `\\resumeItemListEnd\n`;
   }
 
-  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n`;
+  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n`;
   // If there are bullet points under each education entry
 
   return latexString;
 };
+
 
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
@@ -372,7 +384,17 @@ export const generateEducationLatex = (educationObj: EducationType): string => {
  */
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
+  latexString += `\\begin{document}\n`;
+
+  latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
+
+  latexString += "\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
+  let latexString = `\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
     activityObj.subtitle,
   )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
     activityObj.location,
@@ -388,7 +410,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   }
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n";
 
   return latexString;
 };
