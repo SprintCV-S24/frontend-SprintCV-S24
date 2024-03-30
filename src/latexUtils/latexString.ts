@@ -428,7 +428,17 @@ export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
  */
 export const generateProjectLatex = (projectObj: ProjectsType): string => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += "\\begin{document}\n\\resumeSubHeadingListStart\n";
+  latexString += "\\begin{document}\n";
+
+  latexString += generateProjectLatexHelper(projectObj as ProjectsType)
+
+  latexString += "\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateProjectLatexHelper = (projectObj: ProjectsType): string => {
+  let latexString = "\n\\resumeSubHeadingListStart\n";
 
   // Check if technologies are provided and append them to the title
   const titleWithTechnologies = projectObj.technologies
@@ -450,7 +460,7 @@ export const generateProjectLatex = (projectObj: ProjectsType): string => {
   }
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n";
 
   return latexString;
 };
@@ -468,16 +478,27 @@ export const generateProjectLatex = (projectObj: ProjectsType): string => {
  */
 export const generateSkillsLatex = (skillsObj: SkillsType): string => {
   let latexString = getLatexContentSizedPreamble();
-  latexString +=
-    "\\begin{document}\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
+  latexString += "\\begin{document}\n";
+ 
+  latexString +=  generateSkillsLatexHelper(skillsObj as SkillsType);
+
+  latexString += "\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
+  let latexString =
+    "\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
   latexString += "\\small{\\item{";
   latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(
     skillsObj.description,
   )}} \\\\`;
-  latexString += "}}\n\\end{itemize}\n\\vspace{-\\lastskip}\\end{document}\n";
+  latexString += "}}\n\\end{itemize}\n\\vspace{-\\lastskip}\n";
 
   return latexString;
 };
+
 
 /*  ------------------------------------------------- */
 /*  -------------------Activity---------------------- */
