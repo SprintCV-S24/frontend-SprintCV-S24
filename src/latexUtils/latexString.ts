@@ -1,3 +1,5 @@
+
+
 import {
   HeadingsType,
   EducationType,
@@ -9,6 +11,7 @@ import {
   BaseItem,
 } from "../api/models/interfaces";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+
 
 /**
  * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
@@ -278,7 +281,19 @@ export function sanitize(str: string): string {
  */
 export const generateHeaderLatex = (activityObj: HeadingsType): string => {
   let headerLatex = getLatexContentSizedPreamble();
-  headerLatex += `\\begin{document}\n\\begin{center}\n`;
+  headerLatex += `\\begin{document}\n`;
+
+  headerLatex += generateHeaderLatexHelper(activityObj as HeadingsType);
+
+  headerLatex += `\\end{document}`;
+
+  return headerLatex;
+};
+
+
+export const generateHeaderLatexHelper = (activityObj: HeadingsType): string => {
+
+  let headerLatex = `\\begin{center}\n`;
   headerLatex += `\\textbf{\\Huge \\scshape ${sanitize(
     activityObj.name,
   )}} \\\\ \\vspace{1pt}\n`;
@@ -301,10 +316,13 @@ export const generateHeaderLatex = (activityObj: HeadingsType): string => {
 
   headerLatex += `\\vspace{-\\lastskip}`; // Adjust space before ending the document
   // headerLatex += `\n\\end{center}\n\\vspace{-\\dimexpr\\lastskip-3pt}\\end{document}`;
-  headerLatex += `\n\\end{center}\n\\vspace{-\\lastskip}\\end{document}`;
+  headerLatex += `\n\\end{center}\n\\vspace{-\\lastskip}`;
 
   return headerLatex;
 };
+
+
+
 
 /*  ------------------------------------------------- */
 /*  -------------------Education--------------------- */
@@ -520,3 +538,124 @@ export const generateLatex = (object: BaseItem): string => {
 
   return "";
 };
+
+
+
+
+
+
+
+
+
+
+
+export const generateFullResume = (resumeItems: BaseItem[]): string => {
+  let latexString = getLatexPreamble();
+  latexString += "\\begin{document}\n";
+
+  let currentSection: string | null = null;
+
+  resumeItems.forEach((item, index) => {
+    if (item.type === resumeItemTypes.SECTIONHEADING) {
+      if (currentSection !== null) {
+        latexString += "\\resumeSubHeadingListEnd\n";
+      }
+      currentSection = item.type.toString();
+      latexString += `\\section{${sanitize((item as SectionHeadingsType).title)}}\n`;
+    } else {
+      if (currentSection === null || (index > 0 && item.type.toString() !== resumeItems[index - 1]?.type.toString())) {
+        if (currentSection !== null) {
+          latexString += "\\resumeSubHeadingListEnd\n";
+        }
+        currentSection = item.type.toString();
+        latexString += "\\resumeSubHeadingListStart\n";
+      }
+
+      switch (item.type) {
+        case resumeItemTypes.EDUCATION:
+          latexString += generateEducationLatex2(item as EducationType);
+          break;
+        case resumeItemTypes.EXPERIENCE:
+          latexString += generateExperienceLatex2(item as ExperienceType);
+          break;
+        case resumeItemTypes.ACTIVITY:
+          latexString += generateActivityLatex2(item as ActivitiesType);
+          break;
+        case resumeItemTypes.HEADING:
+          latexString += generateHeaderLatex2(item as HeadingsType);
+          break;
+        case resumeItemTypes.PROJECT:
+          latexString += generateProjectLatex2(item as ProjectsType);
+          break;
+        case resumeItemTypes.SKILL:
+          latexString += generateSkillsLatex2(item as SkillsType);
+          break;
+      }
+    }
+  });
+
+  if (currentSection !== null) {
+    latexString += "\\resumeSubHeadingListEnd\n";
+  }
+
+  latexString += "\\end{document}\n";
+  return latexString;
+};
+
+export const testResumeItems: BaseItem[] = [
+  {
+    _id: "Jamal",
+    user: "johndoe",
+    itemName: "John Doe",
+    name: "John Doe",
+    items: [
+      { item: "john.doe@example.com", href: "mailto:john.doe@example.com" },
+      { item: "(123) 456-7890", href: "tel:(123) 456-7890" },
+    ],
+    type: resumeItemTypes.HEADING,
+  },
+  {
+    _id: "Education_1",
+    user: "johndoe",
+    itemName: "Education",
+    title: "Education",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "Bachelor_Degree",
+    user: "johndoe",
+    itemName: "Bachelor of Science in Computer Science",
+    bullets: ["GPA: 3.8/4.0", "Relevant Coursework: Data Structures, Algorithms"],
+    title: "University of Example",
+    subtitle: "Bachelor of Science in Computer Science",
+    location: "City, State",
+    year: "2015 - 2019",
+    type: resumeItemTypes.EDUCATION,
+  },
+  {
+    _id: "Experience_1",
+    user: "johndoe",
+    itemName: "Experience",
+    title: "Experience",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "Software_Engineer",
+    user: "johndoe",
+    itemName: "Software Engineer",
+    bullets: [
+      "Developed and maintained web applications using React and Node.js",
+      "Collaborated with cross-functional teams to deliver high-quality software",
+    ],
+    title: "ABC Company",
+    subtitle: "Software Engineer",
+    year: "2019 - Present",
+    location: "City, State",
+    type: resumeItemTypes.EXPERIENCE,
+  },
+  // Add more test resume items as needed
+];
+export const generatedLatexCode = generateFullResume(testResumeItems as any);
+console.log(generatedLatexCode);
+
+
