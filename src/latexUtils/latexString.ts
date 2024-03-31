@@ -23,6 +23,7 @@ export function getLatexPreamble(): string {
   return `
         \\documentclass[letterpaper,11pt]{article}
         
+        \\usepackage[T1]{fontenc}
         \\usepackage{latexsym}
         \\usepackage[empty]{fullpage}
         \\usepackage{titlesec}
@@ -127,6 +128,7 @@ export function getLatexContentSizedPreamble(): string {
   return `
         \\documentclass[letterpaper,11pt]{article}
         
+        \\usepackage[T1]{fontenc}
         \\usepackage{latexsym}
         \\usepackage[empty]{fullpage}
         \\usepackage{titlesec}
@@ -605,91 +607,94 @@ export const generateLatex = (object: BaseItem): string => {
 
 
 
-
-
-
-
-
-
-
-
 export const generateFullResume = (resumeItems: BaseItem[]): string => {
   let latexString = getLatexPreamble();
   latexString += "\\begin{document}\n";
 
-  let currentSection: string | null = null;
-
-  resumeItems.forEach((item, index) => {
-    if (item.type === resumeItemTypes.SECTIONHEADING) {
-      if (currentSection !== null) {
-        latexString += "\\resumeSubHeadingListEnd\n";
-      }
-      currentSection = item.type.toString();
-      latexString += `\\section{${sanitize((item as SectionHeadingsType).title)}}\n`;
-    } else {
-      if (currentSection === null || (index > 0 && item.type.toString() !== resumeItems[index - 1]?.type.toString())) {
-        if (currentSection !== null) {
-          latexString += "\\resumeSubHeadingListEnd\n";
-        }
-        currentSection = item.type.toString();
-        latexString += "\\resumeSubHeadingListStart\n";
-      }
-
-      switch (item.type) {
-        case resumeItemTypes.EDUCATION:
-          latexString += generateEducationLatexHelper(item as EducationType);
-          break;
-        case resumeItemTypes.EXPERIENCE:
-          latexString += generateExperienceLatexHelper(item as ExperienceType);
-          break;
-        case resumeItemTypes.ACTIVITY:
-          latexString += generateActivityLatexHelper(item as ActivitiesType);
-          break;
-        case resumeItemTypes.HEADING:
-          latexString += generateHeaderLatexHelper(item as HeadingsType);
-          break;
-        case resumeItemTypes.PROJECT:
-          latexString += generateProjectLatexHelper(item as ProjectsType);
-          break;
-        case resumeItemTypes.SKILL:
-          latexString += generateSkillsLatexHelper(item as SkillsType);
-          break;
-      }
+  resumeItems.forEach((item) => {
+    switch (item.type) {
+      case resumeItemTypes.HEADING:
+        latexString += generateHeaderLatexHelper(item as HeadingsType);
+        break;
+      case resumeItemTypes.SECTIONHEADING:
+        latexString += `\\section{${sanitize((item as SectionHeadingsType).title)}}\n`;
+        break;
+      case resumeItemTypes.EDUCATION:
+        latexString += generateEducationLatexHelper(item as EducationType);
+        break;
+      case resumeItemTypes.EXPERIENCE:
+        latexString += generateExperienceLatexHelper(item as ExperienceType);
+        break;
+      case resumeItemTypes.ACTIVITY:
+        latexString += generateActivityLatexHelper(item as ActivitiesType);
+        break;
+      case resumeItemTypes.PROJECT:
+        latexString += generateProjectLatexHelper(item as ProjectsType);
+        break;
+      case resumeItemTypes.SKILL:
+        latexString += generateSkillsLatexHelper(item as SkillsType);
+        break;
     }
   });
-
-  if (currentSection !== null) {
-    latexString += "\\resumeSubHeadingListEnd\n";
-  }
 
   latexString += "\\end{document}\n";
   return latexString;
 };
 
-export const testResumeItems: BaseItem[] = [
+const comprehensiveTestResumeItems: BaseItem[] = [
   {
-    _id: "Jamal",
+    _id: "JohnDoe",
     user: "johndoe",
     itemName: "John Doe",
     name: "John Doe",
     items: [
       { item: "john.doe@example.com", href: "mailto:john.doe@example.com" },
       { item: "(123) 456-7890", href: "tel:(123) 456-7890" },
+      { item: "New York, NY", href: "" },
+      { item: "linkedin.com/in/johndoe", href: "https://www.linkedin.com/in/johndoe" },
+      { item: "github.com/johndoe", href: "https://github.com/johndoe" },
     ],
     type: resumeItemTypes.HEADING,
   },
   {
-    _id: "Education_1",
+    _id: "Summary",
+    user: "johndoe",
+    itemName: "Summary",
+    title: "Summary",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "SummaryDescription",
+    user: "johndoe",
+    itemName: "Summary Description",
+    title: "Summary",
+    description: "Experienced software engineer with a passion for developing innovative solutions. Skilled in Java, Python, and web development. Proven track record of delivering high-quality software on time and collaborating effectively with cross-functional teams.",
+    type: resumeItemTypes.SKILL,
+  },
+  {
+    _id: "TechnicalSkills",
+    user: "johndoe",
+    itemName: "Technical Skills",
+    title: "Technical Skills",
+    description: "Java, Python, JavaScript, React, Node.js, Express, MongoDB, SQL, Git, AWS",
+    type: resumeItemTypes.SKILL,
+  },
+  {
+    _id: "Education",
     user: "johndoe",
     itemName: "Education",
     title: "Education",
     type: resumeItemTypes.SECTIONHEADING,
   },
   {
-    _id: "Bachelor_Degree",
+    _id: "BachelorDegree",
     user: "johndoe",
     itemName: "Bachelor of Science in Computer Science",
-    bullets: ["GPA: 3.8/4.0", "Relevant Coursework: Data Structures, Algorithms"],
+    bullets: [
+      "GPA: 3.8/4.0",
+      "Relevant Coursework: Data Structures, Algorithms, Software Engineering, Database Systems",
+      "Honors: Magna Cum Laude",
+    ],
     title: "University of Example",
     subtitle: "Bachelor of Science in Computer Science",
     location: "City, State",
@@ -697,19 +702,37 @@ export const testResumeItems: BaseItem[] = [
     type: resumeItemTypes.EDUCATION,
   },
   {
-    _id: "Experience_1",
+    _id: "MasterDegree",
+    user: "johndoe",
+    itemName: "Master of Science in Artificial Intelligence",
+    bullets: [
+      "GPA: 3.9/4.0",
+      "Thesis: \"Deep Learning Approaches for Natural Language Processing\"",
+      "Relevant Coursework: Machine Learning, Neural Networks, Natural Language Processing",
+    ],
+    title: "University of Example",
+    subtitle: "Master of Science in Artificial Intelligence",
+    location: "City, State",
+    year: "2019 - 2021",
+    type: resumeItemTypes.EDUCATION,
+  },
+  {
+    _id: "Experience",
     user: "johndoe",
     itemName: "Experience",
     title: "Experience",
     type: resumeItemTypes.SECTIONHEADING,
   },
   {
-    _id: "Software_Engineer",
+    _id: "SoftwareEngineer",
     user: "johndoe",
     itemName: "Software Engineer",
     bullets: [
-      "Developed and maintained web applications using React and Node.js",
-      "Collaborated with cross-functional teams to deliver high-quality software",
+      "Developed and maintained web applications using React, Node.js, and MongoDB",
+      "Implemented RESTful APIs and integrated them with front-end components",
+      "Collaborated with product managers and designers to gather requirements and deliver features",
+      "Conducted code reviews and mentored junior developers to ensure code quality and best practices",
+      "Optimized application performance through effective database indexing and query optimization",
     ],
     title: "ABC Company",
     subtitle: "Software Engineer",
@@ -717,9 +740,371 @@ export const testResumeItems: BaseItem[] = [
     location: "City, State",
     type: resumeItemTypes.EXPERIENCE,
   },
-  // Add more test resume items as needed
+  {
+    _id: "SoftwareDeveloper",
+    user: "johndoe",
+    itemName: "Software Developer",
+    bullets: [
+      "Developed and maintained desktop applications using Java and JavaFX",
+      "Implemented complex algorithms and data structures to solve business problems",
+      "Collaborated with cross-functional teams to gather requirements and deliver solutions",
+      "Automated manual processes through scripting and batch processing",
+      "Provided technical support and troubleshooting for production issues",
+    ],
+    title: "XYZ Corporation",
+    subtitle: "Software Developer",
+    year: "2017 - 2019",
+    location: "City, State",
+    type: resumeItemTypes.EXPERIENCE,
+  },
+  {
+    _id: "DataScientist",
+    user: "johndoe",
+    itemName: "Data Scientist Intern",
+    bullets: [
+      "Conducted data analysis and visualization using Python and libraries such as NumPy, Pandas, and Matplotlib",
+      "Developed machine learning models for predictive analytics and customer segmentation",
+      "Collaborated with cross-functional teams to derive insights and provide data-driven recommendations",
+      "Presented findings and insights to senior management and stakeholders",
+    ],
+    title: "DEF Company",
+    subtitle: "Data Scientist Intern",
+    year: "Summer 2018",
+    location: "City, State",
+    type: resumeItemTypes.EXPERIENCE,
+  },
+  {
+    _id: "Projects",
+    user: "johndoe",
+    itemName: "Projects",
+    title: "Projects",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "ECommerceWebsite",
+    user: "johndoe",
+    itemName: "E-Commerce Website",
+    bullets: [
+      "Developed a fully functional e-commerce website using MERN stack (MongoDB, Express, React, Node.js)",
+      "Implemented features such as product catalog, shopping cart, user authentication, and payment gateway integration",
+      "Utilized Redux for state management and React Router for client-side routing",
+      "Deployed the application on AWS using EC2 and S3 services",
+    ],
+    title: "E-Commerce Website",
+    technologies: "MERN stack, Redux, React Router, AWS",
+    year: "2020",
+    type: resumeItemTypes.PROJECT,
+  },
+  {
+    _id: "WeatherApp",
+    user: "johndoe",
+    itemName: "Weather App",
+    bullets: [
+      "Built a weather application using Python and Flask framework",
+      "Integrated with OpenWeatherMap API to fetch real-time weather data",
+      "Implemented user-friendly interface using HTML, CSS, and JavaScript",
+      "Deployed the application on Heroku platform",
+    ],
+    title: "Weather App",
+    technologies: "Python, Flask, OpenWeatherMap API, HTML/CSS/JS, Heroku",
+    year: "2018",
+    type: resumeItemTypes.PROJECT,
+  },
+  {
+    _id: "TaskManagementSystem",
+    user: "johndoe",
+    itemName: "Task Management System",
+    bullets: [
+      "Developed a task management system using Java and Spring Boot framework",
+      "Implemented features such as task creation, assignment, tracking, and reporting",
+      "Utilized MySQL database for data persistence and JPA for object-relational mapping",
+      "Integrated with external services for email notifications and calendar synchronization",
+    ],
+    title: "Task Management System",
+    technologies: "Java, Spring Boot, MySQL, JPA, Email Integration",
+    year: "2019",
+    type: resumeItemTypes.PROJECT,
+  },
+  {
+    _id: "MachineLearningProject",
+    user: "johndoe",
+    itemName: "Machine Learning Project",
+    bullets: [
+      "Developed a machine learning model for image classification using Python and TensorFlow",
+      "Preprocessed and augmented dataset using OpenCV and Keras",
+      "Trained and evaluated convolutional neural network (CNN) models",
+      "Achieved an accuracy of 95% on the test dataset",
+    ],
+    title: "Image Classification using CNNs",
+    technologies: "Python, TensorFlow, OpenCV, Keras",
+    year: "2021",
+    type: resumeItemTypes.PROJECT,
+  },
+  {
+    _id: "Activities",
+    user: "johndoe",
+    itemName: "Activities",
+    title: "Activities",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "VolunteerWork1",
+    user: "johndoe",
+    itemName: "Volunteer Work 1",
+    bullets: [
+      "Participated in community outreach programs and helped organize fundraising events",
+      "Mentored underprivileged children and provided guidance on academic and personal development",
+    ],
+    title: "ABC Non-Profit Organization",
+    subtitle: "Volunteer",
+    year: "2016 - 2018",
+    location: "City, State",
+    type: resumeItemTypes.ACTIVITY,
+  },
+  {
+    _id: "VolunteerWork2",
+    user: "johndoe",
+    itemName: "Volunteer Work 2",
+    bullets: [
+      "Assisted in organizing and conducting workshops on computer literacy for senior citizens",
+      "Provided technical support and troubleshooting assistance to participants",
+    ],
+    title: "XYZ Community Center",
+    subtitle: "Technical Volunteer",
+    year: "2019 - Present",
+    location: "City, State",
+    type: resumeItemTypes.ACTIVITY,
+  },
+  {
+    _id: "Hackathon",
+    user: "johndoe",
+    itemName: "Hackathon",
+    bullets: [
+      "Participated in a 24-hour hackathon and developed a web application prototype",
+      "Collaborated with a team of developers and designers to ideate and implement the solution",
+      "Presented the prototype to judges and won the second prize",
+    ],
+    title: "DEF Hackathon",
+    subtitle: "Participant",
+    year: "2020",
+    location: "City, State",
+    type: resumeItemTypes.ACTIVITY,
+  },
+  {
+    _id: "ConferenceSpeaker",
+    user: "johndoe",
+    itemName: "Conference Speaker",
+    bullets: [
+      "Delivered a technical talk on \"Trends and Advancements in Machine Learning\"",
+      "Shared insights and experiences with the audience and participated in Q&A session",
+    ],
+    title: "GHI Tech Conference",
+    subtitle: "Speaker",
+    year: "2021",
+    location: "City, State",
+    type: resumeItemTypes.ACTIVITY,
+  },
+  // Add more resume items as needed
 ];
-export const generatedLatexCode = generateFullResume(testResumeItems as any);
-console.log(generatedLatexCode);
 
+
+const comprehensiveTestResumeItems2: BaseItem[] = [
+  {
+    _id: "JaneSmith",
+    user: "janesmith",
+    itemName: "Jane Smith",
+    name: "Jane Smith",
+    items: [
+      { item: "jane.smith@example.com", href: "mailto:jane.smith@example.com" },
+      { item: "(987) 654-3210", href: "tel:(987) 654-3210" },
+      { item: "San Francisco, CA", href: "" },
+      { item: "linkedin.com/in/janesmith", href: "https://www.linkedin.com/in/janesmith" },
+      { item: "github.com/janesmith", href: "https://github.com/janesmith" },
+    ],
+    type: resumeItemTypes.HEADING,
+  },
+  {
+    _id: "Summary",
+    user: "janesmith",
+    itemName: "Summary",
+    title: "Summary",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "SummaryDescription",
+    user: "janesmith",
+    itemName: "Summary Description",
+    title: "Summary",
+    description: "Highly motivated software engineer with expertise in full-stack web development. Experienced in designing and implementing scalable and maintainable software solutions. Strong problem-solving abilities and excellent communication skills.",
+    type: resumeItemTypes.SKILL,
+  },
+  {
+    _id: "TechnicalSkills",
+    user: "janesmith",
+    itemName: "Technical Skills",
+    title: "Technical Skills",
+    description: "JavaScript, TypeScript, React, Angular, Node.js, Express, MongoDB, PostgreSQL, AWS, Docker, Git",
+    type: resumeItemTypes.SKILL,
+  },
+  {
+    _id: "Education",
+    user: "janesmith",
+    itemName: "Education",
+    title: "Education",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "BachelorDegree",
+    user: "janesmith",
+    itemName: "Bachelor of Science in Computer Engineering",
+    bullets: [
+      "GPA: 3.9/4.0",
+      "Relevant Coursework: Data Structures and Algorithms, Operating Systems, Computer Networks",
+      "Honors: Summa Cum Laude",
+    ],
+    title: "XYZ University",
+    subtitle: "Bachelor of Science in Computer Engineering",
+    location: "City, State",
+    year: "2012 - 2016",
+    type: resumeItemTypes.EDUCATION,
+  },
+  {
+    _id: "MasterDegree",
+    user: "janesmith",
+    itemName: "Master of Science in Computer Science",
+    bullets: [
+      "GPA: 4.0/4.0",
+      "Thesis: \"Efficient Algorithms for Large-Scale Data Processing\"",
+      "Relevant Coursework: Advanced Database Systems, Distributed Computing, Artificial Intelligence",
+    ],
+    title: "ABC University",
+    subtitle: "Master of Science in Computer Science",
+    location: "City, State",
+    year: "2016 - 2018",
+    type: resumeItemTypes.EDUCATION,
+  },
+  {
+    _id: "Experience",
+    user: "janesmith",
+    itemName: "Experience",
+    title: "Experience",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "SeniorSoftwareEngineer",
+    user: "janesmith",
+    itemName: "Senior Software Engineer",
+    bullets: [
+      "Led the development of a large-scale e-commerce platform using microservices architecture",
+      "Implemented server-side rendering and client-side hydration for optimal performance",
+      "Utilized Docker and Kubernetes for containerization and deployment",
+      "Collaborated with product and design teams to deliver high-quality user experiences",
+      "Mentored junior developers and conducted code reviews to maintain code quality",
+    ],
+    title: "DEF Company",
+    subtitle: "Senior Software Engineer",
+    year: "2020 - Present",
+    location: "City, State",
+    type: resumeItemTypes.EXPERIENCE,
+  },
+  {
+    _id: "SoftwareEngineer",
+    user: "janesmith",
+    itemName: "Software Engineer",
+    bullets: [
+      "Developed and maintained a real-time chat application using WebSocket and Node.js",
+      "Implemented a responsive and mobile-friendly user interface using React and Material-UI",
+      "Integrated with third-party APIs for user authentication and social media sharing",
+      "Optimized database queries and implemented caching mechanisms for improved performance",
+      "Participated in agile development processes and collaborated with cross-functional teams",
+    ],
+    title: "GHI Startup",
+    subtitle: "Software Engineer",
+    year: "2018 - 2020",
+    location: "City, State",
+    type: resumeItemTypes.EXPERIENCE,
+  },
+  {
+    _id: "Projects",
+    user: "janesmith",
+    itemName: "Projects",
+    title: "Projects",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "ProjectManagementApp",
+    user: "janesmith",
+    itemName: "Project Management App",
+    bullets: [
+      "Developed a project management application using MEAN stack (MongoDB, Express, Angular, Node.js)",
+      "Implemented features such as task creation, assignment, status tracking, and team collaboration",
+      "Utilized WebSocket for real-time updates and notifications",
+      "Integrated with Slack API for seamless team communication",
+      "Deployed the application on AWS using EC2 and S3 services",
+    ],
+    title: "Project Management App",
+    technologies: "MEAN stack, WebSocket, Slack API, AWS",
+    year: "2019",
+    type: resumeItemTypes.PROJECT,
+  },
+  {
+    _id: "RecipeShareringPlatform",
+    user: "janesmith",
+    itemName: "Recipe Sharing Platform",
+    bullets: [
+      "Built a recipe sharing platform using Django and PostgreSQL",
+      "Implemented user authentication and authorization using JWT tokens",
+      "Developed a search functionality with filters and pagination",
+      "Utilized Amazon S3 for storing and serving user-uploaded images",
+      "Implemented a rating and review system for recipes",
+    ],
+    title: "Recipe Sharing Platform",
+    technologies: "Django, PostgreSQL, JWT, Amazon S3",
+    year: "2017",
+    type: resumeItemTypes.PROJECT,
+  },
+  {
+    _id: "Activities",
+    user: "janesmith",
+    itemName: "Activities",
+    title: "Activities",
+    type: resumeItemTypes.SECTIONHEADING,
+  },
+  {
+    _id: "TechConferenceSpeaker",
+    user: "janesmith",
+    itemName: "Tech Conference Speaker",
+    bullets: [
+      "Presented a talk on \"Scalable Microservices Architecture\" at DEF Tech Conference",
+      "Shared insights and best practices for designing and implementing microservices",
+      "Engaged with the audience through Q&A session and received positive feedback",
+    ],
+    title: "DEF Tech Conference",
+    subtitle: "Speaker",
+    year: "2021",
+    location: "City, State",
+    type: resumeItemTypes.ACTIVITY,
+  },
+  {
+    _id: "OpenSourceContributor",
+    user: "janesmith",
+    itemName: "Open Source Contributor",
+    bullets: [
+      "Actively contributed to various open-source projects on GitHub",
+      "Submitted bug fixes, feature enhancements, and documentation improvements",
+      "Collaborated with other developers and maintainers to improve project quality",
+    ],
+    title: "Open Source Projects",
+    subtitle: "Contributor",
+    year: "2019 - Present",
+    location: "Remote",
+    type: resumeItemTypes.ACTIVITY,
+  },
+];
+
+
+
+// Generate the full resume LaTeX code
+export const generatedLatexCode = generateFullResume(comprehensiveTestResumeItems2);
+console.log(generatedLatexCode);
 
