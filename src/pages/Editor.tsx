@@ -117,9 +117,9 @@ const Editor: React.FC = () => {
       clearResumeHelper([]);
       setItemsInBank(combinedItems);
 
-      console.log("Clearing Resume");
-      console.log(itemsInBank);
-      console.log(itemsInResume);
+      // console.log("Clearing Resume");
+      // console.log(itemsInBank);
+      // console.log(itemsInResume);
     }
   };
 
@@ -154,18 +154,18 @@ const Editor: React.FC = () => {
 
   useEffect(() => {
     // TODO: Remove debugging logging.
-    console.log(id);
-    console.log(resume);
-    console.log(allItems);
+    // console.log(id);
+    // console.log(resume);
+    // console.log(allItems);
 
     if (id != null && allItems != null) {
-      console.log("In loop");
+      // console.log("In loop");
       // this means no resume had that id
       if (resume == null) {
         // TODO: home page needs to check for and display messages like these
-        console.log("HERE");
+        // console.log("HERE");
       } else {
-        console.log("itemids:", resume.itemIds);
+        // console.log("itemids:", resume.itemIds);
 
         // This extracts the resumeItems in the specific order provided
         const resumeResult = resume.itemIds.reduce(
@@ -174,7 +174,7 @@ const Editor: React.FC = () => {
             if (item) {
               accumulator.resumeItems.push({ ...item, id: item._id });
             } else {
-              console.log(`Item with ID ${itemId} not found in allItems.`);
+              // console.log(`Item with ID ${itemId} not found in allItems.`);
             }
             return accumulator;
           },
@@ -199,8 +199,8 @@ const Editor: React.FC = () => {
         setItemsInResume(resumeResult.resumeItems);
 
         // TODO: Remove logging for debugging
-        console.log("bank items:", bankResult.bankItems);
-        console.log("resume items:", resumeResult.resumeItems);
+        // console.log("bank items:", bankResult.bankItems);
+        // console.log("resume items:", resumeResult.resumeItems);
       }
     }
   }, [id, allItems, resume]);
@@ -353,7 +353,7 @@ const Editor: React.FC = () => {
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="bg-white h-[90%] w-full min-w-60">
+          <div className="bg-white h-[90%] w-full min-w-6">
             {itemsInResume && id && (
               <ReactSortable
                 animation={150}
