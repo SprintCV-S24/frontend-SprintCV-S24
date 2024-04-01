@@ -123,7 +123,15 @@ const Editor: React.FC = () => {
     }
   };
 
-  // Used to
+  // Used to disable add resume item button if too many bullets are present.
+  const exceedsMaximumItems = () => {
+    if (allItems && allItems.length > 50) {
+      return true;
+    }
+    return false;
+  };
+
+  // Used to make sure resume has some items in it before downloading
   const isResumeValid = () => {
     if (itemsInResume != undefined) {
       return itemsInResume.length > 0;
@@ -213,7 +221,6 @@ const Editor: React.FC = () => {
   // TODO: Make this type safe, make some other changes.
   return (
     <>
-      <div className="md:hidden"></div>
       <div className="flex-col">
         <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
           <Button className="absolute right-4 top-4" variant="ghost">
@@ -223,7 +230,7 @@ const Editor: React.FC = () => {
           <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
-      <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
+      <div className="flex flex-row bg-[#E7ECEF] h-screen">
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12 ">
             <div className="flex items-center justify-between">
@@ -232,7 +239,11 @@ const Editor: React.FC = () => {
                 onOpenChange={setDropdownIsOpen}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button className="mt-1 ml-1" variant="outline">
+                  <Button
+                    className="mt-1 ml-1"
+                    variant="outline"
+                    disabled={exceedsMaximumItems()}
+                  >
                     Add Resume Item
                   </Button>
                 </DropdownMenuTrigger>
@@ -266,16 +277,9 @@ const Editor: React.FC = () => {
                   ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button
-                className="mt-1 mr-1 text-red-500 font-bold"
-                variant="outline"
-                onClick={handleClearResume}
-              >
-                Clear Resume
-              </Button>
             </div>
           </Card>
-          <ScrollArea className="h-[600px] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
+          <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
             <div className="p-4 w-full h-full">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
@@ -326,21 +330,30 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-[calc(50%-4rem)] ml-8 mt-4">
-          <Card className="w-full h-12 white mb-4 flex items-center justify-end p-2">
+          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2">
+            <Button
+              className="text-red-500 font-bold"
+              variant="outline"
+              onClick={handleClearResume}
+            >
+              Clear Resume
+            </Button>
             <Button
               variant="secondary"
               disabled={!isResumeValid()}
               onClick={() => {
                 generatePdfAndOpen(itemsInResume);
               }}
-            > Download
+            >
+              {" "}
+              Download
               <DownloadIcon className="ml-2"></DownloadIcon>
             </Button>
           </Card>
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="bg-white h-screen w-full">
+          <div className="bg-white h-[90%] w-full">
             {itemsInResume && id && (
               <ReactSortable
                 animation={150}
