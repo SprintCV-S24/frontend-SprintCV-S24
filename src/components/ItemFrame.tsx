@@ -5,7 +5,7 @@ export const ItemFrame: React.FC<{
   children: React.ReactNode;
 }> = ({ onClick, children }) => {
   return (
-    <Card className="w-[150px] h-[150px] cursor-pointer" onClick={onClick}>
+    <Card className="w-[160px] h-[160px] cursor-pointer" onClick={onClick}>
       {children}
     </Card>
   );

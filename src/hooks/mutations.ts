@@ -218,13 +218,13 @@ export const createCustomSetItemsInBank = (
 	id: string;
 }>) => void) => {
   const customSetItemsInBank = (newItems: Array<BaseItem & { id: string }>) => {
-		console.log("running customsetitems");
+		// console.log("running customsetitems");
 
 		const idArr = newItems.map(item => item.id);
 		const updatedFields = {itemIds: idArr};
 
-    console.log("Updated Fields");
-    console.log(updatedFields);
+    // console.log("Updated Fields");
+    // console.log(updatedFields);
     
     mutateFn({updatedFields, resumeId});
     setItemsInResume(newItems);

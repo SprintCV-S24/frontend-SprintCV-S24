@@ -39,6 +39,14 @@ const Home: React.FC = () => {
     console.log(generatedLatexCode);
   }, [currentUser]);
 
+  // Checks if too many resumes have been added.
+  const exceedsMaximumResumes = () => {
+    if (data && data.length > 10) {
+      return true;
+    }
+    return false;
+  }
+
 	const onClickAddResume = () => {
     const blankResume: ResumesType = {
       itemName: "Untitled resume",
@@ -83,9 +91,9 @@ const Home: React.FC = () => {
                 gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
               }}
             >
-              <Add
-                onClick={onClickAddResume}
-              ></Add>
+              {!exceedsMaximumResumes() && (
+                <Add onClick={onClickAddResume}></Add>
+              )}
               {isSuccess &&
                 data.map((resume: ResumesServerType) => {
                   return (

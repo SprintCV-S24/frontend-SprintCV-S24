@@ -14,6 +14,8 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
+import ExportImage from "../assets/export-image.png";
+import { DownloadIcon } from "@radix-ui/react-icons";
 import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
@@ -38,7 +40,8 @@ import {
 } from "@/components/ui/context-menu";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { deleteItem } from "@/api/resumeItemInterface";
-
+import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
+import { generateFullResume } from "@/latexUtils/latexString";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -81,17 +84,22 @@ const Editor: React.FC = () => {
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
-  const handleItemDeletion = (item: BaseItem, itemId: string, token: string) => {
+  const handleItemDeletion = (
+    item: BaseItem,
+    itemId: string,
+    token: string,
+  ) => {
     // Calls a generalization of delete that is type agnostic.
     deleteItem(item, itemId, token);
 
     // Update if necessary
     if (itemsInBank) {
-      const updatedItemsInBank = itemsInBank.filter(item => item._id !== itemId); // Add this for item removal 
+      const updatedItemsInBank = itemsInBank.filter(
+        (item) => item._id !== itemId,
+      ); // Add this for item removal
       setItemsInBank(updatedItemsInBank);
     }
   };
-
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -109,26 +117,55 @@ const Editor: React.FC = () => {
       clearResumeHelper([]);
       setItemsInBank(combinedItems);
 
-      console.log("Clearing Resume");
-      console.log(itemsInBank);
-      console.log(itemsInResume);
+      // console.log("Clearing Resume");
+      // console.log(itemsInBank);
+      // console.log(itemsInResume);
+    }
+  };
+
+  // Used to disable add resume item button if too many bullets are present.
+  const exceedsMaximumItems = () => {
+    if (allItems && allItems.length > 50) {
+      return true;
+    }
+    return false;
+  };
+
+  // Used to make sure resume has some items in it before downloading
+  const isResumeValid = () => {
+    if (itemsInResume != undefined) {
+      return itemsInResume.length > 0;
+    }
+    return false;
+  };
+
+  const generatePdfAndOpen = async (items: BaseItem[] | undefined) => {
+    if (items && resume) {
+      const latexString = generateFullResume(items);
+      const blob = await generatePdfBlobSafe(latexString);
+      const url = URL.createObjectURL(blob);
+      // window.open(url, "_blank");
+      let fileLink = document.createElement("a");
+      fileLink.href = url;
+      fileLink.download = resume.itemName;
+      fileLink.click();
     }
   };
 
   useEffect(() => {
     // TODO: Remove debugging logging.
-    console.log(id);
-    console.log(resume);
-    console.log(allItems);
+    // console.log(id);
+    // console.log(resume);
+    // console.log(allItems);
 
     if (id != null && allItems != null) {
-      console.log("In loop");
+      // console.log("In loop");
       // this means no resume had that id
       if (resume == null) {
         // TODO: home page needs to check for and display messages like these
-        console.log("HERE");
+        // console.log("HERE");
       } else {
-        console.log("itemids:", resume.itemIds);
+        // console.log("itemids:", resume.itemIds);
 
         // This extracts the resumeItems in the specific order provided
         const resumeResult = resume.itemIds.reduce(
@@ -137,7 +174,7 @@ const Editor: React.FC = () => {
             if (item) {
               accumulator.resumeItems.push({ ...item, id: item._id });
             } else {
-              console.log(`Item with ID ${itemId} not found in allItems.`);
+              // console.log(`Item with ID ${itemId} not found in allItems.`);
             }
             return accumulator;
           },
@@ -162,8 +199,8 @@ const Editor: React.FC = () => {
         setItemsInResume(resumeResult.resumeItems);
 
         // TODO: Remove logging for debugging
-        console.log("bank items:", bankResult.bankItems);
-        console.log("resume items:", resumeResult.resumeItems);
+        // console.log("bank items:", bankResult.bankItems);
+        // console.log("resume items:", resumeResult.resumeItems);
       }
     }
   }, [id, allItems, resume]);
@@ -184,7 +221,6 @@ const Editor: React.FC = () => {
   // TODO: Make this type safe, make some other changes.
   return (
     <>
-      <div className="md:hidden"></div>
       <div className="flex-col">
         <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
           <Button className="absolute right-4 top-4" variant="ghost">
@@ -194,7 +230,7 @@ const Editor: React.FC = () => {
           <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
-      <div className="flex flex-row bg-[#E7ECEF] h-[1000px]">
+      <div className="flex flex-row bg-[#E7ECEF] h-screen">
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12 ">
             <div className="flex items-center justify-between">
@@ -203,7 +239,11 @@ const Editor: React.FC = () => {
                 onOpenChange={setDropdownIsOpen}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button className="mt-1 ml-1" variant="outline">
+                  <Button
+                    className="mt-1 ml-1"
+                    variant="outline"
+                    disabled={exceedsMaximumItems()}
+                  >
                     Add Resume Item
                   </Button>
                 </DropdownMenuTrigger>
@@ -237,16 +277,9 @@ const Editor: React.FC = () => {
                   ></ProjectItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button
-                className="mt-1 mr-1 text-red-500 font-bold"
-                variant="outline"
-                onClick={handleClearResume}
-              >
-                Clear Resume
-              </Button>
             </div>
           </Card>
-          <ScrollArea className="h-[600px] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
+          <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
             <div className="p-4 w-full h-full">
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Resume Items
@@ -281,7 +314,9 @@ const Editor: React.FC = () => {
                             <DropdownMenuItem>Clone Item</DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
-                              onClick={() => handleItemDeletion(item, item._id, storedToken!)}
+                              onClick={() =>
+                                handleItemDeletion(item, item._id, storedToken!)
+                              }
                             >
                               Delete Item
                             </DropdownMenuItem>
@@ -294,30 +329,56 @@ const Editor: React.FC = () => {
             </div>
           </ScrollArea>
         </div>
-        <div className="w-[calc(50%-4rem)] bg-white ml-8 mt-4">
+        <div className="w-[calc(50%-4rem)] ml-8 mt-4">
+          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
+            <Button
+              className="text-red-500 font-bold"
+              variant="outline"
+              onClick={handleClearResume}
+            >
+              Clear Resume
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={!isResumeValid()}
+              onClick={() => {
+                generatePdfAndOpen(itemsInResume);
+              }}
+            >
+              {" "}
+              Download
+              <DownloadIcon className="ml-2"></DownloadIcon>
+            </Button>
+          </Card>
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          {itemsInResume && id && (
-            <ReactSortable
-              animation={150}
-              list={itemsInResume}
-              setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
-              group="ResumeItems"
-              className="h-full w-full bg-white"
-            >
-              {itemsInResume &&
-                itemsInResume.map((item) => (
-                  <div className="w-full" key={item._id}>
-                    <LatexImage
-                      onRenderStart={() => setDummy(dummy)}
-                      onRenderEnd={() => setDummy(dummy)}
-                      latexCode={generateLatex(item)}
-                    ></LatexImage>
-                  </div>
-                ))}
-            </ReactSortable>
-          )}
+          <div className="bg-white h-[90%] w-full min-w-6">
+            {itemsInResume && id && (
+              <ReactSortable
+                animation={150}
+                list={itemsInResume}
+                setList={createCustomSetItemsInBank(
+                  id,
+                  mutate,
+                  setItemsInResume,
+                )}
+                group="ResumeItems"
+                className="h-full w-full bg-white"
+              >
+                {itemsInResume &&
+                  itemsInResume.map((item) => (
+                    <div className="w-full" key={item._id}>
+                      <LatexImage
+                        onRenderStart={() => setDummy(dummy)}
+                        onRenderEnd={() => setDummy(dummy)}
+                        latexCode={generateLatex(item)}
+                      ></LatexImage>
+                    </div>
+                  ))}
+              </ReactSortable>
+            )}
+          </div>
         </div>
       </div>
     </>
