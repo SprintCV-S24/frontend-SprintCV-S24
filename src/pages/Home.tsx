@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { ResumesType } from "@/api/models/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAddResume } from "@/hooks/mutations";
+import { generateFullResume, generatedLatexCode } from "../latexUtils/latexString";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
@@ -34,6 +35,8 @@ const Home: React.FC = () => {
       }
     };
     void updateToken();
+
+    console.log(generatedLatexCode);
   }, [currentUser]);
 
 	const onClickAddResume = () => {
