@@ -33,7 +33,9 @@ export function ExtracurricularItem({
   const [role, setRole] = useState("");
   const [date, setDate] = useState("");
   const [itemName, setItemName] = useState("");
+  
   const [bullets, setBullets] = useState<string[]>([]);
+
   const [location, setLocation] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -203,7 +205,7 @@ export function ExtracurricularItem({
                     list={bullets}
                     setList={setBullets}
                     group="Acitivties"
-                    className="h-[500px] w-full mb-2"
+                    className="h-full w-full mb-2"
                   >
                     {bullets.map((bullet, index) => (
                       <div key={index} className="ml-1 mt-2 flex">
