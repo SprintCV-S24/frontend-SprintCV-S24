@@ -18,8 +18,13 @@ import { ActivitiesType } from "@/api/models/interfaces";
 import { useAddActivity } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { ReactSortable } from "react-sortablejs";
 
-export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+export function ExtracurricularItem({
+  setDropdownIsOpen,
+}: {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+}) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -109,7 +114,7 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
-					setDropdownIsOpen(false);
+          setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -192,32 +197,42 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
-                {bullets.map((bullet, index) => (
-                  <div key={index} className="ml-1 mt-2 flex">
-                    {" "}
-                    <AutosizeTextarea
-                      className="mb-2 resize-none h-[35px]"
-                      placeholder="Description"
-                      value={bullet}
-                      onChange={(e) =>
-                        handleBulletChange(index, e.target.value)
-                      }
-                    />
-                    <Button
-                      className="ml-[5px] flex items-center justify-center"
-                      variant="secondary"
-                      type="button"
-                      disabled={bullets.length <= 1}
-                      onClick={() => handleDeleteBullet(index)}
-                    >
-                      <img
-                        src={DeleteImage}
-                        alt="deleteimg"
-                        className="h-[40px] w-[40px]"
-                      ></img>
-                    </Button>
-                  </div>
-                ))}
+                {bullets && (
+                  <ReactSortable
+                    animation={150}
+                    list={bullets}
+                    setList={setBullets}
+                    group="Acitivties"
+                    className="h-[500px] w-full mb-2"
+                  >
+                    {bullets.map((bullet, index) => (
+                      <div key={index} className="ml-1 mt-2 flex">
+                        {" "}
+                        <AutosizeTextarea
+                          className="mb-2 resize-none h-[35px]"
+                          placeholder="Description"
+                          value={bullet}
+                          onChange={(e) =>
+                            handleBulletChange(index, e.target.value)
+                          }
+                        />
+                        <Button
+                          className="ml-[5px] flex items-center justify-center"
+                          variant="secondary"
+                          type="button"
+                          disabled={bullets.length <= 1}
+                          onClick={() => handleDeleteBullet(index)}
+                        >
+                          <img
+                            src={DeleteImage}
+                            alt="deleteimg"
+                            className="h-[40px] w-[40px]"
+                          ></img>
+                        </Button>
+                      </div>
+                    ))}
+                  </ReactSortable>
+                )}
               </div>
               <Button
                 type="button"
