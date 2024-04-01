@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
 import ExportImage from "../assets/export-image.png";
+import { DownloadIcon } from "@radix-ui/react-icons";
 import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
@@ -332,18 +333,14 @@ const Editor: React.FC = () => {
               onClick={() => {
                 generatePdfAndOpen(itemsInResume);
               }}
-            >
-              <img
-                src={ExportImage}
-                alt="export image"
-                className="h-full w-full"
-              ></img>
+            > Download
+              <DownloadIcon className="ml-2"></DownloadIcon>
             </Button>
           </Card>
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="bg-white h-full w-full">
+          <div className="bg-white h-screen w-full">
             {itemsInResume && id && (
               <ReactSortable
                 animation={150}
