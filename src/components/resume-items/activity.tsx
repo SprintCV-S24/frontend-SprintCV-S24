@@ -204,6 +204,7 @@ export function ExtracurricularItem({
                     animation={150}
                     list={bullets}
                     setList={setBullets}
+                    handle="bg-black h-full w-full"
                     group="Acitivties"
                     className="h-full w-full mb-2"
                   >
@@ -230,6 +231,7 @@ export function ExtracurricularItem({
                             alt="deleteimg"
                             className="h-[40px] w-[40px]"
                           ></img>
+                          <div className="bg-black h-full w-full">Test</div>
                         </Button>
                       </div>
                     ))}
