@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/context-menu";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { deleteItem } from "@/api/resumeItemInterface";
-
+import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -81,17 +81,22 @@ const Editor: React.FC = () => {
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
 
-  const handleItemDeletion = (item: BaseItem, itemId: string, token: string) => {
+  const handleItemDeletion = (
+    item: BaseItem,
+    itemId: string,
+    token: string,
+  ) => {
     // Calls a generalization of delete that is type agnostic.
     deleteItem(item, itemId, token);
 
     // Update if necessary
     if (itemsInBank) {
-      const updatedItemsInBank = itemsInBank.filter(item => item._id !== itemId); // Add this for item removal 
+      const updatedItemsInBank = itemsInBank.filter(
+        (item) => item._id !== itemId,
+      ); // Add this for item removal
       setItemsInBank(updatedItemsInBank);
     }
   };
-
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -113,6 +118,13 @@ const Editor: React.FC = () => {
       console.log(itemsInBank);
       console.log(itemsInResume);
     }
+  };
+
+  const generatePdfAndOpen = async (items: BaseItem[]) => {
+    const latexString = "";
+    const blob = await generatePdfBlobSafe(latexString);
+    const url = URL.createObjectURL(blob);
+		window.open(url, '_blank');
   };
 
   useEffect(() => {
@@ -281,7 +293,9 @@ const Editor: React.FC = () => {
                             <DropdownMenuItem>Clone Item</DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
-                              onClick={() => handleItemDeletion(item, item._id, storedToken!)}
+                              onClick={() =>
+                                handleItemDeletion(item, item._id, storedToken!)
+                              }
                             >
                               Delete Item
                             </DropdownMenuItem>
