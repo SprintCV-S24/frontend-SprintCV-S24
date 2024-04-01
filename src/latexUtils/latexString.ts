@@ -1,5 +1,4 @@
-
-
+import { start } from "repl";
 import {
   HeadingsType,
   EducationType,
@@ -11,7 +10,6 @@ import {
   BaseItem,
 } from "../api/models/interfaces";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
-
 
 /**
  * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
@@ -177,7 +175,7 @@ export function getLatexContentSizedPreamble(): string {
         % Sections formatting
         \\titleformat{\\section}{
             \\vspace{-4pt}\\scshape\\raggedright\\large
-        }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
+        }{}{0em}{}[\\color{black}\\titlerule \\vspace{-20pt}]
         
         % Ensure that generate pdf is machine readable/ATS parsable
         \\pdfgentounicode=1
@@ -283,20 +281,28 @@ export function sanitize(str: string): string {
  */
 export const generateHeaderLatex = (activityObj: HeadingsType): string => {
   let headerLatex = getLatexContentSizedPreamble();
+  headerLatex = headerLatex.replace(
+    "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
+    "\\usepackage[top=.3in, left=1in, right=1in, bottom=1in]{geometry}",
+  );
+	headerLatex = headerLatex.replace(
+		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
+		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.3in"
+	);
   headerLatex += `\\begin{document}\n`;
 
   headerLatex += generateHeaderLatexHelper(activityObj as HeadingsType);
 
-  headerLatex += `\\end{document}`;
+  headerLatex += `\\vspace{-\\lastskip}\\end{document}`;
 
   return headerLatex;
 };
 
-
-export const generateHeaderLatexHelper = (activityObj: HeadingsType): string => {
-
+export const generateHeaderLatexHelper = (
+  activityObj: HeadingsType,
+): string => {
   let headerLatex = `\\begin{center}\n`;
-  headerLatex += `\\textbf{\\Huge \\scshape ${sanitize(
+  headerLatex += `\\textbf{\\Huge ${sanitize(
     activityObj.name,
   )}} \\\\ \\vspace{1pt}\n`;
   headerLatex += `\\small `;
@@ -315,16 +321,10 @@ export const generateHeaderLatexHelper = (activityObj: HeadingsType): string => 
       headerLatex += ` $|$ `;
     }
   });
-
-  headerLatex += `\\vspace{-\\lastskip}`; // Adjust space before ending the document
-  // headerLatex += `\n\\end{center}\n\\vspace{-\\dimexpr\\lastskip-3pt}\\end{document}`;
-  headerLatex += `\n\\end{center}\n\\vspace{-\\lastskip}`;
+  headerLatex += `\n\\end{center}`;
 
   return headerLatex;
 };
-
-
-
 
 /*  ------------------------------------------------- */
 /*  -------------------Education--------------------- */
@@ -339,18 +339,19 @@ export const generateHeaderLatexHelper = (activityObj: HeadingsType): string => 
  */
 export const generateEducationLatex = (educationObj: EducationType): string => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n`;
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
 
   latexString += generateEducationLatexHelper(educationObj as EducationType);
 
-  latexString += `\\end{document}\n`;
-  // If there are bullet points under each education entry
+  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n`;
 
   return latexString;
 };
 
-export const generateEducationLatexHelper = (educationObj: EducationType): string => {
-  let latexString = `\n\\resumeSubHeadingListStart\n`;
+export const generateEducationLatexHelper = (
+  educationObj: EducationType,
+): string => {
+  let latexString = ``;
 
   // Assuming educationObj is a single object and not an array here
   latexString += `\\resumeSubheading
@@ -366,12 +367,8 @@ export const generateEducationLatexHelper = (educationObj: EducationType): strin
     latexString += `\\resumeItemListEnd\n`;
   }
 
-  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n`;
-  // If there are bullet points under each education entry
-
   return latexString;
 };
-
 
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
@@ -386,17 +383,18 @@ export const generateEducationLatexHelper = (educationObj: EducationType): strin
  */
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n`;
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
   latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
 
-  latexString += "\\end{document}\n";
+  latexString +=
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
 export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
-  let latexString = `\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
+  let latexString = `\n\\resumeSubheading{${sanitize(
     activityObj.subtitle,
   )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
     activityObj.location,
@@ -410,9 +408,6 @@ export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
     });
     latexString += "\\resumeItemListEnd\n";
   }
-
-  latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n";
 
   return latexString;
 };
@@ -430,17 +425,20 @@ export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
  */
 export const generateProjectLatex = (projectObj: ProjectsType): string => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += "\\begin{document}\n";
+  latexString += "\\begin{document}\n\\resumeSubHeadingListStart\n";
 
   latexString += generateProjectLatexHelper(projectObj as ProjectsType);
 
-  latexString += "\\end{document}\n";
+  latexString +=
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-export const generateProjectLatexHelper = (projectObj: ProjectsType): string => {
-  let latexString = "\n\\resumeSubHeadingListStart\n";
+export const generateProjectLatexHelper = (
+  projectObj: ProjectsType,
+): string => {
+  let latexString = "";
 
   // Check if technologies are provided and append them to the title
   const titleWithTechnologies = projectObj.technologies
@@ -461,9 +459,6 @@ export const generateProjectLatexHelper = (projectObj: ProjectsType): string => 
     latexString += "\\resumeItemListEnd\n";
   }
 
-  latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n";
-
   return latexString;
 };
 
@@ -481,26 +476,24 @@ export const generateProjectLatexHelper = (projectObj: ProjectsType): string => 
 export const generateSkillsLatex = (skillsObj: SkillsType): string => {
   let latexString = getLatexContentSizedPreamble();
   latexString += "\\begin{document}\n";
- 
-  latexString +=  generateSkillsLatexHelper(skillsObj as SkillsType);
 
-  latexString += "\\end{document}\n";
+  latexString += generateSkillsLatexHelper(skillsObj as SkillsType);
+
+  latexString += "\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
 export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
-  let latexString =
-    "\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
+  let latexString = "\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
   latexString += "\\small{\\item{";
   latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(
     skillsObj.description,
   )}} \\\\`;
-  latexString += "}}\n\\end{itemize}\n\\vspace{-\\lastskip}\n";
+  latexString += "}}\n\\end{itemize}\n";
 
   return latexString;
 };
-
 
 /*  ------------------------------------------------- */
 /*  -------------------Activity---------------------- */
@@ -515,32 +508,32 @@ export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
  */
 export const generateActivityLatex = (activityObj: ActivitiesType) => {
   let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n`;
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
 
   latexString += generateActivityLatexHelper(activityObj as ActivitiesType);
-  
-  latexString += "\\end{document}\n";
+
+  latexString +=
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
 export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
-  let latexString = `\n\\resumeSubHeadingListStart\n\\resumeSubheading{${sanitize(
+  let latexString = `\\resumeSubheading{${sanitize(
     activityObj.title,
   )}}{${sanitize(activityObj.year)}}{${sanitize(
     activityObj.subtitle,
   )}}{${sanitize(activityObj.location)}}`;
 
   if (activityObj.bullets.length > 0) {
-		latexString += `\\resumeItemListStart\n`;
+    latexString += `\\resumeItemListStart\n`;
     activityObj.bullets.forEach((bulletPoint) => {
       latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
-		latexString += `\\resumeItemListEnd\n`;
+    latexString += `\\resumeItemListEnd\n`;
   }
 
-  latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n";
+  latexString += "";
 
   return latexString;
 };
@@ -561,22 +554,33 @@ export const generateSectionHeadingLatex = (
   activityObj: SectionHeadingsType,
 ) => {
   let latexString = getLatexContentSizedPreamble();
+	latexString = latexString.replace(
+    "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
+    "\\usepackage[top=.05in, left=1in, right=1in, bottom=1in]{geometry}",
+  );
+	latexString = latexString.replace(
+		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
+		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.05in"
+	);
+
   latexString += `\\begin{document}`;
 
-  latexString += generateSectionHeadingLatexHelper(activityObj as SectionHeadingsType);
+  latexString += generateSectionHeadingLatexHelper(
+    activityObj as SectionHeadingsType,
+  );
 
+  latexString += "\n\\vspace{-\\lastskip}\n\\end{document}\n";
+
+  console.log("SUBHEADINGXX:", latexString);
   return latexString;
 };
 
 export const generateSectionHeadingLatexHelper = (
   activityObj: SectionHeadingsType,
 ) => {
-  let latexString = `\n\\section{${sanitize(
-    activityObj.title,
-  )}}\n\\vspace{-\\lastskip}`;
+  let latexString = `\n\\section{${sanitize(activityObj.title)}}\n`;
   return latexString;
 };
-
 
 export const generateLatex = (object: BaseItem): string => {
   switch (object.type) {
@@ -601,17 +605,37 @@ export const generateLatex = (object: BaseItem): string => {
     case resumeItemTypes.SKILL:
       return generateSectionHeadingLatex(object as SkillsType);
   }
-
-  return "";
 };
 
-
+const itemsInSubHeadingList = [
+  resumeItemTypes.ACTIVITY,
+  resumeItemTypes.EDUCATION,
+  resumeItemTypes.EXPERIENCE,
+  resumeItemTypes.PROJECT,
+];
 
 export const generateFullResume = (resumeItems: BaseItem[]): string => {
   let latexString = getLatexPreamble();
   latexString += "\\begin{document}\n";
+  let isInSubHeadingList = false;
 
-  resumeItems.forEach((item) => {
+  const startList = () => {
+    if (!isInSubHeadingList) {
+      latexString += `\\resumeSubHeadingListStart\n`;
+      isInSubHeadingList = true;
+    }
+  };
+
+  const endList = (nextItem: BaseItem | undefined) => {
+    if (nextItem == null || !itemsInSubHeadingList.includes(nextItem.type)) {
+      latexString += `\\resumeSubHeadingListEnd\n`;
+      isInSubHeadingList = false;
+    }
+  };
+
+  for (let i = 0; i < resumeItems.length; ++i) {
+    const item = resumeItems[i] as BaseItem;
+
     switch (item.type) {
       case resumeItemTypes.HEADING:
         latexString += generateHeaderLatexHelper(item as HeadingsType);
@@ -620,22 +644,30 @@ export const generateFullResume = (resumeItems: BaseItem[]): string => {
         latexString += `\\section{${sanitize((item as SectionHeadingsType).title)}}\n`;
         break;
       case resumeItemTypes.EDUCATION:
+        startList();
         latexString += generateEducationLatexHelper(item as EducationType);
+        endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.EXPERIENCE:
+        startList();
         latexString += generateExperienceLatexHelper(item as ExperienceType);
+        endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.ACTIVITY:
+        startList();
         latexString += generateActivityLatexHelper(item as ActivitiesType);
+        endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.PROJECT:
+        startList();
         latexString += generateProjectLatexHelper(item as ProjectsType);
+        endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.SKILL:
         latexString += generateSkillsLatexHelper(item as SkillsType);
         break;
     }
-  });
+  }
 
   latexString += "\\end{document}\n";
   return latexString;
@@ -651,7 +683,10 @@ const comprehensiveTestResumeItems: BaseItem[] = [
       { item: "john.doe@example.com", href: "mailto:john.doe@example.com" },
       { item: "(123) 456-7890", href: "tel:(123) 456-7890" },
       { item: "New York, NY", href: "" },
-      { item: "linkedin.com/in/johndoe", href: "https://www.linkedin.com/in/johndoe" },
+      {
+        item: "linkedin.com/in/johndoe",
+        href: "https://www.linkedin.com/in/johndoe",
+      },
       { item: "github.com/johndoe", href: "https://github.com/johndoe" },
     ],
     type: resumeItemTypes.HEADING,
@@ -668,7 +703,8 @@ const comprehensiveTestResumeItems: BaseItem[] = [
     user: "johndoe",
     itemName: "Summary Description",
     title: "Summary",
-    description: "Experienced software engineer with a passion for developing innovative solutions. Skilled in Java, Python, and web development. Proven track record of delivering high-quality software on time and collaborating effectively with cross-functional teams.",
+    description:
+      "Experienced software engineer with a passion for developing innovative solutions. Skilled in Java, Python, and web development. Proven track record of delivering high-quality software on time and collaborating effectively with cross-functional teams.",
     type: resumeItemTypes.SKILL,
   },
   {
@@ -676,7 +712,8 @@ const comprehensiveTestResumeItems: BaseItem[] = [
     user: "johndoe",
     itemName: "Technical Skills",
     title: "Technical Skills",
-    description: "Java, Python, JavaScript, React, Node.js, Express, MongoDB, SQL, Git, AWS",
+    description:
+      "Java, Python, JavaScript, React, Node.js, Express, MongoDB, SQL, Git, AWS",
     type: resumeItemTypes.SKILL,
   },
   {
@@ -707,7 +744,7 @@ const comprehensiveTestResumeItems: BaseItem[] = [
     itemName: "Master of Science in Artificial Intelligence",
     bullets: [
       "GPA: 3.9/4.0",
-      "Thesis: \"Deep Learning Approaches for Natural Language Processing\"",
+      'Thesis: "Deep Learning Approaches for Natural Language Processing"',
       "Relevant Coursework: Machine Learning, Neural Networks, Natural Language Processing",
     ],
     title: "University of Example",
@@ -895,7 +932,7 @@ const comprehensiveTestResumeItems: BaseItem[] = [
     user: "johndoe",
     itemName: "Conference Speaker",
     bullets: [
-      "Delivered a technical talk on \"Trends and Advancements in Machine Learning\"",
+      'Delivered a technical talk on "Trends and Advancements in Machine Learning"',
       "Shared insights and experiences with the audience and participated in Q&A session",
     ],
     title: "GHI Tech Conference",
@@ -907,7 +944,6 @@ const comprehensiveTestResumeItems: BaseItem[] = [
   // Add more resume items as needed
 ];
 
-
 const comprehensiveTestResumeItems2: BaseItem[] = [
   {
     _id: "JaneSmith",
@@ -918,7 +954,10 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
       { item: "jane.smith@example.com", href: "mailto:jane.smith@example.com" },
       { item: "(987) 654-3210", href: "tel:(987) 654-3210" },
       { item: "San Francisco, CA", href: "" },
-      { item: "linkedin.com/in/janesmith", href: "https://www.linkedin.com/in/janesmith" },
+      {
+        item: "linkedin.com/in/janesmith",
+        href: "https://www.linkedin.com/in/janesmith",
+      },
       { item: "github.com/janesmith", href: "https://github.com/janesmith" },
     ],
     type: resumeItemTypes.HEADING,
@@ -935,7 +974,8 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
     user: "janesmith",
     itemName: "Summary Description",
     title: "Summary",
-    description: "Highly motivated software engineer with expertise in full-stack web development. Experienced in designing and implementing scalable and maintainable software solutions. Strong problem-solving abilities and excellent communication skills.",
+    description:
+      "Highly motivated software engineer with expertise in full-stack web development. Experienced in designing and implementing scalable and maintainable software solutions. Strong problem-solving abilities and excellent communication skills.",
     type: resumeItemTypes.SKILL,
   },
   {
@@ -943,7 +983,8 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
     user: "janesmith",
     itemName: "Technical Skills",
     title: "Technical Skills",
-    description: "JavaScript, TypeScript, React, Angular, Node.js, Express, MongoDB, PostgreSQL, AWS, Docker, Git",
+    description:
+      "JavaScript, TypeScript, React, Angular, Node.js, Express, MongoDB, PostgreSQL, AWS, Docker, Git",
     type: resumeItemTypes.SKILL,
   },
   {
@@ -974,7 +1015,7 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
     itemName: "Master of Science in Computer Science",
     bullets: [
       "GPA: 4.0/4.0",
-      "Thesis: \"Efficient Algorithms for Large-Scale Data Processing\"",
+      'Thesis: "Efficient Algorithms for Large-Scale Data Processing"',
       "Relevant Coursework: Advanced Database Systems, Distributed Computing, Artificial Intelligence",
     ],
     title: "ABC University",
@@ -1075,7 +1116,7 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
     user: "janesmith",
     itemName: "Tech Conference Speaker",
     bullets: [
-      "Presented a talk on \"Scalable Microservices Architecture\" at DEF Tech Conference",
+      'Presented a talk on "Scalable Microservices Architecture" at DEF Tech Conference',
       "Shared insights and best practices for designing and implementing microservices",
       "Engaged with the audience through Q&A session and received positive feedback",
     ],
@@ -1102,9 +1143,8 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
   },
 ];
 
-
-
 // Generate the full resume LaTeX code
-export const generatedLatexCode = generateFullResume(comprehensiveTestResumeItems2);
+export const generatedLatexCode = generateFullResume(
+  comprehensiveTestResumeItems2,
+);
 console.log(generatedLatexCode);
-
