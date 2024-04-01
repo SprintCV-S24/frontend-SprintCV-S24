@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
+import ExportImage from "../assets/export-image.png";
 import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
@@ -121,6 +122,14 @@ const Editor: React.FC = () => {
     }
   };
 
+  // Used to
+  const isResumeValid = () => {
+    if (itemsInResume != undefined) {
+      return itemsInResume.length > 0;
+    }
+    return false;
+  };
+
   const generatePdfAndOpen = async (items: BaseItem[] | undefined) => {
     if (items && resume) {
       const latexString = generateFullResume(items);
@@ -205,13 +214,6 @@ const Editor: React.FC = () => {
     <>
       <div className="md:hidden"></div>
       <div className="flex-col">
-        <Button
-          onClick={() => {
-            generatePdfAndOpen(itemsInResume);
-          }}
-        >
-          Download Resume
-        </Button>
         <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
           <Button className="absolute right-4 top-4" variant="ghost">
             <Link to="/profile">Profile</Link>
@@ -322,30 +324,51 @@ const Editor: React.FC = () => {
             </div>
           </ScrollArea>
         </div>
-        <div className="w-[calc(50%-4rem)] bg-white ml-8 mt-4">
+        <div className="w-[calc(50%-4rem)] ml-8 mt-4">
+          <Card className="w-full h-12 white mb-4 flex items-center justify-end p-2">
+            <Button
+              variant="secondary"
+              disabled={!isResumeValid()}
+              onClick={() => {
+                generatePdfAndOpen(itemsInResume);
+              }}
+            >
+              <img
+                src={ExportImage}
+                alt="export image"
+                className="h-full w-full"
+              ></img>
+            </Button>
+          </Card>
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          {itemsInResume && id && (
-            <ReactSortable
-              animation={150}
-              list={itemsInResume}
-              setList={createCustomSetItemsInBank(id, mutate, setItemsInResume)}
-              group="ResumeItems"
-              className="h-full w-full bg-white"
-            >
-              {itemsInResume &&
-                itemsInResume.map((item) => (
-                  <div className="w-full" key={item._id}>
-                    <LatexImage
-                      onRenderStart={() => setDummy(dummy)}
-                      onRenderEnd={() => setDummy(dummy)}
-                      latexCode={generateLatex(item)}
-                    ></LatexImage>
-                  </div>
-                ))}
-            </ReactSortable>
-          )}
+          <div className="bg-white h-full w-full">
+            {itemsInResume && id && (
+              <ReactSortable
+                animation={150}
+                list={itemsInResume}
+                setList={createCustomSetItemsInBank(
+                  id,
+                  mutate,
+                  setItemsInResume,
+                )}
+                group="ResumeItems"
+                className="h-full w-full bg-white"
+              >
+                {itemsInResume &&
+                  itemsInResume.map((item) => (
+                    <div className="w-full" key={item._id}>
+                      <LatexImage
+                        onRenderStart={() => setDummy(dummy)}
+                        onRenderEnd={() => setDummy(dummy)}
+                        latexCode={generateLatex(item)}
+                      ></LatexImage>
+                    </div>
+                  ))}
+              </ReactSortable>
+            )}
+          </div>
         </div>
       </div>
     </>
