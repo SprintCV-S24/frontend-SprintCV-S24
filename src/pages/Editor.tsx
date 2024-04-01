@@ -330,7 +330,7 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-[calc(50%-4rem)] ml-8 mt-4">
-          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2">
+          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
             <Button
               className="text-red-500 font-bold"
               variant="outline"
@@ -353,7 +353,7 @@ const Editor: React.FC = () => {
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
           )}{" "}
-          <div className="bg-white h-[90%] w-full">
+          <div className="bg-white h-[90%] w-full min-w-60">
             {itemsInResume && id && (
               <ReactSortable
                 animation={150}
