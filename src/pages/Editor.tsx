@@ -39,6 +39,7 @@ import {
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { deleteItem } from "@/api/resumeItemInterface";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
+import { generateFullResume } from "@/latexUtils/latexString";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -120,11 +121,17 @@ const Editor: React.FC = () => {
     }
   };
 
-  const generatePdfAndOpen = async (items: BaseItem[]) => {
-    const latexString = "";
-    const blob = await generatePdfBlobSafe(latexString);
-    const url = URL.createObjectURL(blob);
-		window.open(url, '_blank');
+  const generatePdfAndOpen = async (items: BaseItem[] | undefined) => {
+    if (items && resume) {
+      const latexString = generateFullResume(items);
+      const blob = await generatePdfBlobSafe(latexString);
+      const url = URL.createObjectURL(blob);
+      // window.open(url, "_blank");
+      let fileLink = document.createElement("a");
+      fileLink.href = url;
+      fileLink.download = resume.itemName;
+      fileLink.click();
+    }
   };
 
   useEffect(() => {
@@ -198,6 +205,13 @@ const Editor: React.FC = () => {
     <>
       <div className="md:hidden"></div>
       <div className="flex-col">
+        <Button
+          onClick={() => {
+            generatePdfAndOpen(itemsInResume);
+          }}
+        >
+          Download Resume
+        </Button>
         <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
           <Button className="absolute right-4 top-4" variant="ghost">
             <Link to="/profile">Profile</Link>
