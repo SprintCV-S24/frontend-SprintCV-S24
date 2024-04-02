@@ -42,6 +42,7 @@ import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { deleteItem } from "@/api/resumeItemInterface";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { generateFullResume } from "@/latexUtils/latexString";
+import { useDeleteItem } from "@/hooks/mutations";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -82,24 +83,13 @@ const Editor: React.FC = () => {
     storedToken,
   );
 
+  const {
+    mutate: deleteItem,
+    isPending: deleteItemPending,
+    isError: deleteItemError,
+  } = useDeleteItem(queryClient, storedToken);
+
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
-
-  const handleItemDeletion = (
-    item: BaseItem,
-    itemId: string,
-    token: string,
-  ) => {
-    // Calls a generalization of delete that is type agnostic.
-    deleteItem(item, itemId, token);
-
-    // Update if necessary
-    if (itemsInBank) {
-      const updatedItemsInBank = itemsInBank.filter(
-        (item) => item._id !== itemId,
-      ); // Add this for item removal
-      setItemsInBank(updatedItemsInBank);
-    }
-  };
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -314,9 +304,9 @@ const Editor: React.FC = () => {
                             <DropdownMenuItem>Clone Item</DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
-                              onClick={() =>
-                                handleItemDeletion(item, item._id, storedToken!)
-                              }
+                              onClick={(e) => {
+                                deleteItem({itemType: item.type, itemId: item._id});
+                              }}
                             >
                               Delete Item
                             </DropdownMenuItem>
