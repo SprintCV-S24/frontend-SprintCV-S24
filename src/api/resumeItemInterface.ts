@@ -30,25 +30,35 @@ export const getAllItems = async (token: string) => {
   return combinedResults;
 };
 
-export const deleteItem = (item: BaseItem, itemId: string, token: string) => {
-  console.log("DELETING AN ITEM");
-  if (item.type == resumeItemTypes.HEADING) {
-    console.log("DELETING HEADING");
-    deleteHeading(itemId, token);
-  }
-  if (item.type == resumeItemTypes.SECTIONHEADING) {
-    deleteSectionHeading(itemId, token);
-  }
-  if (item.type == resumeItemTypes.EXPERIENCE) {
-    deleteExperience(itemId, token);
-  }
-  if (item.type == resumeItemTypes.EDUCATION) {
-    deleteEducation(itemId, token);
-  }
-  if (item.type == resumeItemTypes.ACTIVITY) {
-    deleteActivity(itemId, token);
-  }
-  if (item.type == resumeItemTypes.PROJECT) {
-    deleteProject(itemId, token);
+export const deleteItem = async (itemType: resumeItemTypes, itemId: string, token: string) => {
+  try {
+    if (token === undefined) {
+      throw new Error("Token is undefined");
+    }
+
+    switch (itemType) {
+      case resumeItemTypes.HEADING:
+        await deleteHeading(itemId, token);
+        break;
+      case resumeItemTypes.SECTIONHEADING:
+        await deleteSectionHeading(itemId, token);
+        break;
+      case resumeItemTypes.EXPERIENCE:
+        await deleteExperience(itemId, token);
+        break;
+      case resumeItemTypes.EDUCATION:
+        await deleteEducation(itemId, token);
+        break;
+      case resumeItemTypes.ACTIVITY:
+        await deleteActivity(itemId, token);
+        break;
+      case resumeItemTypes.PROJECT:
+        await deleteProject(itemId, token);
+        break;
+      default:
+        throw new Error("Invalid item type");
+    }
+  } catch (error) {
+    console.error("Error deleting item:", error);
   }
 };

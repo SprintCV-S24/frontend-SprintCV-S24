@@ -18,6 +18,8 @@ import { SkillsType } from "@/api/models/interfaces";
 import { ResumesType } from "@/api/models/interfaces";
 import { ResumesServerType } from "@/api/models/resumeModel";
 import { BaseItem } from "@/api/models/interfaces";
+import { deleteItem } from "@/api/resumeItemInterface";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 export const useAddActivity = (
   queryClient: QueryClient,
@@ -231,4 +233,21 @@ export const createCustomSetItemsInBank = (
 
   };
 	return customSetItemsInBank;
+};
+
+export const useDeleteItem = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  return useMutation({
+    mutationFn: async ({ itemType, itemId }: { itemType: resumeItemTypes, itemId: string }) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      return await deleteItem(itemType, itemId, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
 };
