@@ -603,7 +603,7 @@ export const generateLatex = (object: BaseItem): string => {
       return generateSectionHeadingLatex(object as SectionHeadingsType);
 
     case resumeItemTypes.SKILL:
-      return generateSectionHeadingLatex(object as SkillsType);
+      return generateSkillsLatex(object as SkillsType);
   }
 };
 

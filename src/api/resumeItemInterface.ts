@@ -22,6 +22,7 @@ export const getAllItems = async (token: string) => {
     getAllEducation(token),
     getAllExperience(token),
     getAllProjects(token),
+    getAllSkills(token),
   ]);
 
   // Combine all the arrays into one
