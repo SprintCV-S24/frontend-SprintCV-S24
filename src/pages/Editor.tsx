@@ -308,7 +308,6 @@ const Editor: React.FC = () => {
                                   [item.id]: isOpen,
                                 }))}
                             />
-                            Edit
                             <DropdownMenuItem>Clone</DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-500 font-bold"

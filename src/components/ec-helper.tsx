@@ -30,7 +30,7 @@ const ECHelper: React.FC<{ object: BaseItem, setDropdownIsOpen: Dispatch<SetStat
         return <ExtracurricularItem setDropdownIsOpen={setDropdownIsOpen}></ExtracurricularItem>
 
     case resumeItemTypes.HEADING:
-        return <HeadingItem setDropdownIsOpen={setDropdownIsOpen}></HeadingItem>;
+        return <HeadingItem setDropdownIsOpen={setDropdownIsOpen} initialHeading={object as HeadingsType}></HeadingItem>;
 
     case resumeItemTypes.PROJECT:
         return <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>;

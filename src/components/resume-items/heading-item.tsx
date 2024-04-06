@@ -19,15 +19,24 @@ import { useAddHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface HeadingItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  initialHeading?: HeadingsType; // Mark as optional with '?'
+}
+
+export function HeadingItem({
+  setDropdownIsOpen,
+  initialHeading,
+}: HeadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
-  const [heading, setHeading] = useState("");
-  const [bullets, setBullets] = useState<HeadingComponent[]>([
-    { item: "", href: "" },
-  ]);
+  const [itemName, setItemName] = useState(initialHeading?.itemName || "");
+  const [heading, setHeading] = useState(initialHeading?.name || "");
+  console.log(initialHeading?.items);
+  const [bullets, setBullets] = useState<HeadingComponent[]>(
+    initialHeading?.items || [{ item: "", href: "" }],
+  );
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -88,7 +97,6 @@ export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
   };
 
   const handleFormSubmit = async (event: any) => {
-    console.log("JEREEE2");
     event.preventDefault();
 
     const token = storedToken;
@@ -106,7 +114,7 @@ export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
-					setDropdownIsOpen(false);
+          setDropdownIsOpen(false);
           resetForm();
         },
         onError: (error) => {
@@ -124,16 +132,18 @@ export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="text-left h-full w-full"
-          variant="ghost"
-          onClick={() => {
-            resetBullets();
-            setIsOpen(true);
-          }}
-        >
-          Heading
-        </Button>
+          <Button
+            className="left-aligned-text h-full w-full"
+            variant="ghost"
+            onClick={() => {
+              if (!initialHeading) {
+                resetBullets();
+              }
+              setIsOpen(true);
+            }}
+          >
+            {!initialHeading? "Heading": "Edit"}
+          </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
