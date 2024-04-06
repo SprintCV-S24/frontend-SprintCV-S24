@@ -13,6 +13,7 @@ import { deleteExperience } from "./experienceInterface";
 import { deleteHeading } from "./headerInterface";
 import { deleteSectionHeading } from "./sectionHeadingInterface";
 import { deleteProject } from "./projectInterface";
+import { deleteSkill } from "./skillInterface";
 
 export const getAllItems = async (token: string) => {
   const results = await Promise.all([
@@ -55,6 +56,9 @@ export const deleteItem = async (itemType: resumeItemTypes, itemId: string, toke
         break;
       case resumeItemTypes.PROJECT:
         await deleteProject(itemId, token);
+        break;
+      case resumeItemTypes.SKILL:
+        await deleteSkill(itemId, token);
         break;
       default:
         throw new Error("Invalid item type");
