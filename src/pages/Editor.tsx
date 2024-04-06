@@ -14,9 +14,8 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
-import ExportImage from "../assets/export-image.png";
 import { DownloadIcon } from "@radix-ui/react-icons";
-import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
+import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,23 +25,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LatexImage } from "@/components/Latex";
-import { BaseItem } from "@/api/models/interfaces";
+import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInBank } from "@/hooks/mutations";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { resumeItemTypes } from "@/api/models/resumeItemTypes";
-import { deleteItem } from "@/api/resumeItemInterface";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
+import ECHelper from "@/components/ec-helper";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -90,6 +82,7 @@ const Editor: React.FC = () => {
   } = useDeleteItem(queryClient, storedToken);
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+  const [editOpen, setEditOpen] = useState<boolean>(false);
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -106,10 +99,6 @@ const Editor: React.FC = () => {
 
       clearResumeHelper([]);
       setItemsInBank(combinedItems);
-
-      // console.log("Clearing Resume");
-      // console.log(itemsInBank);
-      // console.log(itemsInResume);
     }
   };
 
@@ -143,20 +132,11 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
-    // TODO: Remove debugging logging.
-    // console.log(id);
-    // console.log(resume);
-    // console.log(allItems);
-
     if (id != null && allItems != null) {
-      // console.log("In loop");
       // this means no resume had that id
       if (resume == null) {
         // TODO: home page needs to check for and display messages like these
-        // console.log("HERE");
       } else {
-        // console.log("itemids:", resume.itemIds);
-
         // This extracts the resumeItems in the specific order provided
         const resumeResult = resume.itemIds.reduce(
           (accumulator, itemId) => {
@@ -164,7 +144,7 @@ const Editor: React.FC = () => {
             if (item) {
               accumulator.resumeItems.push({ ...item, id: item._id });
             } else {
-              // console.log(`Item with ID ${itemId} not found in allItems.`);
+              console.log(`Item with ID ${itemId} not found in allItems.`);
             }
             return accumulator;
           },
@@ -187,10 +167,6 @@ const Editor: React.FC = () => {
         // Sets the items in the respective fields
         setItemsInBank(bankResult.bankItems);
         setItemsInResume(resumeResult.resumeItems);
-
-        // TODO: Remove logging for debugging
-        // console.log("bank items:", bankResult.bankItems);
-        // console.log("resume items:", resumeResult.resumeItems);
       }
     }
   }, [id, allItems, resume]);
@@ -208,7 +184,6 @@ const Editor: React.FC = () => {
     void fetchFact();
   }, [currentUser, storedToken]);
 
-  // TODO: Make this type safe, make some other changes.
   return (
     <>
       <div className="flex-col">
@@ -296,16 +271,29 @@ const Editor: React.FC = () => {
                             latexCode={generateLatex(item)}
                           ></LatexImage>
                         </div>
-                        <DropdownMenu>
+                        <DropdownMenu
+                          open={editOpen}
+                          onOpenChange={setEditOpen}
+                        >
                           <DropdownMenuTrigger>
                             <DotsVerticalIcon></DotsVerticalIcon>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem>Clone Item</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <ECHelper
+                                object={item}
+                                setDropdownIsOpen={setEditOpen}
+                              ></ECHelper>
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>Clone</DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
                               onClick={(e) => {
-                                deleteItem({itemType: item.type, itemId: item._id});
+                                deleteItem({
+                                  itemType: item.type,
+                                  itemId: item._id,
+                                });
                               }}
                             >
                               Delete Item

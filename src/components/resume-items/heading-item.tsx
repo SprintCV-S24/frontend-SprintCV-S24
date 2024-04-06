@@ -46,6 +46,8 @@ export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
   useEffect(() => {
     const updateToken = async () => {
       try {
+        console.log("Maybe?");
+        console.log(open);
         const token = await currentUser?.getIdToken();
         setStoredToken(token);
       } catch (err) {
@@ -86,6 +88,7 @@ export function HeadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
   };
 
   const handleFormSubmit = async (event: any) => {
+    console.log("JEREEE2");
     event.preventDefault();
 
     const token = storedToken;
