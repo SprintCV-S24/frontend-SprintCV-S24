@@ -82,7 +82,23 @@ const Editor: React.FC = () => {
   } = useDeleteItem(queryClient, storedToken);
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
-  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
+    () => {
+      const initialEditOpenMap: { [key: string]: boolean } = {};
+      // Initialize all items' edit state to false
+      if (itemsInBank) {
+        itemsInBank.forEach((item) => {
+          initialEditOpenMap[item.id] = false;
+        });
+      }
+      if (itemsInResume) {
+        itemsInResume.forEach((item) => {
+          initialEditOpenMap[item.id] = false;
+        });
+      }
+      return initialEditOpenMap;
+    },
+  );
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -272,20 +288,27 @@ const Editor: React.FC = () => {
                           ></LatexImage>
                         </div>
                         <DropdownMenu
-                          open={editOpen}
-                          onOpenChange={setEditOpen}
+                          open={editOpenMap[item.id]}
+                          onOpenChange={(isOpen) =>
+                            setEditOpenMap((prevState) => ({
+                              ...prevState,
+                              [item.id]: isOpen,
+                            }))
+                          }
                         >
                           <DropdownMenuTrigger>
                             <DotsVerticalIcon></DotsVerticalIcon>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem>
-                              <ECHelper
-                                object={item}
-                                setDropdownIsOpen={setEditOpen}
-                              ></ECHelper>
-                              Edit
-                            </DropdownMenuItem>
+                            <ECHelper
+                              object={item}
+                              setDropdownIsOpen={(isOpen) =>
+                                setEditOpenMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: isOpen,
+                                }))}
+                            />
+                            Edit
                             <DropdownMenuItem>Clone</DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
