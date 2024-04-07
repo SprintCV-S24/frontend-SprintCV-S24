@@ -307,8 +307,22 @@ const Editor: React.FC = () => {
                                   ...prevState,
                                   [item.id]: isOpen,
                                 }))}
+                                formType="clone"
+                                onSuccess={()=> console.log("HELLO")}
                             />
-                            <DropdownMenuItem>Clone</DropdownMenuItem>
+                            <ECHelper
+                              object={item}
+                              setDropdownIsOpen={(isOpen) =>
+                                setEditOpenMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: isOpen,
+                                }))}
+                                formType="edit"
+                                onSuccess={()=> deleteItem({
+                                  itemType: item.type,
+                                  itemId: item._id,
+                                })}
+                            />
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
                               onClick={(e) => {

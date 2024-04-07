@@ -18,7 +18,7 @@ import { ProjectItem } from "./resume-items/project-item";
 import { SubheadingItem } from "./resume-items/subheading-item";
 
 
-const ECHelper: React.FC<{ object: BaseItem, setDropdownIsOpen: Dispatch<SetStateAction<boolean>> }> = ({ object, setDropdownIsOpen }) => {
+const ECHelper: React.FC<{ object: BaseItem, setDropdownIsOpen: Dispatch<SetStateAction<boolean>>, formType: string, onSuccess: () => void}> = ({ object, setDropdownIsOpen, formType, onSuccess }) => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
       return <EducationItem setDropdownIsOpen={setDropdownIsOpen}></EducationItem>;
@@ -30,7 +30,7 @@ const ECHelper: React.FC<{ object: BaseItem, setDropdownIsOpen: Dispatch<SetStat
         return <ExtracurricularItem setDropdownIsOpen={setDropdownIsOpen}></ExtracurricularItem>
 
     case resumeItemTypes.HEADING:
-        return <HeadingItem setDropdownIsOpen={setDropdownIsOpen} initialHeading={object as HeadingsType}></HeadingItem>;
+        return <HeadingItem setDropdownIsOpen={setDropdownIsOpen} initialHeading={object as HeadingsType} formType={formType} onSuccess={onSuccess}></HeadingItem>;
 
     case resumeItemTypes.PROJECT:
         return <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>;
