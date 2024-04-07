@@ -18,6 +18,7 @@ import { ActivitiesType } from "@/api/models/interfaces";
 import { useAddActivity } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { ReactSortable } from "react-sortablejs";
 
 interface ActivityItemsProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -142,7 +143,7 @@ export function ExtracurricularItem({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left h-full w-full"
+          className="text-left"
           variant="ghost"
           onClick={() => {
             if (!original) {
@@ -155,7 +156,7 @@ export function ExtracurricularItem({
             ? "Clone"
             : formType === "edit"
               ? "Edit"
-              : "Heading"}
+              : "Extracurricular"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -212,33 +213,45 @@ export function ExtracurricularItem({
               </div>
             </div>
             <div className="flex flex-col col-span-2">
-              <div className="flex-grow overflow-y-auto">
-                {bullets.map((bullet, index) => (
-                  <div key={index} className="ml-1 mt-2 flex">
-                    {" "}
-                    <AutosizeTextarea
-                      className="mb-2 resize-none h-[35px]"
-                      placeholder="Description"
-                      value={bullet}
-                      onChange={(e) =>
-                        handleBulletChange(index, e.target.value)
-                      }
-                    />
-                    <Button
-                      className="ml-[5px] flex items-center justify-center"
-                      variant="secondary"
-                      type="button"
-                      disabled={bullets.length <= 1}
-                      onClick={() => handleDeleteBullet(index)}
-                    >
-                      <img
-                        src={DeleteImage}
-                        alt="deleteimg"
-                        className="h-[40px] w-[40px]"
-                      ></img>
-                    </Button>
-                  </div>
-                ))}
+            <div className="flex-grow overflow-y-auto">
+                {bullets && (
+                  <ReactSortable
+                    animation={150}
+                    list={bullets}
+                    setList={setBullets}
+                    handle="bg-black h-full w-full"
+                    group="Acitivties"
+                    className="h-full w-full mb-2"
+                  >
+                    {bullets.map((bullet, index) => (
+                      <div key={index} className="ml-1 mt-2 flex">
+                        {" "}
+                        <AutosizeTextarea
+                          className="mb-2 resize-none h-[35px]"
+                          placeholder="Description"
+                          value={bullet}
+                          onChange={(e) =>
+                            handleBulletChange(index, e.target.value)
+                          }
+                        />
+                        <Button
+                          className="ml-[5px] flex items-center justify-center"
+                          variant="secondary"
+                          type="button"
+                          disabled={bullets.length <= 1}
+                          onClick={() => handleDeleteBullet(index)}
+                        >
+                          <img
+                            src={DeleteImage}
+                            alt="deleteimg"
+                            className="h-[40px] w-[40px]"
+                          ></img>
+                          <div className="bg-black h-full w-full">Test</div>
+                        </Button>
+                      </div>
+                    ))}
+                  </ReactSortable>
+                )}
               </div>
               <Button
                 type="button"

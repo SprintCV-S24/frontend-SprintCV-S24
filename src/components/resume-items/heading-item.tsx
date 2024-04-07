@@ -119,7 +119,7 @@ export function HeadingItem({
           setIsOpen(false);
           setDropdownIsOpen(false);
           resetForm();
-          if (onSuccess){
+          if (onSuccess) {
             onSuccess(); // Call onSuccess callback
           }
         },
@@ -139,7 +139,7 @@ export function HeadingItem({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="left-aligned-text h-full w-full"
+          className=""
           variant="ghost"
           onClick={() => {
             if (!original) {
@@ -173,7 +173,9 @@ export function HeadingItem({
               <Input
                 className="mb-2 w-full"
                 id="item-name"
-                placeholder={original? "Select a New Item Name": "Unique Item Name"}
+                placeholder={
+                  original ? "Select a New Item Name" : "Unique Item Name"
+                }
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
               />

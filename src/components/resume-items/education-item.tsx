@@ -146,7 +146,7 @@ export function EducationItem({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left h-full w-full"
+          className="text-left"
           variant="ghost"
           onClick={() => {
             if (!original) {

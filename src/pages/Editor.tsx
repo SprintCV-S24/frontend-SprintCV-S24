@@ -306,9 +306,10 @@ const Editor: React.FC = () => {
                                 setEditOpenMap((prevState: any) => ({
                                   ...prevState,
                                   [item.id]: isOpen,
-                                }))}
-                                formType="clone"
-                                onSuccess={()=> console.log("HELLO")}
+                                }))
+                              }
+                              formType="clone"
+                              onSuccess={() => console.log("HELLO")}
                             />
                             <ECHelper
                               object={item}
@@ -316,24 +317,26 @@ const Editor: React.FC = () => {
                                 setEditOpenMap((prevState: any) => ({
                                   ...prevState,
                                   [item.id]: isOpen,
-                                }))}
-                                formType="edit"
-                                onSuccess={()=> deleteItem({
+                                }))
+                              }
+                              formType="edit"
+                              onSuccess={() =>
+                                deleteItem({
                                   itemType: item.type,
                                   itemId: item._id,
-                                })}
+                                })
+                              }
                             />
-                            <DropdownMenuItem
+                            <Button
                               className="text-red-500 font-bold"
+                              variant="ghost"
                               onClick={(e) => {
                                 deleteItem({
                                   itemType: item.type,
                                   itemId: item._id,
                                 });
                               }}
-                            >
-                              Delete Item
-                            </DropdownMenuItem>
+                            >Delete Item</Button>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </Card>
