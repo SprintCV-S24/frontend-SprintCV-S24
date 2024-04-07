@@ -12,7 +12,7 @@ import { ResumesType } from "@/api/models/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAddResume } from "@/hooks/mutations";
 import { generateFullResume, generatedLatexCode } from "../latexUtils/latexString";
-import { headerLatex } from "../latexUtils/latexStringTwo";
+import { headerLatex, educationLatex } from "../latexUtils/latexStringTwo";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
@@ -39,6 +39,7 @@ const Home: React.FC = () => {
 
     console.log(generatedLatexCode);
     console.log(headerLatex);
+    console.log(educationLatex);
   }, [currentUser]);
 
 	const onClickAddResume = () => {

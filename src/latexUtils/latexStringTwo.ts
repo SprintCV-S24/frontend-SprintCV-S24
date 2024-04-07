@@ -209,3 +209,62 @@ export function sanitize(str: string): string {
   // Print the generated LaTeX code to the console
   console.log(headerLatex);
   
+
+  // Generates the LaTeX code for the education section of the resume.
+export const generateEducationLatex = (educationArray: EducationType[]): string => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n`;
+    latexString += `\\section{\\color{airforceblue}EDUCATION}\n`;
+    latexString += `\\resumeSubHeadingListStart\n`;
+  
+    // Iterate over each education entry and append its LaTeX code
+    educationArray.forEach(educationObj => {
+      latexString += generateEducationLatexHelper(educationObj);
+    });
+  
+    latexString += `\\resumeSubHeadingListEnd\n`;
+    latexString += `\\vspace{-10pt}\n`;
+    latexString += `\\end{document}\n`;
+  
+    return latexString;
+  };
+  
+// Helper function to generate LaTeX code for an individual education entry
+export const generateEducationLatexHelper = (educationObj: EducationType): string => {
+    let latexString = `\\resumeSubheading`;
+    latexString += `{${sanitize(educationObj.title)}}`; // University Name
+    latexString += `{${sanitize(educationObj.location)}}`; // Location
+    latexString += `{${sanitize(educationObj.subtitle)}}`; // Degree and Specialization
+    latexString += `{${sanitize(educationObj.year)}}\n`; // Month Year - Month Year
+    latexString += `\\vspace{-4pt}\n`;
+  
+    return latexString;
+  };
+  
+
+  const mockEducationData: EducationType[] = [
+    {
+      user: "user1",
+      itemName: "Education 1",
+      title: "University 1",
+      location: "Location, State, USA",
+      subtitle: "Degree and Specialization",
+      year: "Month Year - Month Year",
+      bullets: [],
+    },
+    {
+      user: "user2",
+      itemName: "Education 2",
+      title: "University 2",
+      location: "Location, State, USA",
+      subtitle: "Degree and Specialization",
+      year: "Month Year - Month Year",
+      bullets: [],
+    },
+  ];
+  
+  export const educationLatex = generateEducationLatex(mockEducationData);
+  console.log(educationLatex);
+  
+  
+  
