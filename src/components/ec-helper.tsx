@@ -28,7 +28,7 @@ const ECHelper: React.FC<{
       return (
         <EducationItem
           setDropdownIsOpen={setDropdownIsOpen}
-          original={object as SectionHeadingsType}
+          original={object as EducationType}
           formType={formType}
           onSuccess={onSuccess}
         ></EducationItem>
@@ -38,7 +38,7 @@ const ECHelper: React.FC<{
       return (
         <ExperienceItem
           setDropdownIsOpen={setDropdownIsOpen}
-          original={object as SectionHeadingsType}
+          original={object as ExperienceType}
           formType={formType}
           onSuccess={onSuccess}
         ></ExperienceItem>
@@ -48,7 +48,7 @@ const ECHelper: React.FC<{
       return (
         <ExtracurricularItem
           setDropdownIsOpen={setDropdownIsOpen}
-          original={object as SectionHeadingsType}
+          original={object as ActivitiesType}
           formType={formType}
           onSuccess={onSuccess}
         ></ExtracurricularItem>
