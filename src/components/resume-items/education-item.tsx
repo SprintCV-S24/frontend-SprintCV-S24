@@ -21,17 +21,29 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface EducationItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: EducationType; // Mark as optional with '?'
+  formType?: string;
+  onSuccess?: () => void; // Define onSuccess prop
+}
+
+export function EducationItem({
+  setDropdownIsOpen,
+  original,
+  formType,
+  onSuccess,
+}: EducationItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemName, setItemName] = useState("");
-  const [universityName, setUniversityName] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [majorMinor, setMajorMinor] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
+  const [universityName, setUniversityName] = useState(original?.title || "");
+  const [date, setDate] = useState(original?.year || "");
+  const [location, setLocation] = useState(original?.location || "");
+  const [majorMinor, setMajorMinor] = useState(original?.subtitle || "");
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -113,8 +125,11 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
-					setDropdownIsOpen(false);
+          setDropdownIsOpen(false);
           resetForm();
+          if (onSuccess) {
+            onSuccess(); // Call onSuccess callback
+          }
         },
         onError: (error) => {
           setErrorMessage(
@@ -134,11 +149,17 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
           className="text-left h-full w-full"
           variant="ghost"
           onClick={() => {
-            resetBullets();
+            if (!original) {
+              resetBullets();
+            }
             setIsOpen(true);
           }}
         >
-          Education
+          {formType === "clone"
+            ? "Clone"
+            : formType === "edit"
+              ? "Edit"
+              : "Education"}{" "}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">

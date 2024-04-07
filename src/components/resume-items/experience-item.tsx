@@ -20,17 +20,29 @@ import { useAddExperience } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function ExperienceItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface ExperienceItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: ExperienceType; // Mark as optional with '?'
+  formType?: string;
+  onSuccess?: () => void; // Define onSuccess prop
+}
+
+export function ExperienceItem({
+  setDropdownIsOpen,
+  original,
+  formType,
+  onSuccess,
+}: ExperienceItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemName, setItemName] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [jobTitle, setjobTitle] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
+  const [companyName, setCompanyName] = useState(original?.subtitle || "");
+  const [date, setDate] = useState(original?.year || "");
+  const [location, setLocation] = useState(original?.location || "");
+  const [jobTitle, setjobTitle] = useState(original?.title || "");
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
 
@@ -112,6 +124,9 @@ export function ExperienceItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
           setIsOpen(false);
 					setDropdownIsOpen(false);
           resetForm();
+          if (onSuccess) {
+            onSuccess(); // Call onSuccess callback
+          }
         },
         onError: (error) => {
           console.log(error);
@@ -132,11 +147,17 @@ export function ExperienceItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
           className="text-left h-full w-full"
           variant="ghost"
           onClick={() => {
-            resetBullets();
+            if (!original) {
+              resetBullets();
+            };
             setIsOpen(true);
           }}
         >
-          Experience
+          {formType === "clone"
+            ? "Clone"
+            : formType === "edit"
+              ? "Edit"
+              : "Experience"}{" "}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">

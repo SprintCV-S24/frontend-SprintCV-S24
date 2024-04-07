@@ -23,14 +23,14 @@ import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 interface HeadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
-  initialHeading?: HeadingsType; // Mark as optional with '?'
+  original?: HeadingsType; // Mark as optional with '?'
   formType?: string;
   onSuccess?: () => void; // Define onSuccess prop
 }
 
 export function HeadingItem({
   setDropdownIsOpen,
-  initialHeading,
+  original,
   formType,
   onSuccess,
 }: HeadingItemProps) {
@@ -38,9 +38,9 @@ export function HeadingItem({
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemName, setItemName] = useState("");
-  const [heading, setHeading] = useState(initialHeading?.name || "");
+  const [heading, setHeading] = useState(original?.name || "");
   const [bullets, setBullets] = useState<HeadingComponent[]>(
-    initialHeading?.items || [{ item: "", href: "" }],
+    original?.items || [{ item: "", href: "" }],
   );
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -142,7 +142,7 @@ export function HeadingItem({
           className="left-aligned-text h-full w-full"
           variant="ghost"
           onClick={() => {
-            if (!initialHeading) {
+            if (!original) {
               resetBullets();
             }
             setIsOpen(true);
@@ -173,7 +173,7 @@ export function HeadingItem({
               <Input
                 className="mb-2 w-full"
                 id="item-name"
-                placeholder={initialHeading? "Select a New Item Name": "Unique Item Name"}
+                placeholder={original? "Select a New Item Name": "Unique Item Name"}
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
               />

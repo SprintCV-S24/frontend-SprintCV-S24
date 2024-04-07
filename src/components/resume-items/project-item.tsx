@@ -21,15 +21,27 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-export function ProjectItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface ProjectItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: ProjectsType; // Mark as optional with '?'
+  formType?: string;
+  onSuccess?: () => void; // Define onSuccess prop
+}
+
+export function ProjectItem({
+  setDropdownIsOpen,
+  original,
+  formType,
+  onSuccess,
+}: ProjectItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [date, setDate] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
-  const [technologies, setTechnologies] = useState("");
+  const [itemName, setItemName] = useState(original?.itemName || "");
+  const [projectName, setProjectName] = useState(original?.title || "");
+  const [date, setDate] = useState(original?.year || "");
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [technologies, setTechnologies] = useState(original?.technologies || "");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
 
@@ -106,6 +118,9 @@ export function ProjectItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
           setIsOpen(false);
 					setDropdownIsOpen(false);
           resetForm();
+          if (onSuccess) {
+            onSuccess(); // Call onSuccess callback
+          }
         },
         onError: (error) => {
           setErrorMessage(
@@ -125,11 +140,17 @@ export function ProjectItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<Se
           className="text-left h-full w-full"
           variant="ghost"
           onClick={() => {
-            resetBullets();
+            if (!original) {
+              resetBullets();
+            };
             setIsOpen(true);
           }}
         >
-          Projects
+          {formType === "clone"
+            ? "Clone"
+            : formType === "edit"
+              ? "Edit"
+              : "Projects"}{" "}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">

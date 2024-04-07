@@ -19,17 +19,29 @@ import { useAddActivity } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface ActivityItemsProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: ActivitiesType; // Mark as optional with '?'
+  formType?: string;
+  onSuccess?: () => void; // Define onSuccess prop
+}
+
+export function ExtracurricularItem({
+  setDropdownIsOpen,
+  original,
+  formType,
+  onSuccess,
+}: ActivityItemsProps) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [orgName, setOrgName] = useState("");
-  const [role, setRole] = useState("");
-  const [date, setDate] = useState("");
-  const [itemName, setItemName] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
-  const [location, setLocation] = useState("");
+  const [orgName, setOrgName] = useState(original?.subtitle || "");
+  const [role, setRole] = useState(original?.title || "");
+  const [date, setDate] = useState(original?.year || "");
+  const [itemName, setItemName] = useState(original?.itemName || "");
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [location, setLocation] = useState(original?.location || "");
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -109,8 +121,11 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
-					setDropdownIsOpen(false);
+          setDropdownIsOpen(false);
           resetForm();
+          if (onSuccess) {
+            onSuccess(); // Call onSuccess callback
+          }
         },
         onError: (error) => {
           setErrorMessage(
@@ -130,11 +145,17 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
           className="text-left h-full w-full"
           variant="ghost"
           onClick={() => {
-            resetBullets();
+            if (!original) {
+              resetBullets();
+            };
             setIsOpen(true);
           }}
         >
-          Extracurricular
+          {formType === "clone"
+            ? "Clone"
+            : formType === "edit"
+              ? "Edit"
+              : "Heading"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">

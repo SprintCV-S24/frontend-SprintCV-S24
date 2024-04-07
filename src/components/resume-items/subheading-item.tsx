@@ -17,12 +17,24 @@ import { useAddSectionHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface SubheadingItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: SectionHeadingsType; // Mark as optional with '?'
+  formType?: string;
+  onSuccess?: () => void; // Define onSuccess prop
+}
+
+export function SubheadingItem({
+  setDropdownIsOpen,
+  original,
+  formType,
+  onSuccess,
+}: SubheadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
-  const [subtitle, setSubtitle] = useState("");
+  const [itemName, setItemName] = useState(original?.itemName || "");
+  const [subtitle, setSubtitle] = useState(original?.title || "");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
 
@@ -66,8 +78,11 @@ export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
       mutate(data, {
         onSuccess: (response) => {
           setIsOpen(false);
-					setDropdownIsOpen(false);
+          setDropdownIsOpen(false);
           resetForm();
+          if (onSuccess) {
+            onSuccess(); // Call onSuccess callback
+          }
         },
         onError: (error) => {
           setErrorMessage(
@@ -90,7 +105,11 @@ export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
             setIsOpen(true);
           }}
         >
-          Subheading
+          {formType === "clone"
+            ? "Clone"
+            : formType === "edit"
+              ? "Edit"
+              : "Subheading"}{" "}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
