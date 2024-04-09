@@ -1,14 +1,17 @@
-// latexStringTwo.ts
-
-import { BaseItem, 
-    EducationType, 
-    ExperienceType, 
-    HeadingsType, 
-    ProjectsType, 
-    SkillsType } from "../api/models/interfaces";
+import { start } from "repl";
+import {
+  HeadingsType,
+  EducationType,
+  ExperienceType,
+  ProjectsType,
+  SkillsType,
+  ActivitiesType,
+  SectionHeadingsType,
+  BaseItem,
+} from "../api/models/interfaces";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
-// Step 1: Set up the basic structure
+// Step 1: Set up the bforasic structure
 
 export function getLatexPreamble(): string {
   return `\\documentclass[letterpaper,11pt]{article}
@@ -268,3 +271,63 @@ export const generateEducationLatexHelper = (educationObj: EducationType): strin
   
   
   
+/*  ------------------------------------------------- */
+/*  -------------------Experience-------------------- */
+/*  ------------------------------------------------- */
+
+/**
+ * Generates the LaTeX code for the experience section of the resume. This function creates a LaTeX
+ * block that details professional experience, including job titles, company names, dates, and descriptions.
+ *
+ * @param {ExperienceType} activityObj - An object containing data for the experience section.
+ * @returns {string} The generated LaTeX code for the experience section of the resume.
+ */
+export const generateExperienceLatex = (activityObj: ExperienceType) => {
+    let latexString = getLatexPreamble();
+    latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
+  
+    latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
+  
+    latexString +=
+      "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+  
+    return latexString;
+  };
+  
+  export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
+    let latexString = `\n\\resumeSubheading{${sanitize(
+      activityObj.subtitle,
+    )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
+      activityObj.location,
+    )}}
+      `;
+  
+    if (activityObj.bullets.length > 0) {
+      latexString += `\\resumeItemListStart\n`;
+      activityObj.bullets.forEach((bulletPoint) => {
+        latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+      });
+      latexString += "\\resumeItemListEnd\n";
+    }
+  
+    return latexString;
+  };
+
+
+  const experienceData: ExperienceType = {
+    user: "janesmith",
+    itemName: "Senior Software Engineer",
+    bullets: [
+      "Led the development of a large-scale e-commerce platform using microservices architecture",
+      "Implemented server-side rendering and client-side hydration for optimal performance",
+      "Utilized Docker and Kubernetes for containerization and deployment",
+      "Collaborated with product and design teams to deliver high-quality user experiences",
+      "Mentored junior developers and conducted code reviews to maintain code quality",
+    ],
+    title: "DEF Company",
+    subtitle: "Senior Software Engineer",
+    year: "2020 - Present",
+    location: "City, State",
+  };
+  
+  export const experMock = (generateExperienceLatex(experienceData));
