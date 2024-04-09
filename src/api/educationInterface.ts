@@ -51,6 +51,26 @@ export const getEducationById = async (itemId: string, token: string): Promise<E
 	};
 };
 
+// update an education item
+export const updateEducation = async (
+	updatedFields: Partial<EducationType>,
+	itemId: string,
+	token: string,
+  ): Promise<EducationServerExplicitType> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+	  method: "PUT",
+	  body: JSON.stringify(updatedFields),
+	  headers: {
+		Authorization: `Bearer ${token}`,
+	  },
+	});
+	const education = await handleJsonResponse(response);
+	return {
+	  ...education,
+	  type: resumeItemTypes.EDUCATION,
+	};
+  };
+
 // Delete education item
 export const deleteEducation = async (itemId: string, token: string): Promise<EducationServerExplicitType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {

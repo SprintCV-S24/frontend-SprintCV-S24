@@ -1,11 +1,23 @@
-import { getAllActivities } from "./activityInterface";
-import { getAllEducation } from "./educationInterface";
-import { getAllExperience } from "./experienceInterface";
-import { getAllHeadings } from "./headerInterface";
-import { getAllProjects } from "./projectInterface";
-import { getAllSectionHeadings } from "./sectionHeadingInterface";
-import { getAllSkills } from "./skillInterface";
-import { BaseItem } from "./models/interfaces";
+import { getAllActivities, updateActivity } from "./activityInterface";
+import { getAllEducation, updateEducation } from "./educationInterface";
+import { getAllExperience, updateExperience } from "./experienceInterface";
+import { getAllHeadings, updateHeading } from "./headerInterface";
+import { getAllProjects, updateProject } from "./projectInterface";
+import {
+  getAllSectionHeadings,
+  updateSectionHeading,
+} from "./sectionHeadingInterface";
+import { deleteSkill, getAllSkills, updateSkill } from "./skillInterface";
+import {
+  ActivitiesType,
+  BaseItem,
+  EducationType,
+  ExperienceType,
+  HeadingsType,
+  ProjectsType,
+  SectionHeadingsType,
+  SkillsType,
+} from "./models/interfaces";
 import { resumeItemTypes } from "./models/resumeItemTypes";
 import { deleteActivity } from "./activityInterface";
 import { deleteEducation } from "./educationInterface";
@@ -31,7 +43,61 @@ export const getAllItems = async (token: string) => {
   return combinedResults;
 };
 
-export const deleteItem = async (itemType: resumeItemTypes, itemId: string, token: string) => {
+export type itemUpdatedFields =
+  | Partial<ActivitiesType>
+  | Partial<EducationType>
+  | Partial<ExperienceType>
+  | Partial<HeadingsType>
+  | Partial<ProjectsType>
+  | Partial<SectionHeadingsType>
+  | Partial<SkillsType>;
+
+export const updateItem = async (
+  itemType: resumeItemTypes,
+  itemId: string,
+  updatedFields: itemUpdatedFields,
+  token: string,
+) => {
+  try {
+    if (token === undefined) {
+      throw new Error("Token is undefined");
+    }
+
+    switch (itemType) {
+      case resumeItemTypes.HEADING:
+        await updateHeading(updatedFields, itemId, token);
+        break;
+      case resumeItemTypes.SECTIONHEADING:
+        await updateSectionHeading(updatedFields, itemId, token);
+        break;
+      case resumeItemTypes.EXPERIENCE:
+        await updateExperience(updatedFields, itemId, token);
+        break;
+      case resumeItemTypes.EDUCATION:
+        await updateEducation(updatedFields, itemId, token);
+        break;
+      case resumeItemTypes.ACTIVITY:
+        await updateActivity(updatedFields, itemId, token);
+        break;
+      case resumeItemTypes.PROJECT:
+        await updateProject(updatedFields, itemId, token);
+        break;
+      case resumeItemTypes.SKILL:
+        await updateSkill(updatedFields, itemId, token);
+        break;
+      default:
+        throw new Error("Invalid item type");
+    }
+  } catch (error) {
+    console.error("Error deleting item:", error);
+  }
+};
+
+export const deleteItem = async (
+  itemType: resumeItemTypes,
+  itemId: string,
+  token: string,
+) => {
   try {
     if (token === undefined) {
       throw new Error("Token is undefined");
@@ -55,6 +121,9 @@ export const deleteItem = async (itemType: resumeItemTypes, itemId: string, toke
         break;
       case resumeItemTypes.PROJECT:
         await deleteProject(itemId, token);
+        break;
+      case resumeItemTypes.SKILL:
+        await deleteSkill(itemId, token);
         break;
       default:
         throw new Error("Invalid item type");

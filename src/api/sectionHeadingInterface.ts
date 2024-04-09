@@ -49,6 +49,26 @@ export const getSectionHeadingById = async (itemId: string, token: string): Prom
 	};
 };
 
+// update a sectionHeading item
+export const updateSectionHeading = async (
+	updatedFields: Partial<SectionHeadingsType>,
+	itemId: string,
+	token: string,
+  ): Promise<SectionHeadingServerExplicitType> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+	  method: "PUT",
+	  body: JSON.stringify(updatedFields),
+	  headers: {
+		Authorization: `Bearer ${token}`,
+	  },
+	});
+	const sectionHeading = await handleJsonResponse(response);
+	return {
+	  ...sectionHeading,
+	  type: resumeItemTypes.SECTIONHEADING,
+	};
+  };
+
 // Delete section heading item
 export const deleteSectionHeading = async (itemId: string, token: string): Promise<SectionHeadingServerExplicitType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
