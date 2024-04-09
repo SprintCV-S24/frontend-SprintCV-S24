@@ -296,14 +296,14 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   
   export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
     let latexString = `\n\\resumeSubheading{${sanitize(
-      activityObj.subtitle,
-    )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
+      activityObj.title,
+    )}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.subtitle)}, ${sanitize(
       activityObj.location,
     )}}
       `;
   
     if (activityObj.bullets.length > 0) {
-      latexString += `\\resumeItemListStart\n`;
+      latexString += "\\resumeItemListStart\n";
       activityObj.bullets.forEach((bulletPoint) => {
         latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
       });
@@ -312,6 +312,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   
     return latexString;
   };
+  
 
 
   const experienceData: ExperienceType = {
