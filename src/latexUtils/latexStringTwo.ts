@@ -494,3 +494,56 @@ const activityObjData: ActivitiesType = {
 };
 
 export const activityMock = (generateActivityLatex(activityObjData));
+
+
+/*  ------------------------------------------------- */
+/*  -------------------Header---------------------- */
+/*  ------------------------------------------------- */
+
+/**
+ * Generates a LaTeX header for a specific section of the resume. This function creates a section
+ * heading in the LaTeX document, which is used to introduce the subsequent content block, such as
+ * experience, education, or projects.
+ *
+ * @param {SectionHeadingsType} activityObj - An object containing the title for the section header.
+ * @returns {string} The generated LaTeX code for the section header.
+ */
+export const generateSectionHeadingLatex = (
+  activityObj: SectionHeadingsType,
+) => {
+  let latexString = getLatexPreamble();
+	latexString = latexString.replace(
+    "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
+    "\\usepackage[top=.05in, left=1in, right=1in, bottom=1in]{geometry}",
+  );
+	latexString = latexString.replace(
+		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
+		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.05in"
+	);
+
+  latexString += `\\begin{document}`;
+
+  latexString += generateSectionHeadingLatexHelper(
+    activityObj as SectionHeadingsType,
+  );
+
+  latexString += "\n\\vspace{-\\lastskip}\n\\end{document}\n";
+
+  console.log("SUBHEADINGXX:", latexString);
+  return latexString;
+};
+
+export const generateSectionHeadingLatexHelper = (
+  activityObj: SectionHeadingsType,
+) => {
+  let latexString = `\n\\section{\\color{airforceblue}${sanitize(activityObj.title)}}\n`;
+  return latexString;
+};
+
+const sectionHeadingData: SectionHeadingsType = {
+  user: 'janesmith',
+  itemName: 'Work Experience',
+  title: 'WORK EXPERIENCE',
+};
+
+export const SubheadingMock = generateSectionHeadingLatex(sectionHeadingData);
