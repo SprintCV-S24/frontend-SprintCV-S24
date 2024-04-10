@@ -131,7 +131,147 @@ export function getLatexPreamble(): string {
   \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
   
   \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
+
+  \\AtBeginDocument{
+    \\setbox0=\\vbox\\bgroup
+    \\preto\\enddocument{\\egroup
+        \\dimen0=\\dp0
+        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
+        \\unvbox0\\kern-\\dimen0 }
+  }
+
   `;
+}
+
+
+export function getLatexContentSizedPreamble(): string {
+  return `\\documentclass[letterpaper,11pt]{article}
+  
+  \\usepackage{latexsym}
+  \\usepackage[empty]{fullpage}
+  \\usepackage{titlesec}
+  \\usepackage{marvosym}
+  \\usepackage[usenames,dvipsnames]{color}
+  \\usepackage{verbatim}
+  \\usepackage{enumitem}
+  \\usepackage[hidelinks]{hyperref}
+  \\usepackage[english]{babel}
+  \\usepackage{tabularx}
+  \\usepackage{fontawesome5}
+  \\usepackage{multicol}
+  \\usepackage{graphicx}%\\setmainfont{Times New Roman}
+  \\setlength{\\multicolsep}{-3.0pt}
+  \\setlength{\\columnsep}{-1pt}
+  \\input{glyphtounicode}
+
+  
+  \\RequirePackage{tikz}
+  \\RequirePackage{xcolor}
+  
+  \\definecolor{cvblue}{HTML}{0E5484}
+  \\definecolor{black}{HTML}{130810}
+  \\definecolor{darkcolor}{HTML}{0F4539}
+  \\definecolor{cvgreen}{HTML}{3BD80D}
+  \\definecolor{taggreen}{HTML}{00E278}
+  \\definecolor{SlateGrey}{HTML}{2E2E2E}
+  \\definecolor{LightGrey}{HTML}{666666}
+  \\colorlet{name}{black}
+  \\colorlet{tagline}{darkcolor}
+  \\colorlet{heading}{darkcolor}
+  \\colorlet{headingrule}{cvblue}
+  \\colorlet{accent}{darkcolor}
+  \\colorlet{emphasis}{SlateGrey}
+  \\colorlet{body}{LightGrey}
+
+  \\usepackage{CormorantGaramond}
+  \\usepackage{charter}
+  
+
+  \\addtolength{\\oddsidemargin}{-0.6in}
+  \\addtolength{\\evensidemargin}{-0.5in}
+  \\addtolength{\\textwidth}{1.19in}
+  \\addtolength{\\topmargin}{-.7in}
+  \\addtolength{\\textheight}{1.4in}
+  \\urlstyle{same}
+  
+  \\definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
+  
+  \\raggedbottom
+  \\raggedright
+  \\setlength{\\tabcolsep}{0in}
+  
+  \\titleformat{\\section}{
+    \\vspace{-4pt}\\scshape\\raggedright\\large\\bfseries
+  }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
+  
+  \\pdfgentounicode=1
+  
+  \\newcommand{\\resumeItem}[1]{
+    \\item\\small{
+      {#1 \\vspace{-1pt}}
+    }
+  }
+  
+  \\newcommand{\\classesList}[4]{
+      \\item\\small{
+          {#1 #2 #3 #4 \\vspace{-2pt}}
+    }
+  }
+  
+  \\newcommand{\\resumeSubheading}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+        \\textbf{\\large#1} & \\textbf{\\small #2} \\
+        \\textit{\\large#3} & \\textit{\\small #4} \\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  
+  \\newcommand{\\resumeSingleSubheading}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+        \\textbf{\\large#1} & \\textbf{\\small #2} \\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubSubheading}[2]{
+      \\item
+      \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+        \\textit{\\small#1} & \\textit{\\small #2} \\
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  
+  \\newcommand{\\resumeProjectHeading}[2]{
+      \\item
+      \\begin{tabular*}{1.001\\textwidth}{l@{\\extracolsep{\\fill}}r}
+        \\small#1 & \\textbf{\\small #2}\\
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
+  
+  \\renewcommand\\labelitemi{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+  \\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+  
+  \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.0in, label={}]}
+  \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
+  \\newcommand{\\resumeItemListStart}{\\begin{itemize}[leftmargin=0.1in]}
+  \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
+  
+  \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
+
+  \\AtBeginDocument{
+    \\setbox0=\\vbox\\bgroup
+    \\preto\\enddocument{\\egroup
+        \\dimen0=\\dp0
+        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
+        \\unvbox0\\kern-\\dimen0 }
+  }
+
+  `.trim();
 }
 
 export function sanitize(str: string): string {
@@ -163,7 +303,7 @@ export function sanitize(str: string): string {
   }
   
   export const generateHeaderLatex = (activityObj: HeadingsType): string => {
-    let headerLatex = getLatexPreamble();
+    let headerLatex = getLatexContentSizedPreamble();
     headerLatex += `\\begin{document}\n`;
     headerLatex += generateHeaderLatexHelper(activityObj);
     headerLatex += `\\end{document}`;
@@ -211,12 +351,12 @@ export function sanitize(str: string): string {
   export const headerLatex = generateHeaderLatex(mockHeaderData);
   
   // Print the generated LaTeX code to the console
-  console.log(headerLatex);
+  // console.log(headerLatex);
   
 
   // Generates the LaTeX code for the education section of the resume.
 export const generateEducationLatex = (educationArray: EducationType[]): string => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n`;
     latexString += `\\section{\\color{airforceblue}EDUCATION}\n`;
     latexString += `\\resumeSubHeadingListStart\n`;
@@ -268,7 +408,7 @@ export const generateEducationLatexHelper = (educationObj: EducationType): strin
   ];
   
   export const educationLatex = generateEducationLatex(mockEducationData);
-  console.log(educationLatex);
+  // console.log(educationLatex);
   
   
   
@@ -284,7 +424,7 @@ export const generateEducationLatexHelper = (educationObj: EducationType): strin
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
 export const generateExperienceLatex = (activityObj: ExperienceType) => {
-    let latexString = getLatexPreamble();
+    let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
   
     latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
@@ -346,7 +486,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
 export const generateProjectLatex = (activityObj: ProjectsType) => {
-  let latexString = getLatexPreamble();
+  let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
   latexString += generateProjectLatexHelper(activityObj as ProjectsType);
@@ -409,7 +549,7 @@ export const projectDataMock = (generateProjectLatex(projectData));
  * @returns {string} The generated LaTeX code for the skills section of the resume.
  */
 export const generateSkillsLatex = (skillsObj: SkillsType): string => {
-  let latexString = getLatexPreamble();
+  let latexString = getLatexContentSizedPreamble();
   latexString += "\\begin{document}\n";
 
   latexString += generateSkillsLatexHelper(skillsObj as SkillsType);
@@ -445,7 +585,7 @@ export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
 export const generateActivityLatex = (activityObj: ActivitiesType) => {
-  let latexString = getLatexPreamble();
+  let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
   latexString += ggenerateActivityLatexHelper(activityObj as ActivitiesType);
@@ -511,7 +651,7 @@ export const activityMock = (generateActivityLatex(activityObjData));
 export const generateSectionHeadingLatex = (
   activityObj: SectionHeadingsType,
 ) => {
-  let latexString = getLatexPreamble();
+  let latexString = getLatexContentSizedPreamble();
 	latexString = latexString.replace(
     "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
     "\\usepackage[top=.05in, left=1in, right=1in, bottom=1in]{geometry}",
@@ -532,6 +672,8 @@ export const generateSectionHeadingLatex = (
   console.log("SUBHEADINGXX:", latexString);
   return latexString;
 };
+
+
 
 export const generateSectionHeadingLatexHelper = (
   activityObj: SectionHeadingsType,

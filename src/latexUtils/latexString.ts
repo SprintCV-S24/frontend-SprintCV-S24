@@ -20,7 +20,6 @@ import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 export function getLatexPreamble(): string {
   return `
         \\documentclass[letterpaper,11pt]{article}
-        
         \\usepackage[T1]{fontenc}
         \\usepackage{latexsym}
         \\usepackage[empty]{fullpage}
