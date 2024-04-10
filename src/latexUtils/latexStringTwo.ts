@@ -10,6 +10,7 @@ import {
   BaseItem,
 } from "../api/models/interfaces";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { stringify } from "postcss";
 
 // Step 1: Set up the bforasic structure
 
@@ -332,3 +333,164 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   };
   
   export const experMock = (generateExperienceLatex(experienceData));
+
+/*  ------------------------------------------------- */
+/*  -------------------Project-------------------- */
+/*  ------------------------------------------------- */
+
+/**
+ * Generates the LaTeX code for the experience section of the resume. This function creates a LaTeX
+ * block that details professional experience, including job titles, company names, dates, and descriptions.
+ *
+ * @param {ExperienceType} activityObj - An object containing data for the experience section.
+ * @returns {string} The generated LaTeX code for the experience section of the resume.
+ */
+export const generateProjectLatex = (activityObj: ProjectsType) => {
+  let latexString = getLatexPreamble();
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
+
+  latexString += generateProjectLatexHelper(activityObj as ProjectsType);
+
+  latexString +=
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateProjectLatexHelper = (activityObj: ProjectsType) => {
+  let latexString = `\n\\resumeSubheading{${sanitize(
+    activityObj.title,
+  )}}{}{${sanitize(activityObj.year)}}{${sanitize(
+    activityObj.technologies  ?? '',
+  )}}
+    `;
+
+  if (activityObj.bullets.length > 0) {
+    latexString += "\\resumeItemListStart\n";
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+    latexString += "\\resumeItemListEnd\n";
+  }
+
+  return latexString;
+};
+
+
+
+const projectData: ProjectsType = {
+  user: "janesmith",
+  itemName: "Senior Software Engineer",
+  bullets: [
+    "Led the development of a large-scale e-commerce platform using microservices architecture",
+    "Implemented server-side rendering and client-side hydration for optimal performance",
+    "Utilized Docker and Kubernetes for containerization and deployment",
+    "Collaborated with product and design teams to deliver high-quality user experiences",
+    "Mentored junior developers and conducted code reviews to maintain code quality",
+  ],
+  title: "DEF Company",
+  technologies: "React GoodCode Jamal Najib",
+  year: "2020 - Present",
+};
+
+export const projectDataMock = (generateProjectLatex(projectData));
+
+
+
+/*  ------------------------------------------------- */
+/*  -------------------SKILLS==---------------------- */
+/*  ------------------------------------------------- */
+
+/**
+ * Generates the LaTeX code for the skills section of the resume. This function creates a concise LaTeX
+ * list of skills, typically highlighting technical abilities and other competencies.
+ *
+ * @param {SkillsType} skillsObj - An object containing data for the skills section.
+ * @returns {string} The generated LaTeX code for the skills section of the resume.
+ */
+export const generateSkillsLatex = (skillsObj: SkillsType): string => {
+  let latexString = getLatexPreamble();
+  latexString += "\\begin{document}\n";
+
+  latexString += generateSkillsLatexHelper(skillsObj as SkillsType);
+
+  latexString += "\\vspace{-\\lastskip}\n\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
+  let latexString = "\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
+  latexString += "\\small{\\item{";
+  latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(
+    skillsObj.description,
+  )}} \\\\`;
+  latexString += "}}\n\\end{itemize}\n";
+
+  return latexString;
+};
+
+
+
+
+/*  ------------------------------------------------- */
+/*  -------------------Activity-------------------- */
+/*  ------------------------------------------------- */
+
+/**
+ * Generates the LaTeX code for the experience section of the resume. This function creates a LaTeX
+ * block that details professional experience, including job titles, company names, dates, and descriptions.
+ *
+ * @param {ActivitiesType} activityObj - An object containing data for the experience section.
+ * @returns {string} The generated LaTeX code for the experience section of the resume.
+ */
+export const generateActivityLatex = (activityObj: ActivitiesType) => {
+  let latexString = getLatexPreamble();
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
+
+  latexString += ggenerateActivityLatexHelper(activityObj as ActivitiesType);
+
+  latexString +=
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+
+  return latexString;
+};
+
+export const ggenerateActivityLatexHelper = (activityObj: ActivitiesType) => {
+  let latexString = `\n\\resumeSubheading{${sanitize(
+    activityObj.title,
+  )}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.subtitle)}, ${sanitize(
+    activityObj.location,
+  )}}
+    `;
+
+  if (activityObj.bullets.length > 0) {
+    latexString += "\\resumeItemListStart\n";
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+    latexString += "\\resumeItemListEnd\n";
+  }
+
+  return latexString;
+};
+
+
+
+const activityObjData: ActivitiesType = {
+  user: "janesmith",
+  itemName: "Senior Software Engineer",
+  bullets: [
+    "Led the development of a large-scale e-commerce platform using microservices architecture",
+    "Implemented server-side rendering and client-side hydration for optimal performance",
+    "Utilized Docker and Kubernetes for containerization and deployment",
+    "Collaborated with product and design teams to deliver high-quality user experiences",
+    "Mentored junior developers and conducted code reviews to maintain code quality",
+  ],
+  title: "Activity",
+  subtitle: "Senior Software Engineer",
+  year: "2020 - Present",
+  location: "City, State",
+};
+
+export const activityMock = (generateActivityLatex(activityObjData));
