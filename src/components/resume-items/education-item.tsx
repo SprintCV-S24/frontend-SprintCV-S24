@@ -16,14 +16,16 @@ import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
-import { useAddEducation } from "@/hooks/mutations";
+import { useAddEducation, useUpdateItem } from "@/hooks/mutations";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 interface EducationItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: EducationType; // Mark as optional with '?'
+  originalId?: string;
   formType?: string;
   onSuccess?: () => void; // Define onSuccess prop
 }
@@ -31,6 +33,7 @@ interface EducationItemProps {
 export function EducationItem({
   setDropdownIsOpen,
   original,
+  originalId,
   formType,
   onSuccess,
 }: EducationItemProps) {
@@ -38,7 +41,7 @@ export function EducationItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
+  const [itemName, setItemName] = useState(original?.itemName || "");
   const [universityName, setUniversityName] = useState(original?.title || "");
   const [date, setDate] = useState(original?.year || "");
   const [location, setLocation] = useState(original?.location || "");
@@ -52,6 +55,8 @@ export function EducationItem({
     queryClient,
     storedToken,
   );
+
+  const mutation = useUpdateItem(queryClient, storedToken);
 
   const resetForm = () => {
     setUniversityName("");
@@ -121,24 +126,48 @@ export function EducationItem({
 
     console.log(data);
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-          setDropdownIsOpen(false);
-          resetForm();
-          if (onSuccess) {
-            onSuccess(); // Call onSuccess callback
-          }
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+    if (formType == "edit") {
+      try {
+        console.log("Original ID: ", originalId);
+
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.EDUCATION,
+          itemId: originalId!,
+          updatedFields: data,
+        });
+
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+        if (onSuccess) {
+          onSuccess(); // Call onSuccess callback
+        }
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(data, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+            if (onSuccess) {
+              onSuccess(); // Call onSuccess callback
+            }
+          },
+          onError: (error) => {
+            setErrorMessage(
+              "Error: Unable to submit form. Please try again later.",
+            );
+          },
+        });
+      } catch (error) {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
     }
   };
 

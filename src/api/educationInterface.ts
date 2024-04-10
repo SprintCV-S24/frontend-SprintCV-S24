@@ -22,8 +22,9 @@ export const createEducation = async (
 };
 
 // GET all education
-export const getAllEducation = async (token: string): Promise<EducationServerExplicitType[]> => {
-
+export const getAllEducation = async (
+  token: string,
+): Promise<EducationServerExplicitType[]> => {
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -31,54 +32,61 @@ export const getAllEducation = async (token: string): Promise<EducationServerExp
   });
   const educations = await handleJsonResponse(response);
 
-	return educations.map((education: EducationType) => ({
+  return educations.map((education: EducationType) => ({
     ...education,
     type: resumeItemTypes.EDUCATION,
   }));
 };
 
 // GET one education item
-export const getEducationById = async (itemId: string, token: string): Promise<EducationServerExplicitType> => {
+export const getEducationById = async (
+  itemId: string,
+  token: string,
+): Promise<EducationServerExplicitType> => {
   const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const education = await handleJsonResponse(response);
-	return {
-		...education,
-		type: resumeItemTypes.EDUCATION,
-	};
+  return {
+    ...education,
+    type: resumeItemTypes.EDUCATION,
+  };
 };
 
 // update an education item
 export const updateEducation = async (
-	updatedFields: Partial<EducationType>,
-	itemId: string,
-	token: string,
-  ): Promise<EducationServerExplicitType> => {
-	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
-	  method: "PUT",
-	  body: JSON.stringify(updatedFields),
-	  headers: {
-		Authorization: `Bearer ${token}`,
-	  },
-	});
-	const education = await handleJsonResponse(response);
-	return {
-	  ...education,
-	  type: resumeItemTypes.EDUCATION,
-	};
+  updatedFields: Partial<EducationType>,
+  itemId: string,
+  token: string,
+): Promise<EducationServerExplicitType> => {
+  console.log(updatedFields);
+  const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify(updatedFields),
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const education = await handleJsonResponse(response);
+  console.log(education);
+  return {
+    ...education,
+    type: resumeItemTypes.EDUCATION,
   };
+};
 
 // Delete education item
-export const deleteEducation = async (itemId: string, token: string): Promise<EducationServerExplicitType | null> => {
-	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
-		method: "DELETE",
+export const deleteEducation = async (
+  itemId: string,
+  token: string,
+): Promise<EducationServerExplicitType | null> => {
+  const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   return await handleJsonResponse(response);
-}
-
+};

@@ -20,6 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { deleteItem } from "@/api/resumeItemInterface";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { useUpdateItem } from "@/hooks/mutations";
 
 interface HeadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -50,6 +51,7 @@ export function HeadingItem({
     queryClient,
     storedToken,
   );
+
 
   const resetForm = () => {
     setHeading(""), setItemName("");

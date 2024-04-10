@@ -33,6 +33,8 @@ import {
 } from "@/api/resumeItemInterface";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
+
+
 export const useAddActivity = (
   queryClient: QueryClient,
   token: string | undefined,
@@ -169,6 +171,8 @@ export const useUpdateItem = (
       if (token === undefined) {
         throw new Error("Token is undefined");
       }
+      console.log("First Layer");
+      console.log(updatedFields);
       return await updateItem(itemType, itemId, updatedFields, token);
     },
     onSuccess: () => {

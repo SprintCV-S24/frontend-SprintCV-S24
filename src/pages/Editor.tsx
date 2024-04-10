@@ -180,6 +180,7 @@ const Editor: React.FC = () => {
           { bankItems: [] } as { bankItems: Array<BaseItem & { id: string }> },
         );
 
+        console.log(itemsInBank);
         // Sets the items in the respective fields
         setItemsInBank(bankResult.bankItems);
         setItemsInResume(resumeResult.resumeItems);
@@ -308,24 +309,9 @@ const Editor: React.FC = () => {
                                   [item.id]: isOpen,
                                 }))
                               }
-                              formType="clone"
-                              onSuccess={() => console.log("HELLO")}
-                            />
-                            <ECHelper
-                              object={item}
-                              setDropdownIsOpen={(isOpen) =>
-                                setEditOpenMap((prevState: any) => ({
-                                  ...prevState,
-                                  [item.id]: isOpen,
-                                }))
-                              }
+                              itemId={item.id}
                               formType="edit"
-                              onSuccess={() =>
-                                deleteItem({
-                                  itemType: item.type,
-                                  itemId: item._id,
-                                })
-                              }
+                              onSuccess={() => console.log("HELLO")}
                             />
                             <Button
                               className="text-red-500 font-bold"

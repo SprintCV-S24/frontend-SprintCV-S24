@@ -20,15 +20,18 @@ import { SubheadingItem } from "./resume-items/subheading-item";
 const ECHelper: React.FC<{
   object: BaseItem;
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  itemId: string;
   formType: string;
   onSuccess: () => void;
-}> = ({ object, setDropdownIsOpen, formType, onSuccess }) => {
+}> = ({ object, setDropdownIsOpen, itemId, formType, onSuccess }) => {
+    console.log("passed in item id", itemId);
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
       return (
         <EducationItem
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as EducationType}
+          originalId={itemId}
           formType={formType}
           onSuccess={onSuccess}
         ></EducationItem>
