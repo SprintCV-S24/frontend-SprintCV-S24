@@ -59,6 +59,7 @@ export const updateProject = async (
 	  method: "PUT",
 	  body: JSON.stringify(updatedFields),
 	  headers: {
+		"Content-Type": "application/json",
 		Authorization: `Bearer ${token}`,
 	  },
 	});

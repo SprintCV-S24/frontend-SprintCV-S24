@@ -62,9 +62,10 @@ export const updateActivity = async (
   token: string,
 ): Promise<ActivitiesServerExplicitType> => {
   const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
-	method: "PUT",
-	body: JSON.stringify(updatedFields),
+    method: "PUT",
+    body: JSON.stringify(updatedFields),
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   });
