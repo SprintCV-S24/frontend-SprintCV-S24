@@ -16,19 +16,20 @@ import { SectionHeadingsType } from "@/api/models/interfaces";
 import { useAddSectionHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { formSubmissionTypes } from "./formSubmissionTypes";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { useUpdateItem } from "@/hooks/mutations";
 
 interface SubheadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: SectionHeadingsType; // Mark as optional with '?'
-  formType?: string;
-  onSuccess?: () => void; // Define onSuccess prop
+  originalId?: string;
 }
 
 export function SubheadingItem({
   setDropdownIsOpen,
   original,
-  formType,
-  onSuccess,
+  originalId,
 }: SubheadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -37,12 +38,15 @@ export function SubheadingItem({
   const [subtitle, setSubtitle] = useState(original?.title || "");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
-
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddSectionHeading(
     queryClient,
     storedToken,
   );
+  const mutation = useUpdateItem(queryClient, storedToken);
 
   const resetForm = () => {
     setSubtitle("");
@@ -74,24 +78,40 @@ export function SubheadingItem({
       title: subtitle,
     };
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-          setDropdownIsOpen(false);
-          resetForm();
-          if (onSuccess) {
-            onSuccess(); // Call onSuccess callback
-          }
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.SECTIONHEADING,
+          itemId: originalId!,
+          updatedFields: data,
+        });
+
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(data, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            setErrorMessage(
+              "Error: Unable to submit form. Please try again later.",
+            );
+          },
+        });
+      } catch (error) {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
     }
   };
 
@@ -105,11 +125,7 @@ export function SubheadingItem({
             setIsOpen(true);
           }}
         >
-          {formType === "clone"
-            ? "Clone"
-            : formType === "edit"
-              ? "Edit"
-              : "Subheading"}{" "}
+          {original? "Edit" : "Subheading"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -142,7 +158,7 @@ export function SubheadingItem({
             />
           </div>
           <DialogFooter>
-            <Button
+            {!original && <Button
               className="mt-2"
               type="submit"
               disabled={isPending || subtitle == ""}
@@ -157,8 +173,52 @@ export function SubheadingItem({
               ) : (
                 "Add Item"
               )}
-            </Button>
-            <DialogClose asChild></DialogClose>
+            </Button>}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={
+                    isPending ||
+                    subtitle == ""
+                  }
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : subtitle == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={
+                    isPending ||
+                    subtitle == ""
+                  }
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : subtitle == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>
