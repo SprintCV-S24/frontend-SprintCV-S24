@@ -21,6 +21,8 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { useUpdateItem } from "@/hooks/mutations";
 import { formSubmissionTypes } from "./formSubmissionTypes";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
+import { ReactSortable } from "react-sortablejs";
 
 interface HeadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -201,40 +203,52 @@ export function HeadingItem({
                 onChange={(e) => setHeading(e.target.value)}
               />
               <div className="flex-grow overflow-y-auto">
-                {bullets.map((bullet, index) => (
-                  <div key={index} className="ml-1 mt-2 flex">
-                    {" "}
-                    <AutosizeTextarea
-                      className="mb-2 resize-none h-[35px]"
-                      placeholder="Contact Item"
-                      value={bullet.item}
-                      onChange={(e) =>
-                        handleBulletChange(index, "item", e.target.value)
-                      }
-                    />
-                    <AutosizeTextarea
-                      className="mb-2 resize-none h-[35px] ml-2" // Add margin for spacing
-                      placeholder="Enter Link"
-                      value={bullet.href!}
-                      onChange={(e) =>
-                        handleBulletChange(index, "href", e.target.value)
-                      }
-                    />
-                    <Button
-                      className="ml-[5px] flex items-center justify-center w-[110px]"
-                      variant="secondary"
-                      type="button"
-                      disabled={bullets.length <= 1}
-                      onClick={() => handleDeleteBullet(index)}
-                    >
-                      <img
-                        src={DeleteImage}
-                        alt="deleteimg"
-                        className="h-[35px] w-[35px]"
-                      ></img>
-                    </Button>
-                  </div>
-                ))}
+                <ReactSortable
+                  animation={150}
+                  list={bullets as any}
+                  setList={setBullets as any}
+                  group="Acitivties"
+                  handle=".handle"
+                  className="h-full w-full mb-2"
+                >
+                  {bullets.map((bullet, index) => (
+                    <div key={index} className="ml-1 mt-2 flex">
+                      {" "}
+                      <AutosizeTextarea
+                        className="mb-2 resize-none h-[35px]"
+                        placeholder="Contact Item"
+                        value={bullet.item}
+                        onChange={(e) =>
+                          handleBulletChange(index, "item", e.target.value)
+                        }
+                      />
+                      <AutosizeTextarea
+                        className="mb-2 resize-none h-[35px] ml-2" // Add margin for spacing
+                        placeholder="Enter Link"
+                        value={bullet.href!}
+                        onChange={(e) =>
+                          handleBulletChange(index, "href", e.target.value)
+                        }
+                      />
+                      <Button
+                        className="ml-[5px] flex items-center justify-center w-[110px]"
+                        variant="secondary"
+                        type="button"
+                        disabled={bullets.length <= 1}
+                        onClick={() => handleDeleteBullet(index)}
+                      >
+                        <img
+                          src={DeleteImage}
+                          alt="deleteimg"
+                          className="h-[35px] w-[35px]"
+                        ></img>
+                      </Button>
+                      <div className="h-[40px] w-[40px]">
+                        <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
+                      </div>
+                    </div>
+                  ))}
+                </ReactSortable>
               </div>
               <Button
                 type="button"
