@@ -15,29 +15,28 @@ import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import DeleteImage from "../../assets/delete.png";
 import { ExperienceType } from "@/api/models/interfaces";
 import { useAuth } from "@/AuthContext";
-import { createExperience } from "@/api/experienceInterface";
-import { useAddExperience } from "@/hooks/mutations";
+import { useAddExperience, useUpdateItem } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { formSubmissionTypes } from "./formSubmissionTypes";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 interface ExperienceItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: ExperienceType; // Mark as optional with '?'
-  formType?: string;
-  onSuccess?: () => void; // Define onSuccess prop
+  originalId?: string;
 }
 
 export function ExperienceItem({
   setDropdownIsOpen,
   original,
-  formType,
-  onSuccess,
+  originalId,
 }: ExperienceItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
+  const [itemName, setItemName] = useState(original?.itemName || "");
   const [companyName, setCompanyName] = useState(original?.subtitle || "");
   const [date, setDate] = useState(original?.year || "");
   const [location, setLocation] = useState(original?.location || "");
@@ -45,12 +44,17 @@ export function ExperienceItem({
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
 
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddExperience(
     queryClient,
     storedToken,
   );
+
+  const mutation = useUpdateItem(queryClient, storedToken);
 
   const resetForm = () => {
     setCompanyName("");
@@ -116,27 +120,41 @@ export function ExperienceItem({
       location: location,
     };
 
-    console.log(data);
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.EXPERIENCE,
+          itemId: originalId!,
+          updatedFields: data,
+        });
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-					setDropdownIsOpen(false);
-          resetForm();
-          if (onSuccess) {
-            onSuccess(); // Call onSuccess callback
-          }
-        },
-        onError: (error) => {
-          console.log(error);
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(data, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            console.log(error);
+            setErrorMessage(
+              "Error: Unable to submit form. Please try again later.",
+            );
+          },
+        });
+      } catch (error) {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
     }
   };
 
@@ -149,15 +167,11 @@ export function ExperienceItem({
           onClick={() => {
             if (!original) {
               resetBullets();
-            };
+            }
             setIsOpen(true);
           }}
         >
-          {formType === "clone"
-            ? "Clone"
-            : formType === "edit"
-              ? "Edit"
-              : "Experience"}{" "}
+          {original ? "Edit" : "Experience"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -253,7 +267,7 @@ export function ExperienceItem({
             </div>
           </div>
           <DialogFooter>
-            <Button
+            {!original && <Button
               className="mt-2"
               type="submit"
               disabled={isPending || companyName == "" || date == ""}
@@ -268,8 +282,54 @@ export function ExperienceItem({
               ) : (
                 "Add Item"
               )}
-            </Button>
-            <DialogClose asChild></DialogClose>
+            </Button>}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={
+                    isPending ||
+                    companyName == "" ||
+                    date == ""
+                  }
+                  onClick={()=> setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : companyName == "" || date == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={
+                    isPending ||
+                    companyName == "" ||
+                    date == ""
+                  }
+                  onClick={()=> setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : companyName == "" || date == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -120,8 +120,6 @@ export function EducationItem({
       subtitle: majorMinor,
     };
 
-    console.log(data);
-
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
         // Call the mutation function with necessary parameters
