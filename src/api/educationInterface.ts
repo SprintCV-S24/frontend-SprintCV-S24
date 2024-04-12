@@ -61,7 +61,6 @@ export const updateEducation = async (
   itemId: string,
   token: string,
 ): Promise<EducationServerExplicitType> => {
-  console.log(updatedFields);
   const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     method: "PUT",
     body: JSON.stringify(updatedFields),
@@ -71,7 +70,6 @@ export const updateEducation = async (
     },
   });
   const education = await handleJsonResponse(response);
-  console.log(education);
   return {
     ...education,
     type: resumeItemTypes.EDUCATION,

@@ -21,10 +21,7 @@ const ECHelper: React.FC<{
   object: BaseItem;
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   itemId: string;
-  formType: string;
-  onSuccess: () => void;
-}> = ({ object, setDropdownIsOpen, itemId, formType, onSuccess }) => {
-    console.log("passed in item id", itemId);
+}> = ({ object, setDropdownIsOpen, itemId}) => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
       return (
@@ -32,8 +29,6 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as EducationType}
           originalId={itemId}
-          formType={formType}
-          onSuccess={onSuccess}
         ></EducationItem>
       );
 
@@ -42,8 +37,7 @@ const ECHelper: React.FC<{
         <ExperienceItem
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as ExperienceType}
-          formType={formType}
-          onSuccess={onSuccess}
+          originalId={itemId}
         ></ExperienceItem>
       );
 
@@ -52,8 +46,7 @@ const ECHelper: React.FC<{
         <ExtracurricularItem
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as ActivitiesType}
-          formType={formType}
-          onSuccess={onSuccess}
+          originalId={itemId}
         ></ExtracurricularItem>
       );
 
@@ -62,8 +55,7 @@ const ECHelper: React.FC<{
         <HeadingItem
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as HeadingsType}
-          formType={formType}
-          onSuccess={onSuccess}
+          originalId={itemId}
         ></HeadingItem>
       );
 
@@ -72,8 +64,7 @@ const ECHelper: React.FC<{
         <ProjectItem
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as ProjectsType}
-          formType={formType}
-          onSuccess={onSuccess}
+          originalId={itemId}
         ></ProjectItem>
       );
 
@@ -82,8 +73,7 @@ const ECHelper: React.FC<{
         <SubheadingItem
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as SectionHeadingsType}
-          formType={formType}
-          onSuccess={onSuccess}
+          originalId={itemId}
         ></SubheadingItem>
       );
 

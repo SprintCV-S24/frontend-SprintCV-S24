@@ -13,12 +13,11 @@ import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
 import { useAddEducation, useUpdateItem } from "@/hooks/mutations";
 import { ReloadIcon } from "@radix-ui/react-icons";
-
+import { formSubmissionTypes } from "./formSubmissionTypes";
 import { useQueryClient } from "@tanstack/react-query";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
@@ -26,16 +25,12 @@ interface EducationItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: EducationType; // Mark as optional with '?'
   originalId?: string;
-  formType?: string;
-  onSuccess?: () => void; // Define onSuccess prop
 }
 
 export function EducationItem({
   setDropdownIsOpen,
   original,
   originalId,
-  formType,
-  onSuccess,
 }: EducationItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
@@ -48,6 +43,7 @@ export function EducationItem({
   const [majorMinor, setMajorMinor] = useState(original?.subtitle || "");
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
   const [errorMessage, setErrorMessage] = useState("");
+  const [submissionType, setSubmissionType] = useState<formSubmissionTypes | undefined>(undefined);
   const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
@@ -126,10 +122,8 @@ export function EducationItem({
 
     console.log(data);
 
-    if (formType == "edit") {
+    if (submissionType == formSubmissionTypes.EDIT) {
       try {
-        console.log("Original ID: ", originalId);
-
         // Call the mutation function with necessary parameters
         mutation.mutate({
           itemType: resumeItemTypes.EDUCATION,
@@ -140,9 +134,6 @@ export function EducationItem({
         setIsOpen(false);
         setDropdownIsOpen(false);
         resetForm();
-        if (onSuccess) {
-          onSuccess(); // Call onSuccess callback
-        }
       } catch (error) {
         console.error("Error updating item:", error);
       }
@@ -153,9 +144,6 @@ export function EducationItem({
             setIsOpen(false);
             setDropdownIsOpen(false);
             resetForm();
-            if (onSuccess) {
-              onSuccess(); // Call onSuccess callback
-            }
           },
           onError: (error) => {
             setErrorMessage(
@@ -184,11 +172,7 @@ export function EducationItem({
             setIsOpen(true);
           }}
         >
-          {formType === "clone"
-            ? "Clone"
-            : formType === "edit"
-              ? "Edit"
-              : "Education"}{" "}
+          {original ? "Edit" : "Education"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -288,27 +272,77 @@ export function EducationItem({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              className="mt-2"
-              type="submit"
-              disabled={
-                isPending ||
-                universityName == "" ||
-                majorMinor == "" ||
-                date == ""
-              }
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : universityName == "" || date == "" || majorMinor == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>
+            {!original && (
+              <Button
+                className="mt-2"
+                type="submit"
+                disabled={
+                  isPending ||
+                  universityName == "" ||
+                  majorMinor == "" ||
+                  date == ""
+                }
+              >
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : universityName == "" || date == "" || majorMinor == "" ? (
+                  "Complete form"
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={
+                    isPending ||
+                    universityName == "" ||
+                    majorMinor == "" ||
+                    date == ""
+                  }
+                  onClick={()=> setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : universityName == "" || date == "" || majorMinor == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={
+                    isPending ||
+                    universityName == "" ||
+                    majorMinor == "" ||
+                    date == ""
+                  }
+                  onClick={()=> setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : universityName == "" || date == "" || majorMinor == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
             <DialogClose asChild></DialogClose>
           </DialogFooter>
         </form>
