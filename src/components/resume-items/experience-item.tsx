@@ -267,33 +267,31 @@ export function ExperienceItem({
             </div>
           </div>
           <DialogFooter>
-            {!original && <Button
-              className="mt-2"
-              type="submit"
-              disabled={isPending || companyName == "" || date == ""}
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : companyName == "" || date == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>}
+            {!original && (
+              <Button
+                className="mt-2"
+                type="submit"
+                disabled={isPending || companyName == "" || date == ""}
+              >
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : companyName == "" || date == "" ? (
+                  "Complete form"
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
             {original && (
               <div className="flex justify-between w-full">
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={
-                    isPending ||
-                    companyName == "" ||
-                    date == ""
-                  }
-                  onClick={()=> setSubmissionType(formSubmissionTypes.CLONE)}
+                  disabled={isPending || companyName == "" || date == ""}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
                     <>
@@ -309,12 +307,8 @@ export function ExperienceItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={
-                    isPending ||
-                    companyName == "" ||
-                    date == ""
-                  }
-                  onClick={()=> setSubmissionType(formSubmissionTypes.EDIT)}
+                  disabled={isPending || companyName == "" || date == ""}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
                     <>

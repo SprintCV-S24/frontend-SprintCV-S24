@@ -304,11 +304,7 @@ export function ExtracurricularItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={
-                    isPending ||
-                    orgName == "" ||
-                    date == ""
-                  }
+                  disabled={isPending || orgName == "" || date == ""}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -325,11 +321,7 @@ export function ExtracurricularItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={
-                    isPending ||
-                    orgName == "" ||
-                    date == ""
-                  }
+                  disabled={isPending || orgName == "" || date == ""}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (

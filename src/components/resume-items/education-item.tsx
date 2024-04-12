@@ -43,7 +43,9 @@ export function EducationItem({
   const [majorMinor, setMajorMinor] = useState(original?.subtitle || "");
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
   const [errorMessage, setErrorMessage] = useState("");
-  const [submissionType, setSubmissionType] = useState<formSubmissionTypes | undefined>(undefined);
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
   const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
@@ -304,7 +306,7 @@ export function EducationItem({
                     majorMinor == "" ||
                     date == ""
                   }
-                  onClick={()=> setSubmissionType(formSubmissionTypes.CLONE)}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
                     <>
@@ -326,7 +328,7 @@ export function EducationItem({
                     majorMinor == "" ||
                     date == ""
                   }
-                  onClick={()=> setSubmissionType(formSubmissionTypes.EDIT)}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
                     <>
