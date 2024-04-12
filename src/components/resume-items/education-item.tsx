@@ -343,7 +343,7 @@ export function EducationItem({
                 </Button>{" "}
               </div>
             )}
-            <DialogClose asChild></DialogClose>
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

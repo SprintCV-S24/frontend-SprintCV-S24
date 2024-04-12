@@ -310,8 +310,6 @@ const Editor: React.FC = () => {
                                 }))
                               }
                               itemId={item.id}
-                              formType="edit"
-                              onSuccess={() => console.log("HELLO")}
                             />
                             <Button
                               className="text-red-500 font-bold"
