@@ -18,33 +18,34 @@ import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
 import { useAddHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { deleteItem } from "@/api/resumeItemInterface";
-import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { useUpdateItem } from "@/hooks/mutations";
+import { formSubmissionTypes } from "./formSubmissionTypes";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
 interface HeadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: HeadingsType; // Mark as optional with '?'
-  formType?: string;
-  onSuccess?: () => void; // Define onSuccess prop
+  originalId?: string;
 }
 
 export function HeadingItem({
   setDropdownIsOpen,
   original,
-  formType,
-  onSuccess,
+  originalId,
 }: HeadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
+  const [itemName, setItemName] = useState(original?.itemName || "");
   const [heading, setHeading] = useState(original?.name || "");
   const [bullets, setBullets] = useState<HeadingComponent[]>(
     original?.items || [{ item: "", href: "" }],
   );
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
 
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddHeading(
@@ -52,6 +53,7 @@ export function HeadingItem({
     storedToken,
   );
 
+  const mutation = useUpdateItem(queryClient, storedToken);
 
   const resetForm = () => {
     setHeading(""), setItemName("");
@@ -113,26 +115,40 @@ export function HeadingItem({
       items: bullets,
     };
 
-    console.log(data);
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.HEADING,
+          itemId: originalId!,
+          updatedFields: data,
+        });
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-          setDropdownIsOpen(false);
-          resetForm();
-          if (onSuccess) {
-            onSuccess(); // Call onSuccess callback
-          }
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(data, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            setErrorMessage(
+              "Error: Unable to submit form. Please try again later.",
+            );
+          },
+        });
+      } catch (error) {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
     }
   };
 
@@ -150,11 +166,7 @@ export function HeadingItem({
             setIsOpen(true);
           }}
         >
-          {formType === "clone"
-            ? "Clone"
-            : formType === "edit"
-              ? "Edit"
-              : "Heading"}
+          {original ? "Edit" : "Heading"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -235,23 +247,63 @@ export function HeadingItem({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              className="mt-2"
-              type="submit"
-              disabled={isPending || heading == ""}
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : heading == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>
-            <DialogClose asChild></DialogClose>
+            {!original && (
+              <Button
+                className="mt-2"
+                type="submit"
+                disabled={isPending || heading == ""}
+              >
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : heading == "" ? (
+                  "Complete form"
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending || heading == ""}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : heading == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending || heading == ""}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : heading == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>
