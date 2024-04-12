@@ -119,7 +119,7 @@ export function SubheadingItem({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left"
+          className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
             setIsOpen(true);

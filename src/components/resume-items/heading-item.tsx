@@ -157,7 +157,7 @@ export function HeadingItem({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className=""
+          className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
             if (!original) {
