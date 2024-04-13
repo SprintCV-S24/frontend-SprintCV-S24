@@ -40,7 +40,9 @@ import ECHelper from "@/components/ec-helper";
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
+
   const [dummy, setDummy] = useState(false);
+
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemsInBank, setItemsInBank] = useState<
@@ -71,6 +73,8 @@ const Editor: React.FC = () => {
 
   const queryClient = useQueryClient();
 
+  const [selected, setSelected] = useState(false);
+
   const { mutate, isPending, isError } = useUpdateResume(
     queryClient,
     storedToken,
@@ -83,6 +87,7 @@ const Editor: React.FC = () => {
   } = useDeleteItem(queryClient, storedToken);
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
       const initialEditOpenMap: { [key: string]: boolean } = {};
@@ -100,6 +105,22 @@ const Editor: React.FC = () => {
       return initialEditOpenMap;
     },
   );
+
+  const [dummyMap, setDummyMap] = useState<{ [key: string]: boolean }>(() => {
+    const initialEditOpenMap: { [key: string]: boolean } = {};
+    // Initialize all items' edit state to false
+    if (itemsInBank) {
+      itemsInBank.forEach((item) => {
+        initialEditOpenMap[item.id] = false;
+      });
+    }
+    if (itemsInResume) {
+      itemsInResume.forEach((item) => {
+        initialEditOpenMap[item.id] = false;
+      });
+    }
+    return initialEditOpenMap;
+  });
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -181,7 +202,6 @@ const Editor: React.FC = () => {
           { bankItems: [] } as { bankItems: Array<BaseItem & { id: string }> },
         );
 
-        console.log(itemsInBank);
         // Sets the items in the respective fields
         setItemsInBank(bankResult.bankItems);
         setItemsInResume(resumeResult.resumeItems);
@@ -280,53 +300,75 @@ const Editor: React.FC = () => {
                   {itemsInBank &&
                     itemsInBank.map((item) => (
                       <Card
-                        className="w-full p-1 mb-2 bg-grey border border-grey flex items-center justify-between"
+                        className="w-full p-1 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
                         key={item._id}
                       >
-                        <div>
-                          <LatexImage
-                            onRenderStart={() => setDummy(dummy)}
-                            onRenderEnd={() => setDummy(dummy)}
-                            latexCode={generateLatex(item)}
-                          ></LatexImage>
-                        </div>
-                        <DropdownMenu
-                          open={editOpenMap[item.id]}
-                          onOpenChange={(isOpen) =>
-                            setEditOpenMap((prevState) => ({
-                              ...prevState,
-                              [item.id]: isOpen,
-                            }))
-                          }
-                        >
-                          <DropdownMenuTrigger>
-                            <DotsVerticalIcon></DotsVerticalIcon>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <ECHelper
-                              object={item}
-                              setDropdownIsOpen={(isOpen) =>
-                                setEditOpenMap((prevState: any) => ({
+                        {<div>{item.itemName}</div>}
+                        <div className="flex w-full h-full">
+                          <div className={dummyMap[item._id] ? "hidden" : ""}>
+                            <LatexImage
+                              onRenderStart={() =>
+                                setDummyMap((prevState: any) => ({
                                   ...prevState,
-                                  [item.id]: isOpen,
+                                  [item.id]: true,
                                 }))
                               }
-                              itemId={item.id}
-                            />
-                            <Button
-                              className="text-red-500 font-bold"
-                              variant="ghost"
-                              onClick={(e) => {
-                                deleteItem({
-                                  itemType: item.type,
-                                  itemId: item._id,
-                                });
-                              }}
-                            >
-                              Delete Item
-                            </Button>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                              onRenderEnd={() =>
+                                setDummyMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: false,
+                                }))
+                              }
+                              latexCode={generateLatex(item)}
+                            ></LatexImage>
+                          </div>
+                          <Skeleton
+                            className={
+                              dummyMap[item._id]
+                                ? "w-full h-[40px] text-center"
+                                : "hidden"
+                            }
+                          >
+                            Loading Document...
+                          </Skeleton>
+                          <DropdownMenu
+                            open={editOpenMap[item.id]}
+                            onOpenChange={(isOpen) =>
+                              setEditOpenMap((prevState) => ({
+                                ...prevState,
+                                [item.id]: isOpen,
+                              }))
+                            }
+                          >
+                            <DropdownMenuTrigger>
+                              <DotsVerticalIcon></DotsVerticalIcon>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <ECHelper
+                                object={item}
+                                setDropdownIsOpen={(isOpen) =>
+                                  setEditOpenMap((prevState: any) => ({
+                                    ...prevState,
+                                    [item.id]: isOpen,
+                                  }))
+                                }
+                                itemId={item.id}
+                              />
+                              <Button
+                                className="text-red-500 font-bold"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  deleteItem({
+                                    itemType: item.type,
+                                    itemId: item._id,
+                                  });
+                                }}
+                              >
+                                Delete Item
+                              </Button>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </Card>
                     ))}
                 </ReactSortable>
@@ -355,9 +397,6 @@ const Editor: React.FC = () => {
               <DownloadIcon className="ml-2"></DownloadIcon>
             </Button>
           </Card>
-          {isPdfRendering && (
-            <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
-          )}{" "}
           <div className="bg-white h-[90%] w-full min-w-6">
             {itemsInResume && id && (
               <ReactSortable
@@ -374,11 +413,32 @@ const Editor: React.FC = () => {
                 {itemsInResume &&
                   itemsInResume.map((item) => (
                     <div className="w-full" key={item._id}>
+                      <div className={dummyMap[item._id] ? "hidden" : ""}>
                       <LatexImage
-                        onRenderStart={() => setDummy(dummy)}
-                        onRenderEnd={() => setDummy(dummy)}
+                        onRenderStart={() =>
+                          setDummyMap((prevState: any) => ({
+                            ...prevState,
+                            [item.id]: true,
+                          }))
+                        }
+                        onRenderEnd={() =>
+                          setDummyMap((prevState: any) => ({
+                            ...prevState,
+                            [item.id]: false,
+                          }))
+                        }
                         latexCode={generateLatex(item)}
                       ></LatexImage>
+                      </div>
+                      <Skeleton
+                            className={
+                              dummyMap[item._id]
+                                ? "w-full h-[40px] text-center"
+                                : "hidden"
+                            }
+                          >
+                            Loading Document...
+                          </Skeleton>
                     </div>
                   ))}
               </ReactSortable>
