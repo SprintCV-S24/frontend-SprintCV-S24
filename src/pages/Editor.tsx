@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LatexImage } from "@/components/Latex";
+import { PageCount } from "@/components/PageCount";
 import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
@@ -350,6 +351,7 @@ const Editor: React.FC = () => {
               Download
               <DownloadIcon className="ml-2"></DownloadIcon>
             </Button>
+						<PageCount items={itemsInResume}></PageCount>
           </Card>
           {isPdfRendering && (
             <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />

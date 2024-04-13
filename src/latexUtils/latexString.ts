@@ -571,7 +571,6 @@ export const generateSectionHeadingLatex = (
 
   latexString += "\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
-  console.log("SUBHEADINGXX:", latexString);
   return latexString;
 };
 
@@ -1147,4 +1146,3 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
 export const generatedLatexCode = generateFullResume(
   comprehensiveTestResumeItems2,
 );
-console.log(generatedLatexCode);
