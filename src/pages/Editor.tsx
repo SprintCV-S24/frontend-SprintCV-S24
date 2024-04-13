@@ -94,6 +94,7 @@ const Editor: React.FC = () => {
           initialEditOpenMap[item.id] = false;
         });
       }
+      // TODO: This is likely unnecessary. Don't have time to check but can probably be removed later.
       if (itemsInResume) {
         itemsInResume.forEach((item) => {
           initialEditOpenMap[item.id] = false;
@@ -300,7 +301,7 @@ const Editor: React.FC = () => {
                         className="w-full p-1 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
                         key={item._id}
                       >
-                        {<div>{item.itemName}</div>}
+                        {<p className='text-sm'>{item.itemName}</p>}
                         <div className="flex w-full h-full">
                           <div className={loadingMap[item._id] ? "hidden" : ""}>
                             <LatexImage
