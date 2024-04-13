@@ -10,13 +10,11 @@ import { createHeading } from "../api/headerInterface";
 import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
-import { updateResume } from "@/api/resumeInterface";
 import {
   createResume,
   updateResume,
   deleteResume,
 } from "@/api/resumeInterface";
-
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
 import { ExperienceType } from "@/api/models/interfaces";
