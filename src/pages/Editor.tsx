@@ -40,9 +40,6 @@ import ECHelper from "@/components/ec-helper";
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
-
-  const [dummy, setDummy] = useState(false);
-
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemsInBank, setItemsInBank] = useState<
@@ -106,20 +103,20 @@ const Editor: React.FC = () => {
     },
   );
 
-  const [dummyMap, setDummyMap] = useState<{ [key: string]: boolean }>(() => {
-    const initialEditOpenMap: { [key: string]: boolean } = {};
+  const [loadingMap, setLoadingMap] = useState<{ [key: string]: boolean }>(() => {
+    const intialLoadingmap: { [key: string]: boolean } = {};
     // Initialize all items' edit state to false
     if (itemsInBank) {
       itemsInBank.forEach((item) => {
-        initialEditOpenMap[item.id] = false;
+        intialLoadingmap[item.id] = false;
       });
     }
     if (itemsInResume) {
       itemsInResume.forEach((item) => {
-        initialEditOpenMap[item.id] = false;
+        intialLoadingmap[item.id] = false;
       });
     }
-    return initialEditOpenMap;
+    return intialLoadingmap;
   });
 
   const handleClearResume = () => {
@@ -305,16 +302,16 @@ const Editor: React.FC = () => {
                       >
                         {<div>{item.itemName}</div>}
                         <div className="flex w-full h-full">
-                          <div className={dummyMap[item._id] ? "hidden" : ""}>
+                          <div className={loadingMap[item._id] ? "hidden" : ""}>
                             <LatexImage
                               onRenderStart={() =>
-                                setDummyMap((prevState: any) => ({
+                                setLoadingMap((prevState: any) => ({
                                   ...prevState,
                                   [item.id]: true,
                                 }))
                               }
                               onRenderEnd={() =>
-                                setDummyMap((prevState: any) => ({
+                                setLoadingMap((prevState: any) => ({
                                   ...prevState,
                                   [item.id]: false,
                                 }))
@@ -324,7 +321,7 @@ const Editor: React.FC = () => {
                           </div>
                           <Skeleton
                             className={
-                              dummyMap[item._id]
+                              loadingMap[item._id]
                                 ? "w-full h-[40px] text-center"
                                 : "hidden"
                             }
@@ -413,16 +410,16 @@ const Editor: React.FC = () => {
                 {itemsInResume &&
                   itemsInResume.map((item) => (
                     <div className="w-full" key={item._id}>
-                      <div className={dummyMap[item._id] ? "hidden" : ""}>
+                      <div className={loadingMap[item._id] ? "hidden" : ""}>
                       <LatexImage
                         onRenderStart={() =>
-                          setDummyMap((prevState: any) => ({
+                          setLoadingMap((prevState: any) => ({
                             ...prevState,
                             [item.id]: true,
                           }))
                         }
                         onRenderEnd={() =>
-                          setDummyMap((prevState: any) => ({
+                          setLoadingMap((prevState: any) => ({
                             ...prevState,
                             [item.id]: false,
                           }))
@@ -432,7 +429,7 @@ const Editor: React.FC = () => {
                       </div>
                       <Skeleton
                             className={
-                              dummyMap[item._id]
+                              loadingMap[item._id]
                                 ? "w-full h-[40px] text-center"
                                 : "hidden"
                             }
