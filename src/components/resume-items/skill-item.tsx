@@ -16,26 +16,35 @@ import { useAddSkill } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { SkillsType } from "@/api/models/interfaces";
+import { formSubmissionTypes } from "./formSubmissionTypes";
+import { useUpdateItem } from "@/hooks/mutations";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+
+interface SkillItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: SkillsType; // Mark as optional with '?'
+  originalId?: string;
+}
 
 export function SkillItem({
   setDropdownIsOpen,
-}: {
-  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
-}) {
+  original,
+  originalId,
+}: SkillItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
-  const [skill, setSkill] = useState("");
-  const [desc, setDesc] = useState("");
+  const [itemName, setItemName] = useState(original?.itemName || "");
+  const [skill, setSkill] = useState(original?.title || "");
+  const [desc, setDesc] = useState(original?.description || "");
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
   const queryClient = useQueryClient();
-  const { mutate, isPending, isError } = useAddSkill(
-    queryClient,
-    storedToken,
-  );
+  const { mutate, isPending, isError } = useAddSkill(queryClient, storedToken);
+  const mutation = useUpdateItem(queryClient, storedToken);
 
   const resetForm = () => {
     setSkill(""), setItemName(""), setDesc("");
@@ -69,21 +78,40 @@ export function SkillItem({
 
     console.log(data);
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-          setDropdownIsOpen(false);
-          resetForm();
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.SKILL,
+          itemId: originalId!,
+          updatedFields: data,
+        });
+
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(data, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            setErrorMessage(
+              "Error: Unable to submit form. Please try again later.",
+            );
+          },
+        });
+      } catch (error) {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
     }
   };
 
@@ -91,13 +119,13 @@ export function SkillItem({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left h-full w-full"
+          className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
             setIsOpen(true);
           }}
         >
-          Skill
+          {original ? "Edit" : "Skill"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -139,23 +167,63 @@ export function SkillItem({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              className="mt-2"
-              type="submit"
-              disabled={isPending || skill == "" || desc == ""}
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : skill == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>
-            <DialogClose asChild></DialogClose>
+            {!original && (
+              <Button
+                className="mt-2"
+                type="submit"
+                disabled={isPending || skill == "" || desc == ""}
+              >
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : skill == "" ? (
+                  "Complete form"
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending || skill == "" || desc == ""}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : skill == "" || desc == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending || skill == "" || desc == ""}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : skill == "" || desc == "" ? (
+                    "Complete form"
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

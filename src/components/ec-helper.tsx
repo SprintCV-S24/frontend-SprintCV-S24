@@ -16,6 +16,7 @@ import { ExtracurricularItem } from "./resume-items/activity";
 import { HeadingItem } from "./resume-items/heading-item";
 import { ProjectItem } from "./resume-items/project-item";
 import { SubheadingItem } from "./resume-items/subheading-item";
+import { SkillItem } from "./resume-items/skill-item";
 
 const ECHelper: React.FC<{
   object: BaseItem;
@@ -78,7 +79,13 @@ const ECHelper: React.FC<{
       );
 
     case resumeItemTypes.SKILL:
-      return <div>HAHAAAA</div>;
+      return (
+        <SkillItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          original={object as SkillsType}
+          originalId={itemId}
+        ></SkillItem>
+      );
 
     default:
       return <div>Unknown type.</div>;
