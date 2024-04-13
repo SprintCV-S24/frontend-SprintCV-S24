@@ -571,7 +571,7 @@ export const generateSectionHeadingLatex = (
 
   latexString += "\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
-  console.log("SUBHEADINGXX:", latexString);
+  // console.log("SUBHEADINGXX:", latexString);
   return latexString;
 };
 

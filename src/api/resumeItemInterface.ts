@@ -5,7 +5,6 @@ import { getAllHeadings } from "./headerInterface";
 import { getAllProjects } from "./projectInterface";
 import { getAllSectionHeadings } from "./sectionHeadingInterface";
 import { getAllSkills } from "./skillInterface";
-import { BaseItem } from "./models/interfaces";
 import { resumeItemTypes } from "./models/resumeItemTypes";
 import { deleteActivity } from "./activityInterface";
 import { deleteEducation } from "./educationInterface";
