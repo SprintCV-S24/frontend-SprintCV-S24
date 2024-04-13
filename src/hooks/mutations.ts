@@ -7,7 +7,6 @@ import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
 import { createResume, updateResume, deleteResume } from "@/api/resumeInterface";
-
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
 import { ExperienceType } from "@/api/models/interfaces";
@@ -220,7 +219,6 @@ export const createCustomSetItemsInBank = (
 	id: string;
 }>) => void) => {
   const customSetItemsInBank = (newItems: Array<BaseItem & { id: string }>) => {
-		// console.log("running customsetitems");
 
 		const idArr = newItems.map(item => item.id);
 		const updatedFields = {itemIds: idArr};

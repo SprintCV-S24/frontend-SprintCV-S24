@@ -14,8 +14,8 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
-import ExportImage from "../assets/export-image.png";
 import { DownloadIcon } from "@radix-ui/react-icons";
+import { SkillItem } from "@/components/resume-items/skill-item";
 import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
@@ -265,6 +265,10 @@ const Editor: React.FC = () => {
                   <ProjectItem
                     setDropdownIsOpen={setDropdownIsOpen}
                   ></ProjectItem>
+                  <DropdownMenuSeparator />
+                  <SkillItem 
+                    setDropdownIsOpen={setDropdownIsOpen}
+                  ></SkillItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -305,7 +309,10 @@ const Editor: React.FC = () => {
                             <DropdownMenuItem
                               className="text-red-500 font-bold"
                               onClick={(e) => {
-                                deleteItem({itemType: item.type, itemId: item._id});
+                                deleteItem({
+                                  itemType: item.type,
+                                  itemId: item._id,
+                                });
                               }}
                             >
                               Delete Item

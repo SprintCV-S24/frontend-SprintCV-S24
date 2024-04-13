@@ -5,7 +5,6 @@ import { getAllHeadings } from "./headerInterface";
 import { getAllProjects } from "./projectInterface";
 import { getAllSectionHeadings } from "./sectionHeadingInterface";
 import { getAllSkills } from "./skillInterface";
-import { BaseItem } from "./models/interfaces";
 import { resumeItemTypes } from "./models/resumeItemTypes";
 import { deleteActivity } from "./activityInterface";
 import { deleteEducation } from "./educationInterface";
@@ -13,6 +12,7 @@ import { deleteExperience } from "./experienceInterface";
 import { deleteHeading } from "./headerInterface";
 import { deleteSectionHeading } from "./sectionHeadingInterface";
 import { deleteProject } from "./projectInterface";
+import { deleteSkill } from "./skillInterface";
 
 export const getAllItems = async (token: string) => {
   const results = await Promise.all([
@@ -55,6 +55,9 @@ export const deleteItem = async (itemType: resumeItemTypes, itemId: string, toke
         break;
       case resumeItemTypes.PROJECT:
         await deleteProject(itemId, token);
+        break;
+      case resumeItemTypes.SKILL:
+        await deleteSkill(itemId, token);
         break;
       default:
         throw new Error("Invalid item type");
