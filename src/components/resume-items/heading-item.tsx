@@ -254,24 +254,28 @@ export function HeadingItem({
                   className="h-full w-full mb-2"
                 >
                   {bullets.map((bullet, index) => (
-                    <div key={index} className="ml-1 mt-2 flex">
-                      {" "}
-                      <AutosizeTextarea
-                        className="mb-2 resize-none h-[35px]"
-                        placeholder="Contact Item"
-                        value={bullet.item}
-                        onChange={(e) =>
-                          handleBulletChange(index, "item", e.target.value)
-                        }
-                      />
-                      <AutosizeTextarea
-                        className="mb-2 resize-none h-[35px] ml-2" // Add margin for spacing
-                        placeholder="Enter Link"
-                        value={bullet.href!}
-                        onChange={(e) =>
-                          handleBulletChange(index, "href", e.target.value)
-                        }
-                      />
+                    <div key={index} className="mt-2 flex">
+                      <div className="h-[40px] w-[40px]">
+                        <DragHandleHorizontalIcon className="handle mr-1 w-full h-full"></DragHandleHorizontalIcon>
+                      </div>
+                      <div className="flex w-full">
+                        <AutosizeTextarea
+                          className="mb-2 resize-none h-[35px]"
+                          placeholder="Contact Item"
+                          value={bullet.item}
+                          onChange={(e) =>
+                            handleBulletChange(index, "item", e.target.value)
+                          }
+                        />
+                        <AutosizeTextarea
+                          className="mb-2 resize-none h-[35px] ml-2" // Add margin for spacing
+                          placeholder="Enter Link"
+                          value={bullet.href!}
+                          onChange={(e) =>
+                            handleBulletChange(index, "href", e.target.value)
+                          }
+                        />
+                      </div>
                       <Button
                         className="ml-[5px] flex items-center justify-center w-[110px]"
                         variant="secondary"
@@ -285,9 +289,6 @@ export function HeadingItem({
                           className="h-[35px] w-[35px]"
                         ></img>
                       </Button>
-                      <div className="h-[40px] w-[40px]">
-                        <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
-                      </div>
                     </div>
                   ))}
                 </ReactSortable>

@@ -27,7 +27,6 @@ import { useUpdateItem } from "@/hooks/mutations";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { checkForDuplicate } from "@/api/itemInterface";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface ActivityItemsProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -373,7 +372,7 @@ export function ExtracurricularItem({
                   ) : (
                     "Save as Copy"
                   )}
-                </Button>{" "}
+                </Button>
                 <Button
                   className="mt-2"
                   type="submit"
@@ -388,7 +387,7 @@ export function ExtracurricularItem({
                   ) : (
                     "Save and Replace"
                   )}
-                </Button>{" "}
+                </Button>
               </div>
             )}
             <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
