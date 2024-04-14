@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogClose,
@@ -23,6 +26,7 @@ import { formSubmissionTypes } from "./formSubmissionTypes";
 import { useUpdateItem } from "@/hooks/mutations";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
+import { checkForDuplicate } from "@/api/itemInterface";
 
 interface ActivityItemsProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -39,12 +43,19 @@ export function ExtracurricularItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [orgName, setOrgName] = useState(original?.subtitle || "");
-  const [role, setRole] = useState(original?.title || "");
-  const [date, setDate] = useState(original?.year || "");
-  const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [orgName, setOrgName] = useState(original?.subtitle || "");
+  // const [role, setRole] = useState(original?.title || "");
+  // const [date, setDate] = useState(original?.year || "");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
-  const [location, setLocation] = useState(original?.location || "");
+  // const [location, setLocation] = useState(original?.location || "");
+
+  const defaultOrgName = original?.subtitle || "";
+  const defaultRole = original?.title || "";
+  const defaultItemName = original?.itemName || "";
+  const defaultLocation = original?.location || "";
+  const defaultDate = original?.year || "";
+
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
@@ -58,6 +69,37 @@ export function ExtracurricularItem({
     queryClient,
     storedToken,
   );
+
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT){
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        }else {
+          return true;
+        }
+      }),
+    orgName: Yup.string().required("Organization is required"),
+    role: Yup.string().required("Role is required"),
+    date: Yup.string().required("Date is required"),
+    location: Yup.string().required("Location is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
   useEffect(() => {
     const updateToken = async () => {
@@ -96,30 +138,35 @@ export function ExtracurricularItem({
   };
 
   const resetForm = () => {
-    setOrgName("");
-    setRole("");
-    setDate("");
-    setItemName("");
     setBullets([""]); // Reset bullets
-    setLocation("");
-    setErrorMessage("");
+    setIsOpen(false);
   };
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  // const resetForm = () => {
+  //   setOrgName("");
+  //   setRole("");
+  //   setDate("");
+  //   setItemName("");
+  //   setBullets([""]); // Reset bullets
+  //   setLocation("");
+  //   setErrorMessage("");
+  // };
+
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
     const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
-    const data: ActivitiesType = {
+    const activityData: ActivitiesType = {
       user: token!,
-      itemName: itemName,
-      subtitle: orgName,
-      title: role,
+      itemName: data.itemName,
+      subtitle: data.orgName,
+      title: data.role,
       bullets: filteredBullets,
-      year: date,
-      location: location,
+      year: data.date,
+      location: data.location,
     };
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
@@ -127,7 +174,7 @@ export function ExtracurricularItem({
         mutation.mutate({
           itemType: resumeItemTypes.ACTIVITY,
           itemId: originalId!,
-          updatedFields: data,
+          updatedFields: activityData,
         });
 
         setIsOpen(false);
@@ -137,8 +184,9 @@ export function ExtracurricularItem({
         console.error("Error updating item:", error);
       }
     } else {
+      console.log(activityData);
       try {
-        mutate(data, {
+        mutate(activityData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
@@ -181,33 +229,59 @@ export function ExtracurricularItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.orgName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.orgName.message}
+          </div>
+        )}
+        {errors.location && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.location.message}
+          </div>
+        )}
+        {errors.date && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.date.message}
+          </div>
+        )}
+        {errors.role && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.role.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
+              // value={itemName}
+              // onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="org-name"
               placeholder="Organization Name"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
+              defaultValue={defaultOrgName}
+              {...register("orgName")}
+              // value={orgName}
+              // onChange={(e) => setOrgName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
+              defaultValue={defaultRole}
+              {...register("role")}
+              // value={role}
+              // onChange={(e) => setRole(e.target.value)}
             />
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
@@ -215,15 +289,19 @@ export function ExtracurricularItem({
                   className="flex-1"
                   id="location"
                   placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  defaultValue={defaultLocation}
+                  {...register("location")}
+                  // value={location}
+                  // onChange={(e) => setLocation(e.target.value)}
                 />
                 <Input
                   className="flex-1"
                   id="date"
                   placeholder="Date Range"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  defaultValue={defaultDate}
+                  {...register("date")}
+                  // value={date}
+                  // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
@@ -281,18 +359,12 @@ export function ExtracurricularItem({
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending || orgName == "" || date == ""}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </>
-                ) : orgName == "" || date == "" ? (
-                  "Complete form"
                 ) : (
                   "Add Item"
                 )}
@@ -303,7 +375,7 @@ export function ExtracurricularItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || orgName == "" || date == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -311,8 +383,6 @@ export function ExtracurricularItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : orgName == "" || date == "" ? (
-                    "Complete form"
                   ) : (
                     "Save as Copy"
                   )}
@@ -320,7 +390,7 @@ export function ExtracurricularItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || orgName == "" || date == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
@@ -328,8 +398,6 @@ export function ExtracurricularItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : orgName == "" || date == "" ? (
-                    "Complete form"
                   ) : (
                     "Save and Replace"
                   )}

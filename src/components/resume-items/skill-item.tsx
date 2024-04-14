@@ -19,6 +19,10 @@ import { SkillsType } from "@/api/models/interfaces";
 import { formSubmissionTypes } from "./formSubmissionTypes";
 import { useUpdateItem } from "@/hooks/mutations";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { checkForDuplicate } from "@/api/itemInterface";
 
 interface SkillItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -34,10 +38,15 @@ export function SkillItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState(original?.itemName || "");
-  const [skill, setSkill] = useState(original?.title || "");
-  const [desc, setDesc] = useState(original?.description || "");
-  const [errorMessage, setErrorMessage] = useState("");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [skill, setSkill] = useState(original?.title || "");
+  // const [desc, setDesc] = useState(original?.description || "");
+  // const [errorMessage, setErrorMessage] = useState("");
+
+  const defaultSkillName = original?.title || "";
+  const defaultDescription = original?.description || "";
+  const defaultItemName = original?.itemName || "";
+
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
@@ -46,9 +55,39 @@ export function SkillItem({
   const { mutate, isPending, isError } = useAddSkill(queryClient, storedToken);
   const mutation = useUpdateItem(queryClient, storedToken);
 
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT) {
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        } else {
+          return true;
+        }
+      }),
+    skillName: Yup.string().required("Skill is required"),
+    description: Yup.string().required("Description is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+
   const resetForm = () => {
-    setSkill(""), setItemName(""), setDesc("");
-    setErrorMessage("");
+    setIsOpen(false);
+    // setSkill(""), setItemName(""), setDesc("");
+    // setErrorMessage("");
   };
 
   useEffect(() => {
@@ -64,19 +103,19 @@ export function SkillItem({
     void updateToken();
   }, [currentUser]);
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
-    const data: SkillsType = {
+    const skillsData: SkillsType = {
       user: token!,
-      itemName: itemName,
-      title: skill,
-      description: desc,
+      itemName: data.itemName,
+      title: data.skillName,
+      description: data.description,
     };
 
-    console.log(data);
+    console.log(skillsData);
 
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
@@ -84,7 +123,7 @@ export function SkillItem({
         mutation.mutate({
           itemType: resumeItemTypes.SKILL,
           itemId: originalId!,
-          updatedFields: data,
+          updatedFields: skillsData,
         });
 
         setIsOpen(false);
@@ -95,23 +134,15 @@ export function SkillItem({
       }
     } else {
       try {
-        mutate(data, {
+        mutate(skillsData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
             resetForm();
           },
-          onError: (error) => {
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
-          },
+          onError: (error) => {},
         });
-      } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -135,51 +166,61 @@ export function SkillItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.skillName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.skillName.message}
+          </div>
+        )}
+        {errors.description && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.description.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col col-span-2">
               <Input
                 className="mb-2 w-full"
                 id="item-name"
                 placeholder="Unique Item Name"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
+                // value={itemName}
+                // onChange={(e) => setItemName(e.target.value)}
+                defaultValue={defaultItemName}
+                {...register("itemName")}
               />
               <Input
                 className="mb-2 w-full"
                 id="skill-name"
                 placeholder="Skill Category"
-                value={skill}
-                onChange={(e) => setSkill(e.target.value)}
+                // value={skill}
+                // onChange={(e) => setSkill(e.target.value)}
+                defaultValue={defaultSkillName}
+                {...register("skillName")}
               />
               <Input
                 className="mb-2 w-full"
                 id="desc"
                 placeholder="Add list of relevant skills"
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
+                // value={desc}
+                // onChange={(e) => setDesc(e.target.value)}
+                defaultValue={defaultDescription}
+                {...register("description")}
               />
             </div>
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending || skill == "" || desc == ""}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </>
-                ) : skill == "" ? (
-                  "Complete form"
                 ) : (
                   "Add Item"
                 )}
@@ -190,7 +231,7 @@ export function SkillItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || skill == "" || desc == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -198,8 +239,6 @@ export function SkillItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : skill == "" || desc == "" ? (
-                    "Complete form"
                   ) : (
                     "Save as Copy"
                   )}
@@ -207,7 +246,7 @@ export function SkillItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || skill == "" || desc == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
@@ -215,8 +254,6 @@ export function SkillItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : skill == "" || desc == "" ? (
-                    "Complete form"
                   ) : (
                     "Save and Replace"
                   )}

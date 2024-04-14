@@ -23,6 +23,10 @@ import { formSubmissionTypes } from "./formSubmissionTypes";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { ReactSortable } from "react-sortablejs";
+import { checkForDuplicate } from "@/api/itemInterface";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 interface HeadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -38,16 +42,19 @@ export function HeadingItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState(original?.itemName || "");
-  const [heading, setHeading] = useState(original?.name || "");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [heading, setHeading] = useState(original?.name || "");
   const [bullets, setBullets] = useState<HeadingComponent[]>(
     original?.items || [{ item: "", href: "" }],
   );
-  const [errorMessage, setErrorMessage] = useState("");
+  // const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
   >(undefined);
+
+  const defaultHeading = original?.name || "";
+  const defaultItemName = original?.itemName || "";
 
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddHeading(
@@ -57,10 +64,38 @@ export function HeadingItem({
 
   const mutation = useUpdateItem(queryClient, storedToken);
 
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT) {
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        } else {
+          return true;
+        }
+      }),
+    heading: Yup.string().required("Heading is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+
   const resetForm = () => {
-    setHeading(""), setItemName("");
+    // setHeading(""), setItemName("");
     setBullets([]); // Reset bullets
-    setErrorMessage("");
+    // setErrorMessage("");
   };
 
   useEffect(() => {
@@ -96,7 +131,7 @@ export function HeadingItem({
 
   const resetBullets = () => {
     setBullets([{ item: "", href: "" }]);
-    setErrorMessage("");
+    // setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -105,15 +140,15 @@ export function HeadingItem({
     );
   };
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
-    const data: HeadingsType = {
+    const headingData: HeadingsType = {
       user: token!,
-      itemName: itemName,
-      name: heading,
+      itemName: data.itemName,
+      name: data.heading,
       items: bullets,
     };
 
@@ -123,7 +158,7 @@ export function HeadingItem({
         mutation.mutate({
           itemType: resumeItemTypes.HEADING,
           itemId: originalId!,
-          updatedFields: data,
+          updatedFields: headingData,
         });
 
         setIsOpen(false);
@@ -134,27 +169,18 @@ export function HeadingItem({
       }
     } else {
       try {
-        mutate(data, {
+        mutate(headingData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
             resetForm();
           },
-          onError: (error) => {
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
-          },
+          onError: (error) => {},
         });
-      } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      } catch (error) {}
     }
   };
 
-  // TODO: Modify href to be optional!
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -178,29 +204,36 @@ export function HeadingItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.heading && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.heading.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col col-span-2">
               <Input
                 className="mb-2 w-full"
                 id="item-name"
-                placeholder={
-                  original ? "Select a New Item Name" : "Unique Item Name"
-                }
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
+                placeholder={"Unique Item Name"}
+                defaultValue={defaultItemName}
+                {...register("itemName")}
+                // value={itemName}
+                // onChange={(e) => setItemName(e.target.value)}
               />
               <Input
                 className="mb-2 w-full"
                 id="item-name"
                 placeholder="Your Name"
-                value={heading}
-                onChange={(e) => setHeading(e.target.value)}
+                defaultValue={defaultHeading}
+                {...register("heading")}
+                // value={heading}
+                // onChange={(e) => setHeading(e.target.value)}
               />
               <div className="flex-grow overflow-y-auto">
                 <ReactSortable
@@ -265,15 +298,13 @@ export function HeadingItem({
               <Button
                 className="mt-2"
                 type="submit"
-                disabled={isPending || heading == ""}
+                disabled={isPending}
               >
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </>
-                ) : heading == "" ? (
-                  "Complete form"
                 ) : (
                   "Add Item"
                 )}
@@ -284,7 +315,7 @@ export function HeadingItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || heading == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -292,8 +323,6 @@ export function HeadingItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : heading == "" ? (
-                    "Complete form"
                   ) : (
                     "Save as Copy"
                   )}
@@ -301,7 +330,7 @@ export function HeadingItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || heading == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
@@ -309,8 +338,6 @@ export function HeadingItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : heading == "" ? (
-                    "Complete form"
                   ) : (
                     "Save and Replace"
                   )}
