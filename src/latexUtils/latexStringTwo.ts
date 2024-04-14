@@ -421,11 +421,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   };
   
   export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
-    let latexString = `\n\\resumeSubheading{${sanitize(
-      activityObj.title,
-    )}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.subtitle)}, ${sanitize(
-      activityObj.location,
-    )}}
+    let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title,)},${sanitize(activityObj.location,)}}{${sanitize(activityObj.year)}}
       `;
   
     if (activityObj.bullets.length > 0) {
@@ -481,10 +477,7 @@ export const generateProjectLatex = (activityObj: ProjectsType) => {
 };
 
 export const generateProjectLatexHelper = (activityObj: ProjectsType) => {
-  let latexString = `\n\\resumeSubheading{${sanitize(
-    activityObj.title,
-  )}}{}{${sanitize(activityObj.year)}}{${sanitize(
-    activityObj.technologies  ?? '',
+  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.title,)}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.technologies  ?? '',
   )}}
     `;
 
