@@ -42,7 +42,7 @@ export const ResumeName: React.FC<{
             setSaved();
           },
           onError: () => {
-            setSaved();
+            setSaved(); //TODO: not great
           },
         },
       );
@@ -66,7 +66,7 @@ export const ResumeName: React.FC<{
 
   return (
     <Input
-      className="m-2"
+      className="m-2 min-w-[50px]"
       type="text"
       value={resumeName}
       onChange={handleInputChange}

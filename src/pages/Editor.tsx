@@ -27,13 +27,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LatexImage } from "@/components/Latex";
 import { ResumeName } from "@/components/ResumeName";
+import { ResumeSaved } from "@/components/ResumeSaved";
 import { PageCount } from "@/components/PageCount";
 import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
-import { createCustomSetItemsInBank } from "@/hooks/mutations";
+import { createCustomSetItemsInResume } from "@/hooks/mutations";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
@@ -43,6 +44,7 @@ const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const [resumeName, setResumeName] = useState<string | undefined>(undefined);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
+  const [isSaved, setIsSaved] = useState<boolean>(true);
 
   const [itemsInBank, setItemsInBank] = useState<
     Array<BaseItem & { id: string }> | undefined
@@ -135,10 +137,16 @@ const Editor: React.FC = () => {
         ...itemsInResume,
       ];
 
-      const clearResumeHelper = createCustomSetItemsInBank(
+      const clearResumeHelper = createCustomSetItemsInResume(
         id,
         mutate,
         setItemsInResume,
+        () => {
+          setIsSaved(false);
+        },
+        () => {
+          setIsSaved(true);
+        },
       );
 
       clearResumeHelper([]);
@@ -390,9 +398,14 @@ const Editor: React.FC = () => {
               resumeId={id as string}
               resumeName={resumeName}
               setResumeName={setResumeName}
-              setSaving={() => {}}
-              setSaved={() => {}}
+              setSaving={() => {
+                setIsSaved(false);
+              }}
+              setSaved={() => {
+                setIsSaved(true);
+              }}
             ></ResumeName>
+            <ResumeSaved isSaved={isSaved}></ResumeSaved>
             <Button
               className="text-red-500 font-bold"
               variant="outline"
@@ -418,10 +431,16 @@ const Editor: React.FC = () => {
               <ReactSortable
                 animation={150}
                 list={itemsInResume}
-                setList={createCustomSetItemsInBank(
+                setList={createCustomSetItemsInResume(
                   id,
                   mutate,
                   setItemsInResume,
+                  () => {
+                    setIsSaved(false);
+                  },
+                  () => {
+                    setIsSaved(true);
+                  },
                 )}
                 group="ResumeItems"
                 className="h-full w-full bg-white"
