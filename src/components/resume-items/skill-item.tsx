@@ -10,58 +10,49 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import DeleteImage from "../../assets/delete.png";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { useAuth } from "@/AuthContext";
-import { HeadingsType, HeadingComponent } from "@/api/models/interfaces";
-import { useAddHeading } from "@/hooks/mutations";
+import { useAddSkill } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { useUpdateItem } from "@/hooks/mutations";
+import { SkillsType } from "@/api/models/interfaces";
 import { formSubmissionTypes } from "./formSubmissionTypes";
+import { useUpdateItem } from "@/hooks/mutations";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
-import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
-import { ReactSortable } from "react-sortablejs";
-import { checkForDuplicate } from "@/api/itemInterface";
-import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { checkForDuplicate } from "@/api/itemInterface";
 
-interface HeadingItemProps {
+interface SkillItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
-  original?: HeadingsType; // Mark as optional with '?'
+  original?: SkillsType; // Mark as optional with '?'
   originalId?: string;
 }
 
-export function HeadingItem({
+export function SkillItem({
   setDropdownIsOpen,
   original,
   originalId,
-}: HeadingItemProps) {
+}: SkillItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   // const [itemName, setItemName] = useState(original?.itemName || "");
-  // const [heading, setHeading] = useState(original?.name || "");
-  const [bullets, setBullets] = useState<HeadingComponent[]>(
-    original?.items || [{ item: "", href: "" }],
-  );
+  // const [skill, setSkill] = useState(original?.title || "");
+  // const [desc, setDesc] = useState(original?.description || "");
   // const [errorMessage, setErrorMessage] = useState("");
+
+  const defaultSkillName = original?.title || "";
+  const defaultDescription = original?.description || "";
+  const defaultItemName = original?.itemName || "";
+
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
   >(undefined);
-
-  const defaultHeading = original?.name || "";
-  const defaultItemName = original?.itemName || "";
-
   const queryClient = useQueryClient();
-  const { mutate, isPending, isError } = useAddHeading(
-    queryClient,
-    storedToken,
-  );
-
+  const { mutate, isPending, isError } = useAddSkill(queryClient, storedToken);
   const mutation = useUpdateItem(queryClient, storedToken);
 
   const validationSchema = Yup.object().shape({
@@ -81,7 +72,8 @@ export function HeadingItem({
           return true;
         }
       }),
-    heading: Yup.string().required("Heading is required"),
+    skillName: Yup.string().required("Skill is required"),
+    description: Yup.string().required("Description is required"),
   });
 
   const {
@@ -93,8 +85,8 @@ export function HeadingItem({
   });
 
   const resetForm = () => {
-    // setHeading(""), setItemName("");
-    setBullets([]); // Reset bullets
+    setIsOpen(false);
+    // setSkill(""), setItemName(""), setDesc("");
     // setErrorMessage("");
   };
 
@@ -111,54 +103,27 @@ export function HeadingItem({
     void updateToken();
   }, [currentUser]);
 
-  const MAX_BULLETS = 5;
-
-  const handleAddBullet = () => {
-    if (bullets.length < MAX_BULLETS) {
-      setBullets([...bullets, { item: "", href: "" }]);
-    }
-  };
-
-  const handleBulletChange = (
-    index: number,
-    field: "item" | "href",
-    value: string,
-  ) => {
-    setBullets((prev) =>
-      prev.map((resp, i) => (i === index ? { ...resp, [field]: value } : resp)),
-    );
-  };
-
-  const resetBullets = () => {
-    setBullets([{ item: "", href: "" }]);
-    // setErrorMessage("");
-  };
-
-  const handleDeleteBullet = (index: number) => {
-    setBullets((prevResponsibilities) =>
-      prevResponsibilities.filter((_, i) => i !== index),
-    );
-  };
-
   const handleFormSubmit = async (data: any) => {
     // event.preventDefault();
 
     const token = storedToken;
 
-    const headingData: HeadingsType = {
+    const skillsData: SkillsType = {
       user: token!,
       itemName: data.itemName,
-      name: data.heading,
-      items: bullets,
+      title: data.skillName,
+      description: data.description,
     };
+
+    console.log(skillsData);
 
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
         // Call the mutation function with necessary parameters
         mutation.mutate({
-          itemType: resumeItemTypes.HEADING,
+          itemType: resumeItemTypes.SKILL,
           itemId: originalId!,
-          updatedFields: headingData,
+          updatedFields: skillsData,
         });
 
         setIsOpen(false);
@@ -169,7 +134,7 @@ export function HeadingItem({
       }
     } else {
       try {
-        mutate(headingData, {
+        mutate(skillsData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
@@ -188,18 +153,15 @@ export function HeadingItem({
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >
-          {original ? "Edit" : "Heading"}
+          {original ? "Edit" : "Skill"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Add Heading</DialogTitle>
+          <DialogTitle>Add Skill</DialogTitle>
           <DialogDescription>
             Fill in the following information
           </DialogDescription>
@@ -209,9 +171,14 @@ export function HeadingItem({
             {errors.itemName.message}
           </div>
         )}
-        {errors.heading && (
+        {errors.skillName && (
           <div className="error-message text-red-400 font-bold">
-            {errors.heading.message}
+            {errors.skillName.message}
+          </div>
+        )}
+        {errors.description && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.description.message}
           </div>
         )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -220,86 +187,35 @@ export function HeadingItem({
               <Input
                 className="mb-2 w-full"
                 id="item-name"
-                placeholder={"Unique Item Name"}
-                defaultValue={defaultItemName}
-                {...register("itemName")}
+                placeholder="Unique Item Name"
                 // value={itemName}
                 // onChange={(e) => setItemName(e.target.value)}
+                defaultValue={defaultItemName}
+                {...register("itemName")}
               />
               <Input
                 className="mb-2 w-full"
-                id="item-name"
-                placeholder="Your Name"
-                defaultValue={defaultHeading}
-                {...register("heading")}
-                // value={heading}
-                // onChange={(e) => setHeading(e.target.value)}
+                id="skill-name"
+                placeholder="Skill Category"
+                // value={skill}
+                // onChange={(e) => setSkill(e.target.value)}
+                defaultValue={defaultSkillName}
+                {...register("skillName")}
               />
-              <div className="flex-grow overflow-y-auto">
-                <ReactSortable
-                  animation={150}
-                  list={bullets as any}
-                  setList={setBullets as any}
-                  group="Acitivties"
-                  handle=".handle"
-                  className="h-full w-full mb-2"
-                >
-                  {bullets.map((bullet, index) => (
-                    <div key={index} className="ml-1 mt-2 flex">
-                      {" "}
-                      <AutosizeTextarea
-                        className="mb-2 resize-none h-[35px]"
-                        placeholder="Contact Item"
-                        value={bullet.item}
-                        onChange={(e) =>
-                          handleBulletChange(index, "item", e.target.value)
-                        }
-                      />
-                      <AutosizeTextarea
-                        className="mb-2 resize-none h-[35px] ml-2" // Add margin for spacing
-                        placeholder="Enter Link"
-                        value={bullet.href!}
-                        onChange={(e) =>
-                          handleBulletChange(index, "href", e.target.value)
-                        }
-                      />
-                      <Button
-                        className="ml-[5px] flex items-center justify-center w-[110px]"
-                        variant="secondary"
-                        type="button"
-                        disabled={bullets.length <= 1}
-                        onClick={() => handleDeleteBullet(index)}
-                      >
-                        <img
-                          src={DeleteImage}
-                          alt="deleteimg"
-                          className="h-[35px] w-[35px]"
-                        ></img>
-                      </Button>
-                      <div className="h-[40px] w-[40px]">
-                        <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
-                      </div>
-                    </div>
-                  ))}
-                </ReactSortable>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleAddBullet}
-                disabled={bullets.length >= MAX_BULLETS}
-              >
-                {bullets.length >= MAX_BULLETS ? "MAX" : "Add Contact Item"}
-              </Button>
+              <Input
+                className="mb-2 w-full"
+                id="desc"
+                placeholder="Add list of relevant skills"
+                // value={desc}
+                // onChange={(e) => setDesc(e.target.value)}
+                defaultValue={defaultDescription}
+                {...register("description")}
+              />
             </div>
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />

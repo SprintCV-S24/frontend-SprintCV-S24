@@ -10,6 +10,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { checkForDuplicate } from "@/api/itemInterface";
 import DeleteImage from "../../assets/delete.png";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
@@ -38,14 +42,14 @@ export function ProjectItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState(original?.itemName || "");
-  const [projectName, setProjectName] = useState(original?.title || "");
-  const [date, setDate] = useState(original?.year || "");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [projectName, setProjectName] = useState(original?.title || "");
+  // const [date, setDate] = useState(original?.year || "");
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
-  const [technologies, setTechnologies] = useState(
-    original?.technologies || "",
-  );
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  // const [technologies, setTechnologies] = useState(
+  //   original?.technologies || "",
+  // );
+  // const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
@@ -57,7 +61,42 @@ export function ProjectItem({
     storedToken,
   );
 
+  const defaultProjectName = original?.title || "";
+  const defaultTechnologies = original?.technologies || "";
+  const defaultItemName = original?.itemName || "";
+  const defaultDate = original?.year || "";
+
   const mutation = useUpdateItem(queryClient, storedToken);
+
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT) {
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        } else {
+          return true;
+        }
+      }),
+    projectName: Yup.string().required("Project name is required"),
+    technologies: Yup.string().required("Technologies is required"),
+    date: Yup.string().required("Date is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
   useEffect(() => {
     const updateToken = async () => {
@@ -86,7 +125,6 @@ export function ProjectItem({
 
   const resetBullets = () => {
     setBullets([""]);
-    setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -96,28 +134,29 @@ export function ProjectItem({
   };
 
   const resetForm = () => {
-    setProjectName("");
-    setTechnologies("");
-    setDate("");
-    setItemName("");
+    // setProjectName("");
+    // setTechnologies("");
+    // setDate("");
+    // setItemName("");
     setBullets([""]); // Reset bullets
-    setErrorMessage("");
+    setIsOpen(false);
+    // setErrorMessage("");
   };
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
     const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
-    const data: ProjectsType = {
+    const projectData: ProjectsType = {
       user: token!,
-      itemName: itemName,
-      title: projectName,
-      technologies: technologies,
+      itemName: data.itemName,
+      title: data.projectName,
+      technologies: data.technologies,
       bullets: filteredBullets,
-      year: date,
+      year: data.date,
     };
 
     if (submissionType == formSubmissionTypes.EDIT) {
@@ -126,7 +165,7 @@ export function ProjectItem({
         mutation.mutate({
           itemType: resumeItemTypes.PROJECT,
           itemId: originalId!,
-          updatedFields: data,
+          updatedFields: projectData,
         });
 
         setIsOpen(false);
@@ -137,23 +176,15 @@ export function ProjectItem({
       }
     } else {
       try {
-        mutate(data, {
+        mutate(projectData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
             resetForm();
           },
-          onError: (error) => {
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
-          },
+          onError: (error) => {},
         });
-      } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -180,26 +211,45 @@ export function ProjectItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.projectName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.projectName.message}
+          </div>
+        )}
+        {errors.technologies && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.technologies.message}
+          </div>
+        )}
+        {errors.date && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.date.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
+              // value={itemName}
+              // onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Project Name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              defaultValue={defaultProjectName}
+              {...register("projectName")}
+              // value={projectName}
+              // onChange={(e) => setProjectName(e.target.value)}
             />
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
@@ -207,15 +257,19 @@ export function ProjectItem({
                   className="flex-1"
                   id="tech"
                   placeholder="Technologies"
-                  value={technologies}
-                  onChange={(e) => setTechnologies(e.target.value)}
+                  defaultValue={defaultTechnologies}
+                  {...register("technologies")}
+                  // value={technologies}
+                  // onChange={(e) => setTechnologies(e.target.value)}
                 />
                 <Input
                   className="flex-1"
                   id="date"
                   placeholder="Date Range"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  defaultValue={defaultDate}
+                  {...register("date")}
+                  // value={date}
+                  // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
@@ -275,15 +329,13 @@ export function ProjectItem({
               <Button
                 className="mt-2"
                 type="submit"
-                disabled={isPending || projectName == ""}
+                disabled={isPending}
               >
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </>
-                ) : projectName == "" ? (
-                  "Complete form"
                 ) : (
                   "Add Item"
                 )}
@@ -294,7 +346,7 @@ export function ProjectItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || projectName == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -302,16 +354,14 @@ export function ProjectItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : projectName == "" ? (
-                    "Complete form"
-                  ) : (
+                  ) :  (
                     "Save as Copy"
                   )}
                 </Button>{" "}
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || projectName == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
@@ -319,8 +369,6 @@ export function ProjectItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : projectName == "" ? (
-                    "Complete form"
                   ) : (
                     "Save and Replace"
                   )}

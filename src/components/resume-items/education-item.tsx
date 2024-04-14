@@ -9,6 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
@@ -22,6 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { ReactSortable } from "react-sortablejs";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
+import { checkForDuplicate } from "@/api/itemInterface";
 
 interface EducationItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -38,13 +42,18 @@ export function EducationItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState(original?.itemName || "");
-  const [universityName, setUniversityName] = useState(original?.title || "");
-  const [date, setDate] = useState(original?.year || "");
-  const [location, setLocation] = useState(original?.location || "");
-  const [majorMinor, setMajorMinor] = useState(original?.subtitle || "");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [universityName, setUniversityName] = useState(original?.title || "");
+  // const [date, setDate] = useState(original?.year || "");
+  // const [location, setLocation] = useState(original?.location || "");
+  // const [majorMinor, setMajorMinor] = useState(original?.subtitle || "");
+  const defaultMajorMinor = original?.subtitle || "";
+  const defaultUniversity = original?.title || "";
+  const defaultItemName = original?.itemName || "";
+  const defaultLocation = original?.location || "";
+  const defaultDate = original?.year || "";
+
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
-  const [errorMessage, setErrorMessage] = useState("");
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
   >(undefined);
@@ -58,14 +67,45 @@ export function EducationItem({
 
   const mutation = useUpdateItem(queryClient, storedToken);
 
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT) {
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        } else {
+          return true;
+        }
+      }),
+    universityName: Yup.string().required("University is required"),
+    majorMinor: Yup.string().required("Major/Minor is required"),
+    date: Yup.string().required("Date is required"),
+    location: Yup.string().required("Location is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+
   const resetForm = () => {
-    setUniversityName("");
-    setMajorMinor("");
-    setDate("");
-    setItemName("");
-    setBullets([""]); // Reset bullets
-    setLocation("");
-    setErrorMessage("");
+    // setUniversityName("");
+    // setMajorMinor("");
+    // setDate("");
+    // setItemName("");
+    setBullets([""]);
+    setIsOpen(false);
+    // setLocation("");
   };
 
   useEffect(() => {
@@ -96,7 +136,8 @@ export function EducationItem({
 
   const resetBullets = () => {
     setBullets([""]);
-    setErrorMessage("");
+    setIsOpen(false);
+    // setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -107,21 +148,21 @@ export function EducationItem({
 
   // Handling for submission: calls createEducation to add to MongoDB.
   // TODO: Allow for form to close upon submission.
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
     const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
-    const data: EducationType = {
+    const educationData: EducationType = {
       user: token!,
-      itemName: itemName,
+      itemName: data.itemName,
       bullets: filteredBullets,
-      title: universityName,
-      year: date,
-      location: location,
-      subtitle: majorMinor,
+      title: data.universityName,
+      year: data.date,
+      location: data.location,
+      subtitle: data.majorMinor,
     };
 
     if (submissionType == formSubmissionTypes.EDIT) {
@@ -130,7 +171,7 @@ export function EducationItem({
         mutation.mutate({
           itemType: resumeItemTypes.EDUCATION,
           itemId: originalId!,
-          updatedFields: data,
+          updatedFields: educationData,
         });
 
         setIsOpen(false);
@@ -141,22 +182,18 @@ export function EducationItem({
       }
     } else {
       try {
-        mutate(data, {
+        mutate(educationData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
             resetForm();
           },
           onError: (error) => {
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
+            // TODO
           },
         });
       } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
+        // TODO
       }
     }
   };
@@ -184,37 +221,63 @@ export function EducationItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.universityName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.universityName.message}
+          </div>
+        )}
+        {errors.location && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.location.message}
+          </div>
+        )}
+        {errors.date && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.date.message}
+          </div>
+        )}
+        {errors.majorMinor && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.majorMinor.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
+              // value={itemName}
+              // onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="University Name"
-              value={universityName}
-              onChange={(e) => {
-                setUniversityName(e.target.value);
-              }}
+              defaultValue={defaultUniversity}
+              {...register("universityName")}
+              // value={universityName}
+              // onChange={(e) => {
+              //   setUniversityName(e.target.value);
+              // }}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Degree"
-              value={majorMinor}
-              onChange={(e) => {
-                setMajorMinor(e.target.value);
-              }}
+              defaultValue={defaultMajorMinor}
+              {...register("majorMinor")}
+              // value={majorMinor}
+              // onChange={(e) => {
+              //   setMajorMinor(e.target.value);
+              // }}
             />
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
@@ -222,15 +285,19 @@ export function EducationItem({
                   className="flex-1"
                   id="location"
                   placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  defaultValue={defaultLocation}
+                  {...register("location")}
+                  // value={location}
+                  // onChange={(e) => setLocation(e.target.value)}
                 />
                 <Input
                   className="flex-1"
                   id="date"
                   placeholder="Date Range"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  defaultValue={defaultDate}
+                  {...register("date")}
+                  // value={date}
+                  // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
@@ -287,23 +354,12 @@ export function EducationItem({
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={
-                  isPending ||
-                  universityName == "" ||
-                  majorMinor == "" ||
-                  date == ""
-                }
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </>
-                ) : universityName == "" || date == "" || majorMinor == "" ? (
-                  "Complete form"
                 ) : (
                   "Add Item"
                 )}
@@ -314,12 +370,7 @@ export function EducationItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={
-                    isPending ||
-                    universityName == "" ||
-                    majorMinor == "" ||
-                    date == ""
-                  }
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -327,8 +378,6 @@ export function EducationItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : universityName == "" || date == "" || majorMinor == "" ? (
-                    "Complete form"
                   ) : (
                     "Save as Copy"
                   )}
@@ -336,12 +385,7 @@ export function EducationItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={
-                    isPending ||
-                    universityName == "" ||
-                    majorMinor == "" ||
-                    date == ""
-                  }
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
@@ -349,8 +393,6 @@ export function EducationItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : universityName == "" || date == "" || majorMinor == "" ? (
-                    "Complete form"
                   ) : (
                     "Save and Replace"
                   )}

@@ -9,6 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import { Input } from "@/components/ui/input";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
@@ -22,6 +25,7 @@ import { formSubmissionTypes } from "./formSubmissionTypes";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { ReactSortable } from "react-sortablejs";
+import { checkForDuplicate } from "@/api/itemInterface";
 
 interface ExperienceItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -38,17 +42,23 @@ export function ExperienceItem({
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState(original?.itemName || "");
-  const [companyName, setCompanyName] = useState(original?.subtitle || "");
-  const [date, setDate] = useState(original?.year || "");
-  const [location, setLocation] = useState(original?.location || "");
-  const [jobTitle, setjobTitle] = useState(original?.title || "");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [companyName, setCompanyName] = useState(original?.subtitle || "");
+  // const [date, setDate] = useState(original?.year || "");
+  // const [location, setLocation] = useState(original?.location || "");
+  // const [jobTitle, setjobTitle] = useState(original?.title || "");
   const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  // const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
   >(undefined);
+
+  const defaultCompany = original?.subtitle || "";
+  const defaultTitle = original?.title || "";
+  const defaultItemName = original?.itemName || "";
+  const defaultLocation = original?.location || "";
+  const defaultDate = original?.year || "";
 
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddExperience(
@@ -58,14 +68,40 @@ export function ExperienceItem({
 
   const mutation = useUpdateItem(queryClient, storedToken);
 
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT) {
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        } else {
+          return true;
+        }
+      }),
+    companyName: Yup.string().required("Company name is required"),
+    jobTitle: Yup.string().required("Job Title is required"),
+    date: Yup.string().required("Date is required"),
+    location: Yup.string().required("Location is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+
   const resetForm = () => {
-    setCompanyName("");
-    setjobTitle("");
-    setDate("");
-    setItemName("");
-    setBullets([""]); // Reset bullets
-    setLocation("");
-    setErrorMessage("");
+    setBullets([""]); // Reset bullet
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -96,7 +132,7 @@ export function ExperienceItem({
 
   const resetBullets = () => {
     setBullets([""]);
-    setErrorMessage("");
+    // setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -105,21 +141,21 @@ export function ExperienceItem({
     );
   };
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
     const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
-    const data: ExperienceType = {
+    const experienceData: ExperienceType = {
       user: token!,
       bullets: filteredBullets,
-      itemName: itemName,
-      title: jobTitle,
-      subtitle: companyName,
-      year: date,
-      location: location,
+      itemName: data.itemName,
+      title: data.jobTitle,
+      subtitle: data.companyName,
+      year: data.date,
+      location: data.location,
     };
 
     if (submissionType == formSubmissionTypes.EDIT) {
@@ -128,7 +164,7 @@ export function ExperienceItem({
         mutation.mutate({
           itemType: resumeItemTypes.EXPERIENCE,
           itemId: originalId!,
-          updatedFields: data,
+          updatedFields: experienceData,
         });
 
         setIsOpen(false);
@@ -139,7 +175,7 @@ export function ExperienceItem({
       }
     } else {
       try {
-        mutate(data, {
+        mutate(experienceData, {
           onSuccess: (response) => {
             setIsOpen(false);
             setDropdownIsOpen(false);
@@ -147,16 +183,9 @@ export function ExperienceItem({
           },
           onError: (error) => {
             console.log(error);
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
           },
         });
-      } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      } catch (error) {}
     }
   };
 
@@ -183,33 +212,59 @@ export function ExperienceItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.companyName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.companyName.message}
+          </div>
+        )}
+        {errors.location && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.location.message}
+          </div>
+        )}
+        {errors.date && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.date.message}
+          </div>
+        )}
+        {errors.jobTitle && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.jobTitle.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
+              // value={itemName}
+              // onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Company Name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
+              defaultValue={defaultCompany}
+              {...register("companyName")}
+              // value={companyName}
+              // onChange={(e) => setCompanyName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="job-title"
               placeholder="Job Title"
-              value={jobTitle}
-              onChange={(e) => setjobTitle(e.target.value)}
+              defaultValue={defaultTitle}
+              {...register("jobTitle")}
+              // value={jobTitle}
+              // onChange={(e) => setjobTitle(e.target.value)}
             />
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
@@ -217,15 +272,19 @@ export function ExperienceItem({
                   className="flex-1"
                   id="location"
                   placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  defaultValue={defaultLocation}
+                  {...register("location")}
+                  // value={location}
+                  // onChange={(e) => setLocation(e.target.value)}
                 />
                 <Input
                   className="flex-1"
                   id="date"
                   placeholder="Date Range"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  defaultValue={defaultDate}
+                  {...register("date")}
+                  // value={date}
+                  // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
@@ -282,18 +341,12 @@ export function ExperienceItem({
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending || companyName == "" || date == ""}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </>
-                ) : companyName == "" || date == "" ? (
-                  "Complete form"
                 ) : (
                   "Add Item"
                 )}
@@ -304,7 +357,7 @@ export function ExperienceItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || companyName == "" || date == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
                 >
                   {isPending ? (
@@ -312,8 +365,6 @@ export function ExperienceItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : companyName == "" || date == "" ? (
-                    "Complete form"
                   ) : (
                     "Save as Copy"
                   )}
@@ -321,7 +372,7 @@ export function ExperienceItem({
                 <Button
                   className="mt-2"
                   type="submit"
-                  disabled={isPending || companyName == "" || date == ""}
+                  disabled={isPending}
                   onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
                 >
                   {isPending ? (
@@ -329,8 +380,6 @@ export function ExperienceItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) : companyName == "" || date == "" ? (
-                    "Complete form"
                   ) : (
                     "Save and Replace"
                   )}
