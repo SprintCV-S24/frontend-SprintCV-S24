@@ -548,6 +548,9 @@ export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
   latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(
     skillsObj.description,
   )}} \\\\`;
+
+    
+
   latexString += "}}\n\\end{itemize}\n";
 
   return latexString;
@@ -587,12 +590,10 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
 };
 
 export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
-  let latexString = `\n\\resumeSubheading{${sanitize(
-    activityObj.title,
-  )}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.subtitle)}, ${sanitize(
-    activityObj.location,
-  )}}
+    
+  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title,)},${sanitize(activityObj.location,)}}{${sanitize(activityObj.year)}}
     `;
+
 
   if (activityObj.bullets.length > 0) {
     latexString += "\\resumeItemListStart\n";
