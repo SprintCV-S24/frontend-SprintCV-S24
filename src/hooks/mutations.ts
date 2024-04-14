@@ -15,6 +15,7 @@ import {
   updateResume,
   deleteResume,
 } from "@/api/resumeInterface";
+import { useImageCacheStore } from "./imageCache";
 
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
@@ -32,8 +33,6 @@ import {
   updateItem,
 } from "@/api/resumeItemInterface";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
-
-
 
 export const useAddActivity = (
   queryClient: QueryClient,
@@ -158,6 +157,8 @@ export const useUpdateItem = (
   queryClient: QueryClient,
   token: string | undefined,
 ) => {
+  const invalidateItem = useImageCacheStore((state) => state.invalidateItem);
+
   return useMutation({
     mutationFn: async ({
       itemType,
@@ -175,7 +176,8 @@ export const useUpdateItem = (
       console.log(updatedFields);
       return await updateItem(itemType, itemId, updatedFields, token);
     },
-    onSuccess: () => {
+    onSuccess: (_, { itemId }) => {
+      invalidateItem(itemId);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });
@@ -283,6 +285,8 @@ export const useDeleteItem = (
   queryClient: QueryClient,
   token: string | undefined,
 ) => {
+  const invalidateItem = useImageCacheStore((state) => state.invalidateItem);
+
   return useMutation({
     mutationFn: async ({
       itemType,
@@ -296,7 +300,8 @@ export const useDeleteItem = (
       }
       return await deleteItem(itemType, itemId, token);
     },
-    onSuccess: () => {
+    onSuccess: (_, { itemId }) => {
+      invalidateItem(itemId);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });

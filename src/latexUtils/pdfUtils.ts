@@ -102,6 +102,7 @@ export const usePngRenderer = (
   setImageSrc: Dispatch<SetStateAction<string>>,
   setError: Dispatch<SetStateAction<string | null>>,
   onRenderEnd: (() => void) | undefined,
+  setCachedUrl: (dataUrl: string) => void,
 ) => {
   //I don't think this matters now that we are using images
   const width = 500;
@@ -173,6 +174,7 @@ export const usePngRenderer = (
                 page.render(renderContext).promise.then(() => {
                   const dataUrl = canvas.toDataURL("image/png");
                   setImageSrc(dataUrl);
+				  setCachedUrl(dataUrl);
                   if (onRenderEnd != null) {
                     onRenderEnd();
                   }

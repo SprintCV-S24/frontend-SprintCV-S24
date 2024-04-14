@@ -287,6 +287,7 @@ const Editor: React.FC = () => {
                             onRenderStart={() => setDummy(dummy)}
                             onRenderEnd={() => setDummy(dummy)}
                             latexCode={generateLatex(item)}
+														itemId={item._id}
                           ></LatexImage>
                         </div>
                         <DropdownMenu
@@ -376,6 +377,7 @@ const Editor: React.FC = () => {
                         onRenderStart={() => setDummy(dummy)}
                         onRenderEnd={() => setDummy(dummy)}
                         latexCode={generateLatex(item)}
+												itemId={item._id}
                       ></LatexImage>
                     </div>
                   ))}
