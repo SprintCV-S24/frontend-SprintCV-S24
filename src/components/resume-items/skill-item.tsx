@@ -79,6 +79,7 @@ export function SkillItem({
   const {
     handleSubmit,
     register,
+    reset, // Destructure reset function
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -86,8 +87,12 @@ export function SkillItem({
 
   const resetForm = () => {
     setIsOpen(false);
-    // setSkill(""), setItemName(""), setDesc("");
-    // setErrorMessage("");
+    setSubmissionType(undefined);
+    reset({
+      itemName: defaultItemName,
+      skillName: defaultSkillName,
+      description: defaultDescription,
+    });
   };
 
   useEffect(() => {
@@ -147,7 +152,14 @@ export function SkillItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}

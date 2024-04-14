@@ -93,19 +93,23 @@ export function EducationItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
   const resetForm = () => {
-    // setUniversityName("");
-    // setMajorMinor("");
-    // setDate("");
-    // setItemName("");
-    setBullets([""]);
     setIsOpen(false);
-    // setLocation("");
+    setSubmissionType(undefined);
+    resetBullets();
+    reset({
+      itemName: defaultItemName,
+      universityName: defaultUniversity,
+      majorMinor: defaultMajorMinor,
+      location: defaultLocation,
+      date: defaultDate,
+    });
   };
 
   useEffect(() => {
@@ -136,8 +140,6 @@ export function EducationItem({
 
   const resetBullets = () => {
     setBullets([""]);
-    setIsOpen(false);
-    // setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -199,15 +201,19 @@ export function EducationItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >

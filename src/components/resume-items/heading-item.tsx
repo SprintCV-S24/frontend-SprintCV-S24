@@ -87,15 +87,20 @@ export function HeadingItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
   const resetForm = () => {
-    // setHeading(""), setItemName("");
-    setBullets([]); // Reset bullets
-    // setErrorMessage("");
+    setIsOpen(false);
+    setSubmissionType(undefined);
+    resetBullets();
+    reset({
+      itemName: defaultItemName,
+      heading: defaultHeading,
+    });
   };
 
   useEffect(() => {
@@ -182,15 +187,19 @@ export function HeadingItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >
@@ -229,7 +238,7 @@ export function HeadingItem({
                 {...register("heading")}
                 // value={heading}
                 // onChange={(e) => setHeading(e.target.value)}
-              />  
+              />
               {errors.heading && (
                 <div className="error-message text-red-400 font-bold">
                   {errors.heading.message}
@@ -322,7 +331,7 @@ export function HeadingItem({
                   ) : (
                     "Save as Copy"
                   )}
-                </Button>{" "}
+                </Button>
                 <Button
                   className="mt-2"
                   type="submit"
@@ -337,7 +346,7 @@ export function HeadingItem({
                   ) : (
                     "Save and Replace"
                   )}
-                </Button>{" "}
+                </Button>
               </div>
             )}
             <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>

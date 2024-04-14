@@ -56,7 +56,6 @@ export function ExtracurricularItem({
   const defaultLocation = original?.location || "";
   const defaultDate = original?.year || "";
 
-  const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
@@ -96,6 +95,7 @@ export function ExtracurricularItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -126,11 +126,6 @@ export function ExtracurricularItem({
     setBullets((prev) => prev.map((resp, i) => (i === index ? value : resp)));
   };
 
-  const resetBullets = () => {
-    setBullets([""]);
-    setErrorMessage("");
-  };
-
   const handleDeleteBullet = (index: number) => {
     setBullets((prevResponsibilities) =>
       prevResponsibilities.filter((_, i) => i !== index),
@@ -140,17 +135,14 @@ export function ExtracurricularItem({
   const resetForm = () => {
     setBullets([""]); // Reset bullets
     setIsOpen(false);
+    reset({
+      itemName: defaultItemName,
+      orgName: defaultOrgName,  
+      role: defaultRole,
+      date: defaultDate,
+      location: defaultLocation
+    });
   };
-
-  // const resetForm = () => {
-  //   setOrgName("");
-  //   setRole("");
-  //   setDate("");
-  //   setItemName("");
-  //   setBullets([""]); // Reset bullets
-  //   setLocation("");
-  //   setErrorMessage("");
-  // };
 
   const handleFormSubmit = async (data: any) => {
     // event.preventDefault();
@@ -192,29 +184,27 @@ export function ExtracurricularItem({
             resetForm();
           },
           onError: (error) => {
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
           },
         });
       } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
       }
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >

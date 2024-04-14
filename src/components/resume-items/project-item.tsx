@@ -93,6 +93,7 @@ export function ProjectItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -123,10 +124,6 @@ export function ProjectItem({
     setBullets((prev) => prev.map((resp, i) => (i === index ? value : resp)));
   };
 
-  const resetBullets = () => {
-    setBullets([""]);
-  };
-
   const handleDeleteBullet = (index: number) => {
     setBullets((prevResponsibilities) =>
       prevResponsibilities.filter((_, i) => i !== index),
@@ -134,13 +131,14 @@ export function ProjectItem({
   };
 
   const resetForm = () => {
-    // setProjectName("");
-    // setTechnologies("");
-    // setDate("");
-    // setItemName("");
     setBullets([""]); // Reset bullets
     setIsOpen(false);
-    // setErrorMessage("");
+    reset({
+      itemName: defaultItemName,
+      projectName: defaultProjectName,  
+      technologies: defaultTechnologies,
+      date: defaultDate,
+    });
   };
 
   const handleFormSubmit = async (data: any) => {
@@ -189,15 +187,19 @@ export function ProjectItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >

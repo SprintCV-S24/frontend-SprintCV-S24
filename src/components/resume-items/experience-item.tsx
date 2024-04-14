@@ -94,6 +94,7 @@ export function ExperienceItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -102,6 +103,13 @@ export function ExperienceItem({
   const resetForm = () => {
     setBullets([""]); // Reset bullet
     setIsOpen(false);
+    reset({
+      itemName: defaultItemName,
+      companyName: defaultCompany,  
+      jobTitle: defaultTitle,
+      date: defaultDate,
+      location: defaultLocation
+    });
   };
 
   useEffect(() => {
@@ -190,15 +198,19 @@ export function ExperienceItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >
