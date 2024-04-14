@@ -217,6 +217,15 @@ export function getLatexContentSizedPreamble(): string {
         
       \\end{tabular*}\\vspace{-7pt}
   }
+
+  \\newcommand{\\resumeSubheadingTwo}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\small#3} &  \\textit{\\small #4} \\\\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
   
   
   \\newcommand{\\resumeSingleSubheading}[4]{
@@ -477,8 +486,8 @@ export const generateProjectLatex = (activityObj: ProjectsType) => {
 };
 
 export const generateProjectLatexHelper = (activityObj: ProjectsType) => {
-  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.title,)}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.technologies  ?? '',
-  )}}
+  let latexString = `\n\\resumeSubheadingTwo{${sanitize(activityObj.title,)}}{}{${sanitize(activityObj.technologies  ?? '',
+  )}}{${sanitize(activityObj.year)}}
     `;
 
   if (activityObj.bullets.length > 0) {
@@ -504,7 +513,7 @@ const projectData: ProjectsType = {
     "Collaborated with product and design teams to deliver high-quality user experiences",
     "Mentored junior developers and conducted code reviews to maintain code quality",
   ],
-  title: "DEF Company",
+  title: "This is myy project ",
   technologies: "React GoodCode Jamal Najib",
   year: "2020 - Present",
 };
@@ -545,7 +554,14 @@ export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
 };
 
 
+const skillsData: SkillsType = {
+  user: "janesmith",
+  itemName: "Technical Skills",
+  title: "Programming Languages",
+  description: "JavaScript, Python, Java, C++, HTML/CSS",
+};
 
+export const skillsMock = generateSkillsLatex(skillsData);
 
 /*  ------------------------------------------------- */
 /*  -------------------Activity-------------------- */
