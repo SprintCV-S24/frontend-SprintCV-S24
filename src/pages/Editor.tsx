@@ -232,7 +232,7 @@ const Editor: React.FC = () => {
           <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
-      <div className="flex flex-row bg-[#E7ECEF] h-screen">
+      <div className="flex flex-row bg-[#E7ECEF] h-screen overflow-y-auto">
         <div className="w-1/2 p-4 flex-col">
           <Card className="h-12 ">
             <div className="flex items-center justify-between">

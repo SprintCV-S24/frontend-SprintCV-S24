@@ -27,6 +27,7 @@ import { useUpdateItem } from "@/hooks/mutations";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { checkForDuplicate } from "@/api/itemInterface";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface ActivityItemsProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -47,7 +48,7 @@ export function ExtracurricularItem({
   // const [role, setRole] = useState(original?.title || "");
   // const [date, setDate] = useState(original?.year || "");
   // const [itemName, setItemName] = useState(original?.itemName || "");
-  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || [""]);
   // const [location, setLocation] = useState(original?.location || "");
 
   const defaultOrgName = original?.subtitle || "";
@@ -137,10 +138,10 @@ export function ExtracurricularItem({
     setIsOpen(false);
     reset({
       itemName: defaultItemName,
-      orgName: defaultOrgName,  
+      orgName: defaultOrgName,
       role: defaultRole,
       date: defaultDate,
-      location: defaultLocation
+      location: defaultLocation,
     });
   };
 
@@ -183,11 +184,9 @@ export function ExtracurricularItem({
             setDropdownIsOpen(false);
             resetForm();
           },
-          onError: (error) => {
-          },
+          onError: (error) => {},
         });
-      } catch (error) {
-      }
+      } catch (error) {}
     }
   };
 
@@ -219,7 +218,7 @@ export function ExtracurricularItem({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)}>
-          <div className="grid grid-cols-2 gap-4 flex">
+          <div className="grid grid-cols-2 gap-4 flex max-h-[70vh]">
             <Input
               className="col-span-2"
               id="item-name"
@@ -302,12 +301,14 @@ export function ExtracurricularItem({
                   setList={setBullets as any}
                   group="Acitivties"
                   handle=".handle"
-                  className="h-full w-full mb-2"
+                  className="h-full max-h-[15vh] w-full mb-2"
                 >
                   {bullets &&
                     bullets.map((bullet, index) => (
-                      <div key={index} className="ml-1 mt-2 flex">
-                        {" "}
+                      <div key={index} className="mt-2 flex">
+                        <div className="h-[40px] w-[40px]">
+                          <DragHandleHorizontalIcon className="handle w-full h-full mr-1"></DragHandleHorizontalIcon>
+                        </div>{" "}
                         <AutosizeTextarea
                           className="mb-2 resize-none h-[35px]"
                           placeholder="Description"
@@ -329,9 +330,6 @@ export function ExtracurricularItem({
                             className="h-[40px] w-[40px]"
                           ></img>
                         </Button>
-                        <div className="h-[40px] w-[40px]">
-                          <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
-                        </div>
                       </div>
                     ))}
                 </ReactSortable>
