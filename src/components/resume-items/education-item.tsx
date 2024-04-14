@@ -221,31 +221,6 @@ export function EducationItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.universityName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.universityName.message}
-          </div>
-        )}
-        {errors.location && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.location.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
-        {errors.majorMinor && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.majorMinor.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -257,6 +232,11 @@ export function EducationItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -268,6 +248,11 @@ export function EducationItem({
               //   setUniversityName(e.target.value);
               // }}
             />
+            {errors.universityName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.universityName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -279,6 +264,11 @@ export function EducationItem({
               //   setMajorMinor(e.target.value);
               // }}
             />
+            {errors.majorMinor && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.majorMinor.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -300,6 +290,16 @@ export function EducationItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.location && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.location.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">

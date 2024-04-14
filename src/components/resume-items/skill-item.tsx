@@ -166,21 +166,6 @@ export function SkillItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.skillName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.skillName.message}
-          </div>
-        )}
-        {errors.description && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.description.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col col-span-2">
@@ -193,6 +178,11 @@ export function SkillItem({
                 defaultValue={defaultItemName}
                 {...register("itemName")}
               />
+              {errors.itemName && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.itemName.message}
+                </div>
+              )}
               <Input
                 className="mb-2 w-full"
                 id="skill-name"
@@ -202,6 +192,11 @@ export function SkillItem({
                 defaultValue={defaultSkillName}
                 {...register("skillName")}
               />
+              {errors.skillName && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.skillName.message}
+                </div>
+              )}
               <Input
                 className="mb-2 w-full"
                 id="desc"
@@ -211,6 +206,11 @@ export function SkillItem({
                 defaultValue={defaultDescription}
                 {...register("description")}
               />
+              {errors.description && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.description.message}
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

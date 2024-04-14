@@ -76,7 +76,7 @@ export function SubheadingItem({
           }
         },
       ),
-    subtitle: Yup.string().required("Subtitle is required"),
+    subtitle: Yup.string().required("Title is required"),
   });
 
   const {

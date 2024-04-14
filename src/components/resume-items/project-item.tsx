@@ -211,26 +211,6 @@ export function ProjectItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.projectName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.projectName.message}
-          </div>
-        )}
-        {errors.technologies && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.technologies.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -242,6 +222,11 @@ export function ProjectItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -251,6 +236,11 @@ export function ProjectItem({
               // value={projectName}
               // onChange={(e) => setProjectName(e.target.value)}
             />
+            {errors.projectName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.projectName.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -272,6 +262,16 @@ export function ProjectItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.technologies && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.technologies.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
@@ -326,11 +326,7 @@ export function ProjectItem({
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -354,7 +350,7 @@ export function ProjectItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) :  (
+                  ) : (
                     "Save as Copy"
                   )}
                 </Button>{" "}

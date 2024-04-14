@@ -75,7 +75,7 @@ export function ExtracurricularItem({
       .required("Item Name is required")
       .test("unique-item-name", "Item Name already exists", async (value) => {
         // This code is a bit sloppy but works for now.
-        if (submissionType !== formSubmissionTypes.EDIT){
+        if (submissionType !== formSubmissionTypes.EDIT) {
           try {
             const response = await checkForDuplicate(value, storedToken!);
             return !response; // Return true if item name doesn't exist
@@ -83,7 +83,7 @@ export function ExtracurricularItem({
             console.error("Error checking item name existence:", error);
             return false; // Return false to indicate validation failure
           }
-        }else {
+        } else {
           return true;
         }
       }),
@@ -184,7 +184,6 @@ export function ExtracurricularItem({
         console.error("Error updating item:", error);
       }
     } else {
-      console.log(activityData);
       try {
         mutate(activityData, {
           onSuccess: (response) => {
@@ -229,31 +228,6 @@ export function ExtracurricularItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.orgName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.orgName.message}
-          </div>
-        )}
-        {errors.location && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.location.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
-        {errors.role && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.role.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -265,6 +239,11 @@ export function ExtracurricularItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="org-name"
@@ -274,6 +253,11 @@ export function ExtracurricularItem({
               // value={orgName}
               // onChange={(e) => setOrgName(e.target.value)}
             />
+            {errors.orgName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.orgName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -283,6 +267,11 @@ export function ExtracurricularItem({
               // value={role}
               // onChange={(e) => setRole(e.target.value)}
             />
+            {errors.role && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.role.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -304,6 +293,16 @@ export function ExtracurricularItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.location && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.location.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">

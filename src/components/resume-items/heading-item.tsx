@@ -204,16 +204,6 @@ export function HeadingItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.heading && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.heading.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <div className="flex flex-col col-span-2">
@@ -226,6 +216,11 @@ export function HeadingItem({
                 // value={itemName}
                 // onChange={(e) => setItemName(e.target.value)}
               />
+              {errors.itemName && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.itemName.message}
+                </div>
+              )}
               <Input
                 className="mb-2 w-full"
                 id="item-name"
@@ -234,7 +229,12 @@ export function HeadingItem({
                 {...register("heading")}
                 // value={heading}
                 // onChange={(e) => setHeading(e.target.value)}
-              />
+              />  
+              {errors.heading && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.heading.message}
+                </div>
+              )}
               <div className="flex-grow overflow-y-auto">
                 <ReactSortable
                   animation={150}
@@ -295,11 +295,7 @@ export function HeadingItem({
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />

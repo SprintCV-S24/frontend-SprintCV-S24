@@ -212,31 +212,6 @@ export function ExperienceItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.companyName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.companyName.message}
-          </div>
-        )}
-        {errors.location && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.location.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
-        {errors.jobTitle && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.jobTitle.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
@@ -248,6 +223,11 @@ export function ExperienceItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -257,6 +237,11 @@ export function ExperienceItem({
               // value={companyName}
               // onChange={(e) => setCompanyName(e.target.value)}
             />
+            {errors.companyName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.companyName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="job-title"
@@ -266,6 +251,11 @@ export function ExperienceItem({
               // value={jobTitle}
               // onChange={(e) => setjobTitle(e.target.value)}
             />
+            {errors.jobTitle && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.jobTitle.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -287,6 +277,16 @@ export function ExperienceItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.location && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.location.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
