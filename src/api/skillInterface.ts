@@ -46,6 +46,27 @@ export const getSkillById = async (itemId: string, token: string): Promise<Skill
 	};
 };
 
+// update a skill item
+export const updateSkill = async (
+	updatedFields: Partial<SkillsType>,
+	itemId: string,
+	token: string,
+  ): Promise<SkillServerExplicitType> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+	  method: "PUT",
+	  body: JSON.stringify(updatedFields),
+	  headers: {
+		"Content-Type": "application/json",
+		Authorization: `Bearer ${token}`,
+	  },
+	});
+	const skill = await handleJsonResponse(response);
+	return {
+	  ...skill,
+	  type: resumeItemTypes.SKILL,
+	};
+  };
+
 // Delete skill item
 export const deleteSkill = async (itemId: string, token: string): Promise<SkillServerExplicitType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {

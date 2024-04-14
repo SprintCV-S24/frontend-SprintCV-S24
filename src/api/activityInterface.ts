@@ -22,7 +22,9 @@ export const createActivity = async (
 };
 
 // GET all activities
-export const getAllActivities = async (token: string): Promise<ActivitiesServerExplicitType[]> => {
+export const getAllActivities = async (
+  token: string,
+): Promise<ActivitiesServerExplicitType[]> => {
   const response = await fetch(`${BACKEND_ROUTE}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -30,33 +32,60 @@ export const getAllActivities = async (token: string): Promise<ActivitiesServerE
   });
 
   const activities = await handleJsonResponse(response);
-	return activities.map((activity: ActivitiesType) => ({
+  return activities.map((activity: ActivitiesType) => ({
     ...activity,
     type: resumeItemTypes.ACTIVITY,
   }));
 };
 
 // GET one activity item
-export const getActivityById = async (itemId: string, token: string): Promise<ActivitiesServerExplicitType> => {
+export const getActivityById = async (
+  itemId: string,
+  token: string,
+): Promise<ActivitiesServerExplicitType> => {
   const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   const activity = await handleJsonResponse(response);
-	return {
-		...activity,
-		type: resumeItemTypes.ACTIVITY,
-	};
+  return {
+    ...activity,
+    type: resumeItemTypes.ACTIVITY,
+  };
+};
+
+// update an activity item
+export const updateActivity = async (
+  updatedFields: Partial<ActivitiesType>,
+  itemId: string,
+  token: string,
+): Promise<ActivitiesServerExplicitType> => {
+  const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify(updatedFields),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const activity = await handleJsonResponse(response);
+  return {
+    ...activity,
+    type: resumeItemTypes.ACTIVITY,
+  };
 };
 
 // Delete activity item
-export const deleteActivity = async (itemId: string, token: string): Promise<ActivitiesServerExplicitType | null> => {
-	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
-		method: "DELETE",
+export const deleteActivity = async (
+  itemId: string,
+  token: string,
+): Promise<ActivitiesServerExplicitType | null> => {
+  const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   return await handleJsonResponse(response);
-}
+};

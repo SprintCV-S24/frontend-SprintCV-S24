@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogClose,
@@ -16,26 +19,76 @@ import { SectionHeadingsType } from "@/api/models/interfaces";
 import { useAddSectionHeading } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { formSubmissionTypes } from "./formSubmissionTypes";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { useUpdateItem } from "@/hooks/mutations";
+import { checkForDuplicate } from "@/api/itemInterface";
 
-export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface SubheadingItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: SectionHeadingsType; // Mark as optional with '?'
+  originalId?: string;
+}
+
+export function SubheadingItem({
+  setDropdownIsOpen,
+  original,
+  originalId,
+}: SubheadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
-  const [isOpen, setIsOpen] = useState(false);
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [subtitle, setSubtitle] = useState(original?.title || "");
+  // const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const defaultItemName = original?.itemName || "";
+  const defaultSubtitle = original?.title || "";
 
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
+  const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
   const { mutate, isPending, isError } = useAddSectionHeading(
     queryClient,
     storedToken,
   );
+  const mutation = useUpdateItem(queryClient, storedToken);
+
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test(
+        "unique-item-name",
+        "Item Name already exists",
+        async value => {
+          // This code is a bit sloppy but works for now.
+          if (submissionType !== formSubmissionTypes.EDIT)
+            try {
+              const response = await checkForDuplicate(value, storedToken!);
+              return !response; // Return true if item name doesn't exist
+            } catch (error) {
+              console.error("Error checking item name existence:", error);
+              return false; // Return false to indicate validation failure
+            }
+          else {
+            return true;
+          }
+        },
+      ),
+    subtitle: Yup.string().required("Subtitle is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
   const resetForm = () => {
-    setSubtitle("");
-    setItemName("");
-    setErrorMessage("");
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -51,32 +104,51 @@ export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
     void updateToken();
   }, [currentUser]);
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
-    const data: SectionHeadingsType = {
+    const headingData: SectionHeadingsType = {
       user: token!,
-      itemName: itemName,
-      title: subtitle,
+      itemName: data.itemName,
+      title: data.subtitle,
     };
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-					setDropdownIsOpen(false);
-          resetForm();
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.SECTIONHEADING,
+          itemId: originalId!,
+          updatedFields: headingData,
+        });
+
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(headingData, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            // setErrorMessage(
+            //   "Error: Unable to submit form. Please try again later.",
+            // );
+          },
+        });
+      } catch (error) {
+        // setErrorMessage(
+        //   "Error: Unable to submit form. Please try again later.",
+        // );
+      }
     }
   };
 
@@ -84,13 +156,13 @@ export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left h-full w-full"
+          className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
             setIsOpen(true);
           }}
         >
-          Subheading
+          {original ? "Edit" : "Subheading"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -100,46 +172,81 @@ export function SubheadingItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
-          <div className="error-message text-red-400 font-bold">
-            {errorMessage}
-          </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
-          <div className="gap-4 flex">
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <div className="gap-4 flex flex-col">
             <Input
               className="w-full"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="w-full"
               id="item-name"
               placeholder="Title"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
+              defaultValue={defaultSubtitle}
+              {...register("subtitle")}
             />
+            {errors.subtitle && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.subtitle.message}
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button
-              className="mt-2"
-              type="submit"
-              disabled={isPending || subtitle == ""}
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : subtitle == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>
-            <DialogClose asChild></DialogClose>
+            {!original && (
+              <Button className="mt-2" type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,4 +1,8 @@
-import { useMutation, QueryClient, UseMutateFunction } from "@tanstack/react-query";
+import {
+  useMutation,
+  QueryClient,
+  UseMutateFunction,
+} from "@tanstack/react-query";
 import { createActivity } from "../api/activityInterface";
 import { createEducation } from "../api/educationInterface";
 import { createExperience } from "../api/experienceInterface";
@@ -6,7 +10,13 @@ import { createHeading } from "../api/headerInterface";
 import { createProject } from "../api/projectInterface";
 import { createSectionHeading } from "../api/sectionHeadingInterface";
 import { createSkill } from "../api/skillInterface";
-import { createResume, updateResume, deleteResume } from "@/api/resumeInterface";
+import {
+  createResume,
+  updateResume,
+  deleteResume,
+} from "@/api/resumeInterface";
+import { useImageCacheStore } from "./imageCache";
+
 import { ActivitiesType } from "@/api/models/interfaces";
 import { EducationType } from "@/api/models/interfaces";
 import { ExperienceType } from "@/api/models/interfaces";
@@ -17,8 +27,13 @@ import { SkillsType } from "@/api/models/interfaces";
 import { ResumesType } from "@/api/models/interfaces";
 import { ResumesServerType } from "@/api/models/resumeModel";
 import { BaseItem } from "@/api/models/interfaces";
-import { deleteItem } from "@/api/resumeItemInterface";
+import {
+  deleteItem,
+  itemUpdatedFields,
+  updateItem,
+} from "@/api/resumeItemInterface";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+
 
 export const useAddActivity = (
   queryClient: QueryClient,
@@ -37,10 +52,7 @@ export const useAddActivity = (
   });
 };
 
-export const useAddEducation = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddEducation = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (education: EducationType) => {
       if (token === undefined) {
@@ -54,10 +66,7 @@ export const useAddEducation = (
   });
 };
 
-export const useAddExperience = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddExperience = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (experience: ExperienceType) => {
       if (token === undefined) {
@@ -71,10 +80,7 @@ export const useAddExperience = (
   });
 };
 
-export const useAddHeading = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddHeading = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (heading: HeadingsType) => {
       if (token === undefined) {
@@ -88,10 +94,7 @@ export const useAddHeading = (
   });
 };
 
-export const useAddProject = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddProject = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (project: ProjectsType) => {
       if (token === undefined) {
@@ -105,10 +108,7 @@ export const useAddProject = (
   });
 };
 
-export const useAddSectionHeading = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddSectionHeading = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (sectionHeading: SectionHeadingsType) => {
       if (token === undefined) {
@@ -122,10 +122,7 @@ export const useAddSectionHeading = (
   });
 };
 
-export const useAddSkill = (
-  queryClient: QueryClient,
-  token: string | undefined,
-) => {
+export const useAddSkill = (queryClient: QueryClient, token: string | undefined) => {
   return useMutation({
     mutationFn: async (skill: SkillsType) => {
       if (token === undefined) {
@@ -134,6 +131,36 @@ export const useAddSkill = (
       return await createSkill(skill, token);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["items"] });
+    },
+  });
+};
+
+export const useUpdateItem = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
+  const invalidateItem = useImageCacheStore((state) => state.invalidateItem);
+
+  return useMutation({
+    mutationFn: async ({
+      itemType,
+      itemId,
+      updatedFields,
+    }: {
+      itemType: resumeItemTypes;
+      itemId: string;
+      updatedFields: itemUpdatedFields;
+    }) => {
+      if (token === undefined) {
+        throw new Error("Token is undefined");
+      }
+      console.log("First Layer");
+      console.log(updatedFields);
+      return await updateItem(itemType, itemId, updatedFields, token);
+    },
+    onSuccess: (_, { itemId }) => {
+      invalidateItem(itemId);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });
@@ -215,36 +242,49 @@ export const createCustomSetItemsInBank = (
       | undefined
     >
   >,
-): ((newItems: Array<BaseItem & {
-	id: string;
-}>) => void) => {
+): ((
+  newItems: Array<
+    BaseItem & {
+      id: string;
+    }
+  >,
+) => void) => {
   const customSetItemsInBank = (newItems: Array<BaseItem & { id: string }>) => {
+    // console.log("running customsetitems");
 
-		const idArr = newItems.map(item => item.id);
-		const updatedFields = {itemIds: idArr};
+    const idArr = newItems.map((item) => item.id);
+    const updatedFields = { itemIds: idArr };
 
     // console.log("Updated Fields");
     // console.log(updatedFields);
-    
-    mutateFn({updatedFields, resumeId});
-    setItemsInResume(newItems);
 
+    mutateFn({ updatedFields, resumeId });
+    setItemsInResume(newItems);
   };
-	return customSetItemsInBank;
+  return customSetItemsInBank;
 };
 
 export const useDeleteItem = (
   queryClient: QueryClient,
   token: string | undefined,
 ) => {
+  const invalidateItem = useImageCacheStore((state) => state.invalidateItem);
+
   return useMutation({
-    mutationFn: async ({ itemType, itemId }: { itemType: resumeItemTypes, itemId: string }) => {
+    mutationFn: async ({
+      itemType,
+      itemId,
+    }: {
+      itemType: resumeItemTypes;
+      itemId: string;
+    }) => {
       if (token === undefined) {
         throw new Error("Token is undefined");
       }
       return await deleteItem(itemType, itemId, token);
     },
-    onSuccess: () => {
+    onSuccess: (_, { itemId }) => {
+      invalidateItem(itemId);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });

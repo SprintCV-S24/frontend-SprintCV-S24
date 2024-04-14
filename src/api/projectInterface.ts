@@ -49,6 +49,27 @@ export const getProjectById = async (itemId: string, token: string): Promise<Pro
 	};
 };
 
+// update an project item
+export const updateProject = async (
+	updatedFields: Partial<ProjectsType>,
+	itemId: string,
+	token: string,
+  ): Promise<ProjectServerExplicitType> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+	  method: "PUT",
+	  body: JSON.stringify(updatedFields),
+	  headers: {
+		"Content-Type": "application/json",
+		Authorization: `Bearer ${token}`,
+	  },
+	});
+	const project = await handleJsonResponse(response);
+	return {
+	  ...project,
+	  type: resumeItemTypes.PROJECT,
+	};
+  };
+
 // Delete project item
 export const deleteProject = async (itemId: string, token: string): Promise<ProjectServerExplicitType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {

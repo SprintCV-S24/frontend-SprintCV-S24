@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
-import { usePdfRenderer, usePngRenderer } from "@/latexUtils/pdfUtils";
+import { usePngRenderer } from "@/latexUtils/pdfUtils";
+import { useImageCacheStore } from "@/hooks/imageCache";
 
 const testLatex = `\\documentclass[12pt]{article}
 \\usepackage{lingmacros}
@@ -192,9 +193,12 @@ const testLatex2 = `
 //  is being called twice)
 export const LatexImage: React.FC<{
   latexCode: string;
+  itemId: string;
   onRenderStart?: () => void;
   onRenderEnd?: () => void;
-}> = ({ latexCode, onRenderStart, onRenderEnd }) => {
+}> = ({ latexCode, itemId, onRenderStart, onRenderEnd }) => {
+  const setItem = useImageCacheStore((state) => state.setItem);
+  const getItem = useImageCacheStore((state) => state.getItem);
 
   //TODO: improve error handling and possibly move it somewhere else
   const [error, setError] = useState<string | null>(null);
@@ -203,32 +207,37 @@ export const LatexImage: React.FC<{
   const [imageSrc, setImageSrc] = useState("");
 
   //This custom hook renders an image using the provided blob
-  usePngRenderer(blob, canvasRef, setImageSrc, setError, onRenderEnd);
+  usePngRenderer(blob, canvasRef, setImageSrc, setError, onRenderEnd, (dataUrl) => setItem(itemId, dataUrl));
 
   //Once the component mounts, generate the blob that will be used to render the pdf
   useEffect(() => {
-    onRenderStart?.(); // Call if callback is provided
+    const cachedUrl = getItem(itemId);
+    if (cachedUrl != null) {
+      setImageSrc(cachedUrl);
+    } else {
+      onRenderStart?.(); // Call if callback is provided
 
-    const canvas = document.createElement("canvas");
-    canvasRef.current = canvas;
+      const canvas = document.createElement("canvas");
+      canvasRef.current = canvas;
 
-    generatePdfBlobSafe(latexCode)
-      .then((res) => {
-        setBlob(res);
-        onRenderEnd?.();
-      })
-      .catch((err) => {
-        setError("Error rendering latex");
-        console.log(err);
-        onRenderEnd?.();
-      });
+      generatePdfBlobSafe(latexCode)
+        .then((res) => {
+          setBlob(res);
+          onRenderEnd?.();
+        })
+        .catch((err) => {
+          setError("Error rendering latex");
+          console.log(err);
+          onRenderEnd?.();
+        });
+    }
   }, [latexCode]);
 
   //TODO: improve loading and error styling
   if (error != null) return <div>{error}</div>;
 
-	//it ends up working better checking imageSrc directly rather than having a dedicated
-	//  loading state b/c this way there is no small period where a blank image is displayed
-	if (!imageSrc) return <div>Loading...</div>
+  //it ends up working better checking imageSrc directly rather than having a dedicated
+  //  loading state b/c this way there is no small period where a blank image is displayed
+  if (!imageSrc) return <div>Loading...</div>;
   return <img src={imageSrc} alt="Rendered Latex" />;
 };

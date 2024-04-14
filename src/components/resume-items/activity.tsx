@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogClose,
@@ -18,27 +21,85 @@ import { ActivitiesType } from "@/api/models/interfaces";
 import { useAddActivity } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { ReactSortable } from "react-sortablejs";
+import { formSubmissionTypes } from "./formSubmissionTypes";
+import { useUpdateItem } from "@/hooks/mutations";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
+import { checkForDuplicate } from "@/api/itemInterface";
 
-export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface ActivityItemsProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: ActivitiesType; // Mark as optional with '?'
+  originalId?: string;
+}
+
+export function ExtracurricularItem({
+  setDropdownIsOpen,
+  original,
+  originalId,
+}: ActivityItemsProps) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [orgName, setOrgName] = useState("");
-  const [role, setRole] = useState("");
-  const [date, setDate] = useState("");
-  const [itemName, setItemName] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
-  const [location, setLocation] = useState("");
+  // const [orgName, setOrgName] = useState(original?.subtitle || "");
+  // const [role, setRole] = useState(original?.title || "");
+  // const [date, setDate] = useState(original?.year || "");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  // const [location, setLocation] = useState(original?.location || "");
+
+  const defaultOrgName = original?.subtitle || "";
+  const defaultRole = original?.title || "";
+  const defaultItemName = original?.itemName || "";
+  const defaultLocation = original?.location || "";
+  const defaultDate = original?.year || "";
+
   const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
 
   const queryClient = useQueryClient();
+  const mutation = useUpdateItem(queryClient, storedToken);
 
   const { mutate, isPending, isError } = useAddActivity(
     queryClient,
     storedToken,
   );
+
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT){
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        }else {
+          return true;
+        }
+      }),
+    orgName: Yup.string().required("Organization is required"),
+    role: Yup.string().required("Role is required"),
+    date: Yup.string().required("Date is required"),
+    location: Yup.string().required("Location is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
   useEffect(() => {
     const updateToken = async () => {
@@ -77,49 +138,71 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
   };
 
   const resetForm = () => {
-    setOrgName("");
-    setRole("");
-    setDate("");
-    setItemName("");
     setBullets([""]); // Reset bullets
-    setLocation("");
-    setErrorMessage("");
+    setIsOpen(false);
   };
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  // const resetForm = () => {
+  //   setOrgName("");
+  //   setRole("");
+  //   setDate("");
+  //   setItemName("");
+  //   setBullets([""]); // Reset bullets
+  //   setLocation("");
+  //   setErrorMessage("");
+  // };
+
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
     const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
-    const data: ActivitiesType = {
+    const activityData: ActivitiesType = {
       user: token!,
-      itemName: itemName,
-      subtitle: orgName,
-      title: role,
+      itemName: data.itemName,
+      subtitle: data.orgName,
+      title: data.role,
       bullets: filteredBullets,
-      year: date,
-      location: location,
+      year: data.date,
+      location: data.location,
     };
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.ACTIVITY,
+          itemId: originalId!,
+          updatedFields: activityData,
+        });
 
-    // TODO: Add to try/catch block!
-    console.log(data);
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-					setDropdownIsOpen(false);
-          resetForm();
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      console.log(activityData);
+      try {
+        mutate(activityData, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            setErrorMessage(
+              "Error: Unable to submit form. Please try again later.",
+            );
+          },
+        });
+      } catch (error) {
+        setErrorMessage(
+          "Error: Unable to submit form. Please try again later.",
+        );
+      }
     }
   };
 
@@ -127,14 +210,16 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left h-full w-full"
+          className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            resetBullets();
+            if (!original) {
+              resetBullets();
+            }
             setIsOpen(true);
           }}
         >
-          Extracurricular
+          {original ? "Edit" : "Extracurricular"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -144,33 +229,59 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.orgName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.orgName.message}
+          </div>
+        )}
+        {errors.location && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.location.message}
+          </div>
+        )}
+        {errors.date && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.date.message}
+          </div>
+        )}
+        {errors.role && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.role.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
+              // value={itemName}
+              // onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="org-name"
               placeholder="Organization Name"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
+              defaultValue={defaultOrgName}
+              {...register("orgName")}
+              // value={orgName}
+              // onChange={(e) => setOrgName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
+              defaultValue={defaultRole}
+              {...register("role")}
+              // value={role}
+              // onChange={(e) => setRole(e.target.value)}
             />
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
@@ -178,46 +289,63 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
                   className="flex-1"
                   id="location"
                   placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  defaultValue={defaultLocation}
+                  {...register("location")}
+                  // value={location}
+                  // onChange={(e) => setLocation(e.target.value)}
                 />
                 <Input
                   className="flex-1"
                   id="date"
                   placeholder="Date Range"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  defaultValue={defaultDate}
+                  {...register("date")}
+                  // value={date}
+                  // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
-                {bullets.map((bullet, index) => (
-                  <div key={index} className="ml-1 mt-2 flex">
-                    {" "}
-                    <AutosizeTextarea
-                      className="mb-2 resize-none h-[35px]"
-                      placeholder="Description"
-                      value={bullet}
-                      onChange={(e) =>
-                        handleBulletChange(index, e.target.value)
-                      }
-                    />
-                    <Button
-                      className="ml-[5px] flex items-center justify-center"
-                      variant="secondary"
-                      type="button"
-                      disabled={bullets.length <= 1}
-                      onClick={() => handleDeleteBullet(index)}
-                    >
-                      <img
-                        src={DeleteImage}
-                        alt="deleteimg"
-                        className="h-[40px] w-[40px]"
-                      ></img>
-                    </Button>
-                  </div>
-                ))}
+                <ReactSortable
+                  animation={150}
+                  list={bullets as any}
+                  setList={setBullets as any}
+                  group="Acitivties"
+                  handle=".handle"
+                  className="h-full w-full mb-2"
+                >
+                  {bullets &&
+                    bullets.map((bullet, index) => (
+                      <div key={index} className="ml-1 mt-2 flex">
+                        {" "}
+                        <AutosizeTextarea
+                          className="mb-2 resize-none h-[35px]"
+                          placeholder="Description"
+                          value={bullet}
+                          onChange={(e) =>
+                            handleBulletChange(index, e.target.value)
+                          }
+                        />
+                        <Button
+                          className="ml-[5px] flex items-center justify-center"
+                          variant="secondary"
+                          type="button"
+                          disabled={bullets.length <= 1}
+                          onClick={() => handleDeleteBullet(index)}
+                        >
+                          <img
+                            src={DeleteImage}
+                            alt="deleteimg"
+                            className="h-[40px] w-[40px]"
+                          ></img>
+                        </Button>
+                        <div className="h-[40px] w-[40px]">
+                          <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
+                        </div>
+                      </div>
+                    ))}
+                </ReactSortable>
               </div>
               <Button
                 type="button"
@@ -230,22 +358,52 @@ export function ExtracurricularItem({setDropdownIsOpen}: {setDropdownIsOpen: Dis
             </div>
           </div>
           <DialogFooter>
-            <Button
-              className="mt-2"
-              type="submit"
-              disabled={isPending || orgName == "" || date == ""}
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : orgName == "" || date == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>
+            {!original && (
+              <Button className="mt-2" type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
             <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>

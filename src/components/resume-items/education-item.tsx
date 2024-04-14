@@ -9,30 +9,54 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "../ui/autosize-textarea";
 import DeleteImage from "../../assets/delete.png";
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { createEducation } from "@/api/educationInterface";
 import { useAuth } from "@/AuthContext";
 import { EducationType } from "@/api/models/interfaces";
-import { useAddEducation } from "@/hooks/mutations";
+import { useAddEducation, useUpdateItem } from "@/hooks/mutations";
 import { ReloadIcon } from "@radix-ui/react-icons";
-
+import { formSubmissionTypes } from "./formSubmissionTypes";
 import { useQueryClient } from "@tanstack/react-query";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { ReactSortable } from "react-sortablejs";
+import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
+import { checkForDuplicate } from "@/api/itemInterface";
 
-export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<SetStateAction<boolean>>}) {
+interface EducationItemProps {
+  setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
+  original?: EducationType; // Mark as optional with '?'
+  originalId?: string;
+}
+
+export function EducationItem({
+  setDropdownIsOpen,
+  original,
+  originalId,
+}: EducationItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
-  const [itemName, setItemName] = useState("");
-  const [universityName, setUniversityName] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [majorMinor, setMajorMinor] = useState("");
-  const [bullets, setBullets] = useState<string[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
+  // const [itemName, setItemName] = useState(original?.itemName || "");
+  // const [universityName, setUniversityName] = useState(original?.title || "");
+  // const [date, setDate] = useState(original?.year || "");
+  // const [location, setLocation] = useState(original?.location || "");
+  // const [majorMinor, setMajorMinor] = useState(original?.subtitle || "");
+  const defaultMajorMinor = original?.subtitle || "";
+  const defaultUniversity = original?.title || "";
+  const defaultItemName = original?.itemName || "";
+  const defaultLocation = original?.location || "";
+  const defaultDate = original?.year || "";
+
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [submissionType, setSubmissionType] = useState<
+    formSubmissionTypes | undefined
+  >(undefined);
   const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
@@ -41,14 +65,47 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
     storedToken,
   );
 
+  const mutation = useUpdateItem(queryClient, storedToken);
+
+  const validationSchema = Yup.object().shape({
+    itemName: Yup.string()
+      .required("Item Name is required")
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT) {
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
+          }
+        } else {
+          return true;
+        }
+      }),
+    universityName: Yup.string().required("University is required"),
+    majorMinor: Yup.string().required("Major/Minor is required"),
+    date: Yup.string().required("Date is required"),
+    location: Yup.string().required("Location is required"),
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+
   const resetForm = () => {
-    setUniversityName("");
-    setMajorMinor("");
-    setDate("");
-    setItemName("");
-    setBullets([""]); // Reset bullets
-    setLocation("");
-    setErrorMessage("");
+    // setUniversityName("");
+    // setMajorMinor("");
+    // setDate("");
+    // setItemName("");
+    setBullets([""]);
+    setIsOpen(false);
+    // setLocation("");
   };
 
   useEffect(() => {
@@ -79,7 +136,8 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
 
   const resetBullets = () => {
     setBullets([""]);
-    setErrorMessage("");
+    setIsOpen(false);
+    // setErrorMessage("");
   };
 
   const handleDeleteBullet = (index: number) => {
@@ -90,40 +148,53 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
 
   // Handling for submission: calls createEducation to add to MongoDB.
   // TODO: Allow for form to close upon submission.
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleFormSubmit = async (data: any) => {
+    // event.preventDefault();
 
     const token = storedToken;
 
     const filteredBullets = bullets.filter((bullet) => /\S/.test(bullet));
 
-    const data: EducationType = {
+    const educationData: EducationType = {
       user: token!,
-      itemName: itemName,
+      itemName: data.itemName,
       bullets: filteredBullets,
-      title: universityName,
-      year: date,
-      location: location,
-      subtitle: majorMinor,
+      title: data.universityName,
+      year: data.date,
+      location: data.location,
+      subtitle: data.majorMinor,
     };
 
-    console.log(data);
+    if (submissionType == formSubmissionTypes.EDIT) {
+      try {
+        // Call the mutation function with necessary parameters
+        mutation.mutate({
+          itemType: resumeItemTypes.EDUCATION,
+          itemId: originalId!,
+          updatedFields: educationData,
+        });
 
-    try {
-      mutate(data, {
-        onSuccess: (response) => {
-          setIsOpen(false);
-					setDropdownIsOpen(false);
-          resetForm();
-        },
-        onError: (error) => {
-          setErrorMessage(
-            "Error: Unable to submit form. Please try again later.",
-          );
-        },
-      });
-    } catch (error) {
-      setErrorMessage("Error: Unable to submit form. Please try again later.");
+        setIsOpen(false);
+        setDropdownIsOpen(false);
+        resetForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
+    } else {
+      try {
+        mutate(educationData, {
+          onSuccess: (response) => {
+            setIsOpen(false);
+            setDropdownIsOpen(false);
+            resetForm();
+          },
+          onError: (error) => {
+            // TODO
+          },
+        });
+      } catch (error) {
+        // TODO
+      }
     }
   };
 
@@ -131,14 +202,16 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          className="text-left h-full w-full"
+          className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            resetBullets();
+            if (!original) {
+              resetBullets();
+            }
             setIsOpen(true);
           }}
         >
-          Education
+          {original ? "Edit" : "Education"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
@@ -148,37 +221,63 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errorMessage && (
+        {errors.itemName && (
           <div className="error-message text-red-400 font-bold">
-            {errorMessage}
+            {errors.itemName.message}
           </div>
-        )}{" "}
-        <form onSubmit={handleFormSubmit}>
+        )}
+        {errors.universityName && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.universityName.message}
+          </div>
+        )}
+        {errors.location && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.location.message}
+          </div>
+        )}
+        {errors.date && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.date.message}
+          </div>
+        )}
+        {errors.majorMinor && (
+          <div className="error-message text-red-400 font-bold">
+            {errors.majorMinor.message}
+          </div>
+        )}
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="grid grid-cols-2 gap-4 flex">
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Unique Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              defaultValue={defaultItemName}
+              {...register("itemName")}
+              // value={itemName}
+              // onChange={(e) => setItemName(e.target.value)}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="University Name"
-              value={universityName}
-              onChange={(e) => {
-                setUniversityName(e.target.value);
-              }}
+              defaultValue={defaultUniversity}
+              {...register("universityName")}
+              // value={universityName}
+              // onChange={(e) => {
+              //   setUniversityName(e.target.value);
+              // }}
             />
             <Input
               className="col-span-2"
               id="item-name"
               placeholder="Degree"
-              value={majorMinor}
-              onChange={(e) => {
-                setMajorMinor(e.target.value);
-              }}
+              defaultValue={defaultMajorMinor}
+              {...register("majorMinor")}
+              // value={majorMinor}
+              // onChange={(e) => {
+              //   setMajorMinor(e.target.value);
+              // }}
             />
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
@@ -186,46 +285,62 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
                   className="flex-1"
                   id="location"
                   placeholder="Location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  defaultValue={defaultLocation}
+                  {...register("location")}
+                  // value={location}
+                  // onChange={(e) => setLocation(e.target.value)}
                 />
                 <Input
                   className="flex-1"
                   id="date"
                   placeholder="Date Range"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  defaultValue={defaultDate}
+                  {...register("date")}
+                  // value={date}
+                  // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
-                {bullets.map((bullet, index) => (
-                  <div key={index} className="ml-1 mt-2 flex">
-                    {" "}
-                    <AutosizeTextarea
-                      className="mb-2 resize-none h-[35px]"
-                      placeholder="Description"
-                      value={bullet}
-                      onChange={(e) =>
-                        handleBulletChange(index, e.target.value)
-                      }
-                    />
-                    <Button
-                      className="ml-[5px] flex items-center justify-center"
-                      variant="secondary"
-                      type="button"
-                      disabled={bullets.length <= 1}
-                      onClick={() => handleDeleteBullet(index)}
-                    >
-                      <img
-                        src={DeleteImage}
-                        alt="deleteimg"
-                        className="h-[40px] w-[40px]"
-                      ></img>
-                    </Button>
-                  </div>
-                ))}
+                <ReactSortable
+                  animation={150}
+                  list={bullets as any}
+                  setList={setBullets as any}
+                  group="Acitivties"
+                  handle=".handle"
+                  className="h-full w-full mb-2"
+                >
+                  {bullets.map((bullet, index) => (
+                    <div key={index} className="ml-1 mt-2 flex">
+                      {" "}
+                      <AutosizeTextarea
+                        className="mb-2 resize-none h-[35px]"
+                        placeholder="Description"
+                        value={bullet}
+                        onChange={(e) =>
+                          handleBulletChange(index, e.target.value)
+                        }
+                      />
+                      <Button
+                        className="ml-[5px] flex items-center justify-center"
+                        variant="secondary"
+                        type="button"
+                        disabled={bullets.length <= 1}
+                        onClick={() => handleDeleteBullet(index)}
+                      >
+                        <img
+                          src={DeleteImage}
+                          alt="deleteimg"
+                          className="h-[40px] w-[40px]"
+                        ></img>
+                      </Button>
+                      <div className="h-[40px] w-[40px]">
+                        <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
+                      </div>
+                    </div>
+                  ))}
+                </ReactSortable>
               </div>
               <Button
                 type="button"
@@ -238,28 +353,53 @@ export function EducationItem({setDropdownIsOpen}: {setDropdownIsOpen: Dispatch<
             </div>
           </div>
           <DialogFooter>
-            <Button
-              className="mt-2"
-              type="submit"
-              disabled={
-                isPending ||
-                universityName == "" ||
-                majorMinor == "" ||
-                date == ""
-              }
-            >
-              {isPending ? (
-                <>
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
-              ) : universityName == "" || date == "" || majorMinor == "" ? (
-                "Complete form"
-              ) : (
-                "Add Item"
-              )}
-            </Button>
-            <DialogClose asChild></DialogClose>
+            {!original && (
+              <Button className="mt-2" type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </>
+                ) : (
+                  "Add Item"
+                )}
+              </Button>
+            )}
+            {original && (
+              <div className="flex justify-between w-full">
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending}
+                  onClick={() => setSubmissionType(formSubmissionTypes.CLONE)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Save as Copy"
+                  )}
+                </Button>{" "}
+                <Button
+                  className="mt-2"
+                  type="submit"
+                  disabled={isPending}
+                  onClick={() => setSubmissionType(formSubmissionTypes.EDIT)}
+                >
+                  {isPending ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Save and Replace"
+                  )}
+                </Button>{" "}
+              </div>
+            )}
+            <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>

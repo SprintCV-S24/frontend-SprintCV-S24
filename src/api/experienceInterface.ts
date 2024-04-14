@@ -49,6 +49,27 @@ export const getExperienceById = async (itemId: string, token: string): Promise<
 	};
 };
 
+// update an experience item
+export const updateExperience = async (
+	updatedFields: Partial<ExperienceType>,
+	itemId: string,
+	token: string,
+  ): Promise<ExperienceServerExplicitType> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+	  method: "PUT",
+	  body: JSON.stringify(updatedFields),
+	  headers: {
+		"Content-Type": "application/json",
+		Authorization: `Bearer ${token}`,
+	  },
+	});
+	const experience = await handleJsonResponse(response);
+	return {
+	  ...experience,
+	  type: resumeItemTypes.EXPERIENCE,
+	};
+  };
+
 // Delete experience item
 export const deleteExperience = async (itemId: string, token: string): Promise<ExperienceServerExplicitType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {

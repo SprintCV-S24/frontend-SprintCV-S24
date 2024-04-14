@@ -10,13 +10,13 @@ import { ExtracurricularItem } from "@/components/resume-items/activity";
 import { HeadingItem } from "@/components/resume-items/heading-item";
 import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
+import { SkillItem } from "@/components/resume-items/skill-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DownloadIcon } from "@radix-ui/react-icons";
-import { SkillItem } from "@/components/resume-items/skill-item";
-import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
+import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,28 +26,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LatexImage } from "@/components/Latex";
-import { BaseItem } from "@/api/models/interfaces";
+import { PageCount } from "@/components/PageCount";
+import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
 import { generateLatex } from "@/latexUtils/latexString";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInBank } from "@/hooks/mutations";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { resumeItemTypes } from "@/api/models/resumeItemTypes";
-import { deleteItem } from "@/api/resumeItemInterface";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
+import ECHelper from "@/components/ec-helper";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const [isPdfRendering, setIsPdfRendering] = useState(false);
-  const [dummy, setDummy] = useState(false);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemsInBank, setItemsInBank] = useState<
@@ -78,6 +71,8 @@ const Editor: React.FC = () => {
 
   const queryClient = useQueryClient();
 
+  const [selected, setSelected] = useState(false);
+
   const { mutate, isPending, isError } = useUpdateResume(
     queryClient,
     storedToken,
@@ -90,6 +85,41 @@ const Editor: React.FC = () => {
   } = useDeleteItem(queryClient, storedToken);
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+
+  const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
+    () => {
+      const initialEditOpenMap: { [key: string]: boolean } = {};
+      // Initialize all items' edit state to false
+      if (itemsInBank) {
+        itemsInBank.forEach((item) => {
+          initialEditOpenMap[item.id] = false;
+        });
+      }
+      // TODO: This is likely unnecessary. Don't have time to check but can probably be removed later.
+      if (itemsInResume) {
+        itemsInResume.forEach((item) => {
+          initialEditOpenMap[item.id] = false;
+        });
+      }
+      return initialEditOpenMap;
+    },
+  );
+
+  const [loadingMap, setLoadingMap] = useState<{ [key: string]: boolean }>(() => {
+    const intialLoadingmap: { [key: string]: boolean } = {};
+    // Initialize all items' edit state to false
+    if (itemsInBank) {
+      itemsInBank.forEach((item) => {
+        intialLoadingmap[item.id] = false;
+      });
+    }
+    if (itemsInResume) {
+      itemsInResume.forEach((item) => {
+        intialLoadingmap[item.id] = false;
+      });
+    }
+    return intialLoadingmap;
+  });
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -106,10 +136,6 @@ const Editor: React.FC = () => {
 
       clearResumeHelper([]);
       setItemsInBank(combinedItems);
-
-      // console.log("Clearing Resume");
-      // console.log(itemsInBank);
-      // console.log(itemsInResume);
     }
   };
 
@@ -143,20 +169,11 @@ const Editor: React.FC = () => {
   };
 
   useEffect(() => {
-    // TODO: Remove debugging logging.
-    // console.log(id);
-    // console.log(resume);
-    // console.log(allItems);
-
     if (id != null && allItems != null) {
-      // console.log("In loop");
       // this means no resume had that id
       if (resume == null) {
         // TODO: home page needs to check for and display messages like these
-        // console.log("HERE");
       } else {
-        // console.log("itemids:", resume.itemIds);
-
         // This extracts the resumeItems in the specific order provided
         const resumeResult = resume.itemIds.reduce(
           (accumulator, itemId) => {
@@ -164,7 +181,7 @@ const Editor: React.FC = () => {
             if (item) {
               accumulator.resumeItems.push({ ...item, id: item._id });
             } else {
-              // console.log(`Item with ID ${itemId} not found in allItems.`);
+              console.log(`Item with ID ${itemId} not found in allItems.`);
             }
             return accumulator;
           },
@@ -187,10 +204,6 @@ const Editor: React.FC = () => {
         // Sets the items in the respective fields
         setItemsInBank(bankResult.bankItems);
         setItemsInResume(resumeResult.resumeItems);
-
-        // TODO: Remove logging for debugging
-        // console.log("bank items:", bankResult.bankItems);
-        // console.log("resume items:", resumeResult.resumeItems);
       }
     }
   }, [id, allItems, resume]);
@@ -208,7 +221,6 @@ const Editor: React.FC = () => {
     void fetchFact();
   }, [currentUser, storedToken]);
 
-  // TODO: Make this type safe, make some other changes.
   return (
     <>
       <div className="flex-col">
@@ -265,10 +277,7 @@ const Editor: React.FC = () => {
                   <ProjectItem
                     setDropdownIsOpen={setDropdownIsOpen}
                   ></ProjectItem>
-                  <DropdownMenuSeparator />
-                  <SkillItem 
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></SkillItem>
+                  <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -290,35 +299,76 @@ const Editor: React.FC = () => {
                   {itemsInBank &&
                     itemsInBank.map((item) => (
                       <Card
-                        className="w-full p-1 mb-2 bg-grey border border-grey flex items-center justify-between"
+                        className="w-full p-1 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
                         key={item._id}
                       >
-                        <div>
-                          <LatexImage
-                            onRenderStart={() => setDummy(dummy)}
-                            onRenderEnd={() => setDummy(dummy)}
-                            latexCode={generateLatex(item)}
-                          ></LatexImage>
+                        {<p className='text-sm'>{item.itemName}</p>}
+                        <div className="flex w-full h-full">
+                          <div className={loadingMap[item._id] ? "hidden" : ""}>
+                            <LatexImage
+                              onRenderStart={() =>
+                                setLoadingMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: true,
+                                }))
+                              }
+                              onRenderEnd={() =>
+                                setLoadingMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: false,
+                                }))
+                              }
+                              latexCode={generateLatex(item)}
+															itemId={item._id}
+                            ></LatexImage>
+                          </div>
+                          <Skeleton
+                            className={
+                              loadingMap[item._id]
+                                ? "w-full h-[40px] text-center"
+                                : "hidden"
+                            }
+                          >
+                            Loading Document...
+                          </Skeleton>
+                          <DropdownMenu
+                            open={editOpenMap[item.id]}
+                            onOpenChange={(isOpen) =>
+                              setEditOpenMap((prevState) => ({
+                                ...prevState,
+                                [item.id]: isOpen,
+                              }))
+                            }
+                          >
+                            <DropdownMenuTrigger>
+                              <DotsVerticalIcon></DotsVerticalIcon>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <ECHelper
+                                object={item}
+                                setDropdownIsOpen={(isOpen) =>
+                                  setEditOpenMap((prevState: any) => ({
+                                    ...prevState,
+                                    [item.id]: isOpen,
+                                  }))
+                                }
+                                itemId={item.id}
+                              />
+                              <Button
+                                className="text-red-500 font-bold"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  deleteItem({
+                                    itemType: item.type,
+                                    itemId: item._id,
+                                  });
+                                }}
+                              >
+                                Delete Item
+                              </Button>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            <DotsVerticalIcon></DotsVerticalIcon>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem>Clone Item</DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-red-500 font-bold"
-                              onClick={(e) => {
-                                deleteItem({
-                                  itemType: item.type,
-                                  itemId: item._id,
-                                });
-                              }}
-                            >
-                              Delete Item
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       </Card>
                     ))}
                 </ReactSortable>
@@ -346,10 +396,8 @@ const Editor: React.FC = () => {
               Download
               <DownloadIcon className="ml-2"></DownloadIcon>
             </Button>
+						<PageCount items={itemsInResume}></PageCount>
           </Card>
-          {isPdfRendering && (
-            <Skeleton className="h-[663px] w-[600px] ml-6 rounded-xl" />
-          )}{" "}
           <div className="bg-white h-[90%] w-full min-w-6">
             {itemsInResume && id && (
               <ReactSortable
@@ -366,11 +414,33 @@ const Editor: React.FC = () => {
                 {itemsInResume &&
                   itemsInResume.map((item) => (
                     <div className="w-full" key={item._id}>
+                      <div className={loadingMap[item._id] ? "hidden" : ""}>
                       <LatexImage
-                        onRenderStart={() => setDummy(dummy)}
-                        onRenderEnd={() => setDummy(dummy)}
+                        onRenderStart={() =>
+                          setLoadingMap((prevState: any) => ({
+                            ...prevState,
+                            [item.id]: true,
+                          }))
+                        }
+                        onRenderEnd={() =>
+                          setLoadingMap((prevState: any) => ({
+                            ...prevState,
+                            [item.id]: false,
+                          }))
+                        }
                         latexCode={generateLatex(item)}
+												itemId={item._id}
                       ></LatexImage>
+                      </div>
+                      <Skeleton
+                            className={
+                              loadingMap[item._id]
+                                ? "w-full h-[40px] text-center"
+                                : "hidden"
+                            }
+                          >
+                            Loading Document...
+                          </Skeleton>
                     </div>
                   ))}
               </ReactSortable>

@@ -51,6 +51,27 @@ export const getHeadingById = async (itemId: string, token: string): Promise<Hea
 	};
 };
 
+// update an header item
+export const updateHeading = async (
+	updatedFields: Partial<HeadingsType>,
+	itemId: string,
+	token: string,
+  ): Promise<HeadingServerExplicitType> => {
+	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
+	  method: "PUT",
+	  body: JSON.stringify(updatedFields),
+	  headers: {
+		"Content-Type": "application/json",
+		Authorization: `Bearer ${token}`,
+	  },
+	});
+	const header = await handleJsonResponse(response);
+	return {
+	  ...header,
+	  type: resumeItemTypes.HEADING,
+	};
+  };
+
 // Delete heading item
 export const deleteHeading = async (itemId: string, token: string): Promise<HeadingServerExplicitType | null> => {
 	const response = await fetch(`${BACKEND_ROUTE}/${itemId}`, {
