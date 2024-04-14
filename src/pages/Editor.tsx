@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LatexImage } from "@/components/Latex";
+import { ResumeName } from "@/components/ResumeName";
 import { PageCount } from "@/components/PageCount";
 import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
@@ -40,7 +41,7 @@ import ECHelper from "@/components/ec-helper";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
-  const [isPdfRendering, setIsPdfRendering] = useState(false);
+  const [resumeName, setResumeName] = useState<string | undefined>(undefined);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
 
   const [itemsInBank, setItemsInBank] = useState<
@@ -105,21 +106,27 @@ const Editor: React.FC = () => {
     },
   );
 
-  const [loadingMap, setLoadingMap] = useState<{ [key: string]: boolean }>(() => {
-    const intialLoadingmap: { [key: string]: boolean } = {};
-    // Initialize all items' edit state to false
-    if (itemsInBank) {
-      itemsInBank.forEach((item) => {
-        intialLoadingmap[item.id] = false;
-      });
-    }
-    if (itemsInResume) {
-      itemsInResume.forEach((item) => {
-        intialLoadingmap[item.id] = false;
-      });
-    }
-    return intialLoadingmap;
-  });
+  const [loadingMap, setLoadingMap] = useState<{ [key: string]: boolean }>(
+    () => {
+      const intialLoadingmap: { [key: string]: boolean } = {};
+      // Initialize all items' edit state to false
+      if (itemsInBank) {
+        itemsInBank.forEach((item) => {
+          intialLoadingmap[item.id] = false;
+        });
+      }
+      if (itemsInResume) {
+        itemsInResume.forEach((item) => {
+          intialLoadingmap[item.id] = false;
+        });
+      }
+      return intialLoadingmap;
+    },
+  );
+
+  useEffect(() => {
+    setResumeName(resume?.itemName);
+  }, [resume]);
 
   const handleClearResume = () => {
     if (itemsInBank && itemsInResume && id && resume) {
@@ -302,7 +309,7 @@ const Editor: React.FC = () => {
                         className="w-full p-1 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
                         key={item._id}
                       >
-                        {<p className='text-sm'>{item.itemName}</p>}
+                        {<p className="text-sm">{item.itemName}</p>}
                         <div className="flex w-full h-full">
                           <div className={loadingMap[item._id] ? "hidden" : ""}>
                             <LatexImage
@@ -319,7 +326,7 @@ const Editor: React.FC = () => {
                                 }))
                               }
                               latexCode={generateLatex(item)}
-															itemId={item._id}
+                              itemId={item._id}
                             ></LatexImage>
                           </div>
                           <Skeleton
@@ -378,6 +385,14 @@ const Editor: React.FC = () => {
         </div>
         <div className="w-[calc(50%-4rem)] ml-8 mt-4">
           <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
+            <ResumeName
+              token={storedToken}
+              resumeId={id as string}
+              resumeName={resumeName}
+              setResumeName={setResumeName}
+              setSaving={() => {}}
+              setSaved={() => {}}
+            ></ResumeName>
             <Button
               className="text-red-500 font-bold"
               variant="outline"
@@ -396,7 +411,7 @@ const Editor: React.FC = () => {
               Download
               <DownloadIcon className="ml-2"></DownloadIcon>
             </Button>
-						<PageCount items={itemsInResume}></PageCount>
+            <PageCount items={itemsInResume}></PageCount>
           </Card>
           <div className="bg-white h-[90%] w-full min-w-6">
             {itemsInResume && id && (
@@ -415,32 +430,32 @@ const Editor: React.FC = () => {
                   itemsInResume.map((item) => (
                     <div className="w-full" key={item._id}>
                       <div className={loadingMap[item._id] ? "hidden" : ""}>
-                      <LatexImage
-                        onRenderStart={() =>
-                          setLoadingMap((prevState: any) => ({
-                            ...prevState,
-                            [item.id]: true,
-                          }))
-                        }
-                        onRenderEnd={() =>
-                          setLoadingMap((prevState: any) => ({
-                            ...prevState,
-                            [item.id]: false,
-                          }))
-                        }
-                        latexCode={generateLatex(item)}
-												itemId={item._id}
-                      ></LatexImage>
+                        <LatexImage
+                          onRenderStart={() =>
+                            setLoadingMap((prevState: any) => ({
+                              ...prevState,
+                              [item.id]: true,
+                            }))
+                          }
+                          onRenderEnd={() =>
+                            setLoadingMap((prevState: any) => ({
+                              ...prevState,
+                              [item.id]: false,
+                            }))
+                          }
+                          latexCode={generateLatex(item)}
+                          itemId={item._id}
+                        ></LatexImage>
                       </div>
                       <Skeleton
-                            className={
-                              loadingMap[item._id]
-                                ? "w-full h-[40px] text-center"
-                                : "hidden"
-                            }
-                          >
-                            Loading Document...
-                          </Skeleton>
+                        className={
+                          loadingMap[item._id]
+                            ? "w-full h-[40px] text-center"
+                            : "hidden"
+                        }
+                      >
+                        Loading Document...
+                      </Skeleton>
                     </div>
                   ))}
               </ReactSortable>
