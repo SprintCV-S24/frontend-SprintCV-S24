@@ -131,15 +131,6 @@ export function getLatexPreamble(): string {
   \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
   
   \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
-
-  \\AtBeginDocument{
-    \\setbox0=\\vbox\\bgroup
-    \\preto\\enddocument{\\egroup
-        \\dimen0=\\dp0
-        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
-        \\unvbox0\\kern-\\dimen0 }
-  }
-
   `;
 }
 
@@ -267,7 +258,7 @@ export function getLatexContentSizedPreamble(): string {
     \\setbox0=\\vbox\\bgroup
     \\preto\\enddocument{\\egroup
         \\dimen0=\\dp0
-        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
+        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0\\baselineskip\\relax 
         \\unvbox0\\kern-\\dimen0 }
   }
 
@@ -430,7 +421,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
     latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
   
     latexString +=
-      "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+      "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
   
     return latexString;
   };
@@ -454,8 +445,6 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
     return latexString;
   };
   
-
-
   const experienceData: ExperienceType = {
     user: "janesmith",
     itemName: "Senior Software Engineer",
@@ -492,7 +481,7 @@ export const generateProjectLatex = (activityObj: ProjectsType) => {
   latexString += generateProjectLatexHelper(activityObj as ProjectsType);
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
@@ -535,8 +524,6 @@ const projectData: ProjectsType = {
 
 export const projectDataMock = (generateProjectLatex(projectData));
 
-
-
 /*  ------------------------------------------------- */
 /*  -------------------SKILLS==---------------------- */
 /*  ------------------------------------------------- */
@@ -554,7 +541,7 @@ export const generateSkillsLatex = (skillsObj: SkillsType): string => {
 
   latexString += generateSkillsLatexHelper(skillsObj as SkillsType);
 
-  latexString += "\\vspace{-\\lastskip}\n\\end{document}\n";
+  latexString += "\\vspace{\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
@@ -591,7 +578,7 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   latexString += ggenerateActivityLatexHelper(activityObj as ActivitiesType);
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
@@ -667,7 +654,7 @@ export const generateSectionHeadingLatex = (
     activityObj as SectionHeadingsType,
   );
 
-  latexString += "\n\\vspace{-\\lastskip}\n\\end{document}\n";
+  latexString += "\n\\vspace{\\lastskip}\n\\end{document}\n";
 
   console.log("SUBHEADINGXX:", latexString);
   return latexString;
