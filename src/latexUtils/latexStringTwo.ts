@@ -90,8 +90,8 @@ export function getLatexPreamble(): string {
   \\newcommand{\\resumeSubheading}[4]{
     \\vspace{-2pt}\\item
       \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-        \\textbf{\\large#1} & \\textbf{\\small #2} \\
-        \\textit{\\large#3} & \\textit{\\small #4} \\
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\large#3} &  \\textit{\\small #4} \\\\
         
       \\end{tabular*}\\vspace{-7pt}
   }
@@ -212,8 +212,8 @@ export function getLatexContentSizedPreamble(): string {
   \\newcommand{\\resumeSubheading}[4]{
     \\vspace{-2pt}\\item
       \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-        \\textbf{\\large#1} & \\textbf{\\small #2} \\
-        \\textit{\\large#3} & \\textit{\\small #4} \\
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\large#3} &  \\textit{\\small #4} \\\\
         
       \\end{tabular*}\\vspace{-7pt}
   }
@@ -318,7 +318,7 @@ export function sanitize(str: string): string {
       }
     });
   
-    headerLatex += `\\vspace{-7pt}\n`;
+    headerLatex += `\\vspace{7pt}\n`;
     headerLatex += `\\end{center}`;
     return headerLatex;
   };
@@ -340,67 +340,61 @@ export function sanitize(str: string): string {
   
   // Generate the LaTeX code for the header using the mock data
   export const headerLatex = generateHeaderLatex(mockHeaderData);
-  
-  // Print the generated LaTeX code to the console
-  // console.log(headerLatex);
+
   
 
   // Generates the LaTeX code for the education section of the resume.
-export const generateEducationLatex = (educationArray: EducationType[]): string => {
+export const generateEducationLatex = (educationArray: EducationType): string => {
     let latexString = getLatexContentSizedPreamble();
     latexString += `\\begin{document}\n`;
-    latexString += `\\section{\\color{airforceblue}EDUCATION}\n`;
     latexString += `\\resumeSubHeadingListStart\n`;
   
     // Iterate over each education entry and append its LaTeX code
-    educationArray.forEach(educationObj => {
-      latexString += generateEducationLatexHelper(educationObj);
-    });
+    latexString += generateEducationLatexHelper(educationArray as EducationType);
+ 
   
     latexString += `\\resumeSubHeadingListEnd\n`;
-    latexString += `\\vspace{-10pt}\n`;
-    latexString += `\\end{document}\n`;
+    latexString += `\\vspace{10pt}\n`;
+    latexString += `\\end{document}\n`
   
     return latexString;
   };
   
 // Helper function to generate LaTeX code for an individual education entry
 export const generateEducationLatexHelper = (educationObj: EducationType): string => {
-    let latexString = `\\resumeSubheading`;
-    latexString += `{${sanitize(educationObj.title)}}`; // University Name
-    latexString += `{${sanitize(educationObj.location)}}`; // Location
-    latexString += `{${sanitize(educationObj.subtitle)}}`; // Degree and Specialization
-    latexString += `{${sanitize(educationObj.year)}}\n`; // Month Year - Month Year
-    latexString += `\\vspace{-4pt}\n`;
-  
-    return latexString;
+  let latexString = `\\resumeSubheading\n`;
+  latexString += `{${sanitize(educationObj.title)}}\n`; // University Name
+  latexString += `{${sanitize(educationObj.location)}}\n`; // Location
+  latexString += `{${sanitize(educationObj.subtitle)}}\n`; // Degree and Specialization
+  latexString += `{${sanitize(educationObj.year)}}\n`; // Month Year - Month Year
+
+  if (educationObj.bullets.length > 0) {
+    latexString += `\\resumeItemListStart\n`;
+    educationObj.bullets.forEach((bullet) => {
+      latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+    });
+    latexString += `\\resumeItemListEnd\n`;
+  }
+
+  return latexString;
   };
   
 
-  const mockEducationData: EducationType[] = [
-    {
-      user: "user1",
-      itemName: "Education 1",
-      title: "University 1",
-      location: "Location, State, USA",
-      subtitle: "Degree and Specialization",
-      year: "Month Year - Month Year",
-      bullets: [],
-    },
-    {
-      user: "user2",
-      itemName: "Education 2",
-      title: "University 2",
-      location: "Location, State, USA",
-      subtitle: "Degree and Specialization",
-      year: "Month Year - Month Year",
-      bullets: [],
-    },
-  ];
+// Define a single education entry for testing
+const mockEducationEntry: EducationType = {
+  user: "user1",
+  itemName: "Education 1",
+  title: "University 1",
+  location: "Location, State, USA",
+  subtitle: "Degree and Specialization",
+  year: "Month Year - Month Year",
+  bullets: [],
+};
+
+// Generate the LaTeX code for the education entry
+export const mockEducationEntry2 = generateEducationLatex(mockEducationEntry);
   
-  export const educationLatex = generateEducationLatex(mockEducationData);
-  // console.log(educationLatex);
-  
+
   
   
 /*  ------------------------------------------------- */
@@ -575,7 +569,7 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   let latexString = getLatexContentSizedPreamble();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
-  latexString += ggenerateActivityLatexHelper(activityObj as ActivitiesType);
+  latexString += generateActivityLatexHelper(activityObj as ActivitiesType);
 
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
@@ -583,7 +577,7 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   return latexString;
 };
 
-export const ggenerateActivityLatexHelper = (activityObj: ActivitiesType) => {
+export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
   let latexString = `\n\\resumeSubheading{${sanitize(
     activityObj.title,
   )}}{}{${sanitize(activityObj.year)}}{${sanitize(activityObj.subtitle)}, ${sanitize(
@@ -656,7 +650,6 @@ export const generateSectionHeadingLatex = (
 
   latexString += "\n\\vspace{\\lastskip}\n\\end{document}\n";
 
-  console.log("SUBHEADINGXX:", latexString);
   return latexString;
 };
 
@@ -669,10 +662,3 @@ export const generateSectionHeadingLatexHelper = (
   return latexString;
 };
 
-const sectionHeadingData: SectionHeadingsType = {
-  user: 'janesmith',
-  itemName: 'Work Experience',
-  title: 'WORK EXPERIENCE',
-};
-
-export const SubheadingMock = generateSectionHeadingLatex(sectionHeadingData);
