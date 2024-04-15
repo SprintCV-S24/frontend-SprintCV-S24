@@ -34,7 +34,6 @@ import {
 } from "@/api/resumeItemInterface";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 
-
 export const useAddActivity = (
   queryClient: QueryClient,
   token: string | undefined,
@@ -52,7 +51,10 @@ export const useAddActivity = (
   });
 };
 
-export const useAddEducation = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddEducation = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (education: EducationType) => {
       if (token === undefined) {
@@ -66,7 +68,10 @@ export const useAddEducation = (queryClient: QueryClient, token: string | undefi
   });
 };
 
-export const useAddExperience = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddExperience = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (experience: ExperienceType) => {
       if (token === undefined) {
@@ -80,7 +85,10 @@ export const useAddExperience = (queryClient: QueryClient, token: string | undef
   });
 };
 
-export const useAddHeading = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddHeading = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (heading: HeadingsType) => {
       if (token === undefined) {
@@ -94,7 +102,10 @@ export const useAddHeading = (queryClient: QueryClient, token: string | undefine
   });
 };
 
-export const useAddProject = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddProject = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (project: ProjectsType) => {
       if (token === undefined) {
@@ -108,7 +119,10 @@ export const useAddProject = (queryClient: QueryClient, token: string | undefine
   });
 };
 
-export const useAddSectionHeading = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddSectionHeading = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (sectionHeading: SectionHeadingsType) => {
       if (token === undefined) {
@@ -122,7 +136,10 @@ export const useAddSectionHeading = (queryClient: QueryClient, token: string | u
   });
 };
 
-export const useAddSkill = (queryClient: QueryClient, token: string | undefined) => {
+export const useAddSkill = (
+  queryClient: QueryClient,
+  token: string | undefined,
+) => {
   return useMutation({
     mutationFn: async (skill: SkillsType) => {
       if (token === undefined) {
@@ -223,7 +240,7 @@ export const useDeleteResume = (
   });
 };
 
-export const createCustomSetItemsInBank = (
+export const createCustomSetItemsInResume = (
   resumeId: string,
   mutateFn: UseMutateFunction<
     ResumesServerType,
@@ -242,6 +259,8 @@ export const createCustomSetItemsInBank = (
       | undefined
     >
   >,
+  setSaving: () => void,
+  setSaved: () => void,
 ): ((
   newItems: Array<
     BaseItem & {
@@ -249,8 +268,10 @@ export const createCustomSetItemsInBank = (
     }
   >,
 ) => void) => {
-  const customSetItemsInBank = (newItems: Array<BaseItem & { id: string }>) => {
-    // console.log("running customsetitems");
+  const customSetItemsInResume = (
+    newItems: Array<BaseItem & { id: string }>,
+  ) => {
+    setSaving();
 
     const idArr = newItems.map((item) => item.id);
     const updatedFields = { itemIds: idArr };
@@ -258,10 +279,20 @@ export const createCustomSetItemsInBank = (
     // console.log("Updated Fields");
     // console.log(updatedFields);
 
-    mutateFn({ updatedFields, resumeId });
+    mutateFn(
+      { updatedFields, resumeId },
+      {
+        onSuccess: () => {
+          setSaved();
+        },
+        onError: () => {
+          setSaved(); //TODO: not great
+        },
+      },
+    );
     setItemsInResume(newItems);
   };
-  return customSetItemsInBank;
+  return customSetItemsInResume;
 };
 
 export const useDeleteItem = (
