@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import { PlusIcon } from "@radix-ui/react-icons";
+import Filter from "@/assets/filter.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,12 +42,17 @@ import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
 import ECHelper from "@/components/ec-helper";
+import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import ResumeItemTypeDropdown from "@/components/ResumeItemDropdown";
+import NewItemDropdown from "@/components/NewItemDropdown";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
   const [resumeName, setResumeName] = useState<string | undefined>(undefined);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const [isSaved, setIsSaved] = useState<boolean>(true);
+  const [selectedItemType, setSelectedItemType] =
+    useState<resumeItemTypes | null>(null);
 
   const [itemsInBank, setItemsInBank] = useState<
     Array<BaseItem & { id: string }> | undefined
@@ -92,6 +98,8 @@ const Editor: React.FC = () => {
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
   const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
     useState<boolean>(false);
+
+  const [typeDropdown, setTypeDropdown] = useState<boolean>(false);
 
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
@@ -187,7 +195,7 @@ const Editor: React.FC = () => {
     }
   };
 
-  function isSubstringInFields(item: any, searchString: string): boolean {
+  const isSubstringInFields = (item: any, searchString: string): boolean => {
     const lowerCaseString = searchString.toLowerCase();
     const fields = Object.values(item);
     for (const field of fields) {
@@ -215,11 +223,18 @@ const Editor: React.FC = () => {
     return false;
   }
 
+  const filterByItemType = (item: BaseItem): boolean => {
+    if (selectedItemType === null) return true; // If no filter selected, return true for all items
+    return item.type == selectedItemType; // Customize the condition based on your item type property
+  };
+
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Filter items in the bank based on the search query
-  const filteredItemsInBank = itemsInBank?.filter((item) =>
-    isSubstringInFields(item, searchQuery),
+  const filteredItemsInBank = itemsInBank?.filter(
+    (item) =>
+      isSubstringInFields(item, searchQuery) && // Filter by search query
+      filterByItemType(item), // Filter by item type
   );
 
   // Handle search query change
@@ -293,57 +308,23 @@ const Editor: React.FC = () => {
       <div className="w-full h-[3rem] flex items-center bg-white">
         <Card className="w-full h-[2.5rem] mr-3 ml-3 bg-[#e7ecef] flex items-center p-1">
           <div className="flex items-center justify-start justify-between w-1/2">
-            <DropdownMenu
-              open={dropdownIsOpen}
-              onOpenChange={setDropdownIsOpen}
-            >
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="h-full"
-                  variant="ghost"
-                  disabled={exceedsMaximumItems()}
-                >
-                  <PlusIcon className="mr-2"></PlusIcon>
-                  Add Resume Item
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel className="text-center">
-                  Item Type
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <HeadingItem
-                  setDropdownIsOpen={setDropdownIsOpen}
-                ></HeadingItem>
-                <DropdownMenuSeparator />
-                <SubheadingItem
-                  setDropdownIsOpen={setDropdownIsOpen}
-                ></SubheadingItem>
-                <DropdownMenuSeparator></DropdownMenuSeparator>
-                <EducationItem
-                  setDropdownIsOpen={setDropdownIsOpen}
-                ></EducationItem>
-                <DropdownMenuSeparator />
-                <ExperienceItem
-                  setDropdownIsOpen={setDropdownIsOpen}
-                ></ExperienceItem>
-                <DropdownMenuSeparator />
-                <ExtracurricularItem
-                  setDropdownIsOpen={setDropdownIsOpen}
-                ></ExtracurricularItem>
-                <DropdownMenuSeparator />
-                <ProjectItem
-                  setDropdownIsOpen={setDropdownIsOpen}
-                ></ProjectItem>
-                <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Input
-              className="w-[1/2] h-full center"
-              placeholder="Search Items..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
+            <NewItemDropdown
+              dropdownIsOpen={dropdownIsOpen}
+              setDropdownIsOpen={setDropdownIsOpen}
+            ></NewItemDropdown>
+            <div className="flex">
+              <Input
+                className="w-[1/2] h-full"
+                placeholder="Search Items..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <ResumeItemTypeDropdown
+                typeDropdown={typeDropdown}
+                setTypeDropdown={setTypeDropdown}
+                setSelectedItemType={setSelectedItemType}
+              ></ResumeItemTypeDropdown>
+            </div>
             <DropdownMenu
               open={templateDropdownIsOpen}
               onOpenChange={setTemplateDropdownIsOpen}
@@ -352,7 +333,6 @@ const Editor: React.FC = () => {
                 <Button
                   className="h-full mr-4"
                   variant="ghost"
-                  disabled={exceedsMaximumItems()}
                 >
                   Change Template
                 </Button>
