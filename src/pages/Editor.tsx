@@ -51,7 +51,6 @@ import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInResume } from "@/hooks/mutations";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
-import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
 import ECHelper from "@/components/ec-helper";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
@@ -198,14 +197,16 @@ const Editor: React.FC = () => {
 
   const generatePdfAndOpen = async (items: BaseItem[] | undefined) => {
     if (items && resume) {
-      const latexString = generateFullResume(items);
-      const blob = await generatePdfBlobSafe(latexString);
-      const url = URL.createObjectURL(blob);
-      // window.open(url, "_blank");
-      let fileLink = document.createElement("a");
-      fileLink.href = url;
-      fileLink.download = resume.itemName;
-      fileLink.click();
+      const latexString = generateFullResumeGeneric(items, resume.templateId);
+      if (latexString != null) {
+        const blob = await generatePdfBlobSafe(latexString);
+        const url = URL.createObjectURL(blob);
+        // window.open(url, "_blank");
+        let fileLink = document.createElement("a");
+        fileLink.href = url;
+        fileLink.download = resume.itemName;
+        fileLink.click();
+      }
     }
   };
 
@@ -477,12 +478,10 @@ const Editor: React.FC = () => {
                                   [item.id]: false,
                                 }))
                               }
-                              latexCode={
-                                generateLatexGeneric(
-                                  item,
-                                  resume?.templateId,
-                                )
-                              }
+                              latexCode={generateLatexGeneric(
+                                item,
+                                resume?.templateId,
+                              )}
                               cacheKey={`${item._id}${resume?.templateId}`}
                             ></LatexImage>
                           </div>
@@ -540,9 +539,10 @@ const Editor: React.FC = () => {
                               [item.id]: false,
                             }))
                           }
-                          latexCode={
-                            generateLatexGeneric(item, resume?.templateId)
-                          }
+                          latexCode={generateLatexGeneric(
+                            item,
+                            resume?.templateId,
+                          )}
                           cacheKey={`${item._id}${resume?.templateId}`}
                         ></LatexImage>
                       </div>
