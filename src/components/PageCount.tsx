@@ -56,7 +56,7 @@ export const PageCount: React.FC<{ items: BaseItem[] | undefined }> = ({
   return (
     <HoverCard openDelay={200} closeDelay={200}>
       <HoverCardTrigger asChild>
-        <Button variant="outline">Pages: {numPages}</Button>
+        <Button className="h-full" variant="ghost">Pages: {numPages}</Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
         <div className="grid gap-2">

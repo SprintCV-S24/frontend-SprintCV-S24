@@ -160,8 +160,8 @@ export function ExperienceItem({
       user: token!,
       bullets: filteredBullets,
       itemName: data.itemName,
-      title: data.jobTitle,
-      subtitle: data.companyName,
+      title: data.companyName,
+      subtitle: data.jobTitle,
       year: data.date,
       location: data.location,
     };
