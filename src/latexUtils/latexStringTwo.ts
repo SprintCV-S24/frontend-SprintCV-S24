@@ -10,11 +10,11 @@ import {
   BaseItem,
 } from "../api/models/interfaces";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
-import { stringify } from "postcss";
+import { sanitize } from "./latexString";
 
 // Step 1: Set up the bforasic structure
 
-export function getLatexPreamble(): string {
+export function getLatexPreambleT2(): string {
   return `\\documentclass[letterpaper,11pt]{article}
   
   \\usepackage{latexsym}
@@ -139,11 +139,10 @@ export function getLatexPreamble(): string {
   \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
   
   \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
-  `.trim();;
+  `.trim();
 }
 
-
-export function getLatexContentSizedPreamble(): string {
+export function getLatexContentSizedPreambleT2(): string {
   return `\\documentclass[letterpaper,11pt]{article}
   
   \\usepackage{latexsym}
@@ -159,6 +158,7 @@ export function getLatexContentSizedPreamble(): string {
   \\usepackage{fontawesome5}
   \\usepackage{multicol}
   \\usepackage{graphicx}%\\setmainfont{Times New Roman}
+  \\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
   \\setlength{\\multicolsep}{-3.0pt}
   \\setlength{\\columnsep}{-1pt}
   \\input{glyphtounicode}
@@ -189,7 +189,6 @@ export function getLatexContentSizedPreamble(): string {
   \\addtolength{\\oddsidemargin}{-0.6in}
   \\addtolength{\\evensidemargin}{-0.5in}
   \\addtolength{\\textwidth}{1.19in}
-  \\addtolength{\\topmargin}{-.7in}
   \\addtolength{\\textheight}{1.4in}
   \\urlstyle{same}
   
@@ -272,113 +271,96 @@ export function getLatexContentSizedPreamble(): string {
   \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
 
   \\AtBeginDocument{
-    \\setbox0=\\vbox\\bgroup
-    \\preto\\enddocument{\\egroup
-        \\dimen0=\\dp0
-        \\pdfpageheight=\\dimexpr\\ht0+\\dimen0\\baselineskip\\relax 
-        \\unvbox0\\kern-\\dimen0 }
-  }
+            \\setbox0=\\vbox\\bgroup
+            \\preto\\enddocument{\\egroup
+                \\dimen0=\\dp0
+                \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
+                \\unvbox0\\kern-\\dimen0 }
+			}		
 
   `.trim();
 }
 
-export function sanitize(str: string): string {
-    const symbolMap: { [key: string]: string } = {
-      "'": "\\textquotesingle{}",
-      '"': "\\textquotedbl{}",
-      "`": "\\textasciigrave{}",
-      "^": "\\textasciicircum{}",
-      "~": "\\textasciitilde{}",
-      "<": "\\textless{}",
-      ">": "\\textgreater{}",
-      "|": "\\textbar{}",
-      "\\": "\\textbackslash{}",
-      "{": "\\{",
-      "}": "\\}",
-      $: "\\$",
-      "&": "\\&",
-      "#": "\\#",
-      _: "\\_",
-      "%": "\\%",
-      "/": "\\textbackslash{}",
-      "[": "\\textlbrack{}",
-      "]": "\\textrbrack{}",
-    };
-  
-    return Array.from(str)
-      .map((char) => symbolMap[char] || char)
-      .join("");
-  }
-  
-  export const generateHeaderLatex = (activityObj: HeadingsType): string => {
-    let headerLatex = getLatexContentSizedPreamble();
-    headerLatex += `\\begin{document}\n`;
-    headerLatex += generateHeaderLatexHelper(activityObj);
-    headerLatex += `\\end{document}`;
-    return headerLatex;
-  };
-  
-  export const generateHeaderLatexHelper = (activityObj: HeadingsType): string => {
-    let headerLatex = `\\begin{center}\n`;
-    headerLatex += `{\\huge ${sanitize(activityObj.name)}} \\\\ \\vspace{2pt}\n`;
-  
-    activityObj.items.forEach((item, index) => {
-      const sanitizedItem = sanitize(item.item);
-      if (item.href) {
-        headerLatex += `\\href{${item.href}}{\\color{blue}{${sanitizedItem}}}`;
-      } else {
-        headerLatex += `${sanitizedItem}`;
-      }
-  
-      if (index < activityObj.items.length - 1) {
-        headerLatex += ` ~ \\small{-} ~ `;
-      }
-    });
-  
-    headerLatex += `\\vspace{7pt}\n`;
-    headerLatex += `\\end{center}`;
-    return headerLatex;
-  };
+export const generateHeaderLatexT2 = (activityObj: HeadingsType): string => {
+  let headerLatex = getLatexContentSizedPreambleT2();
+  headerLatex = headerLatex.replace(
+    "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
+    "\\usepackage[top=.3in, left=1in, right=1in, bottom=1in]{geometry}",
+  );
+  headerLatex += `\\begin{document}\n`;
+  headerLatex += generateHeaderLatexHelperT2(activityObj);
+  headerLatex += `\\end{document}`;
+  return headerLatex;
+};
 
-  // Define a mock HeadingsType object with sample data
-  export const mockHeaderData: HeadingsType = {
-    user: "johndoe",
-    itemName: "John Doe Header",
-    name: "John Doe",
-    items: [
-      { item: "+1 (123) 456 7890", href: "" },
-      { item: "Portfolio", href: "http://johndoeportfolio.com" },
-      { item: "john.doe@example.com", href: "mailto:john.doe@example.com" },
-      { item: "linkedin.com/in/johndoe", href: "https://www.linkedin.com/in/johndoe" },
-      { item: "github.com/johndoe", href: "https://github.com/johndoe" },
-    ],
-  };
-  
-  
-  // Generate the LaTeX code for the header using the mock data
-  export const headerLatex = generateHeaderLatex(mockHeaderData);
+export const generateHeaderLatexHelperT2 = (
+  activityObj: HeadingsType,
+): string => {
+  let headerLatex = `\\begin{center}\n`;
+  headerLatex += `{\\huge ${sanitize(activityObj.name)}} \\\\ \\vspace{2pt}\n`;
 
-  
+  activityObj.items.forEach((item, index) => {
+    const sanitizedItem = sanitize(item.item);
+    if (item.href) {
+      headerLatex += `\\href{${item.href}}{\\color{blue}{${sanitizedItem}}}`;
+    } else {
+      headerLatex += `${sanitizedItem}`;
+    }
 
-  // Generates the LaTeX code for the education section of the resume.
-export const generateEducationLatex = (educationArray: EducationType): string => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n`;
-    latexString += `\\resumeSubHeadingListStart\n`;
-  
-    // Iterate over each education entry and append its LaTeX code
-    latexString += generateEducationLatexHelper(educationArray as EducationType);
- 
-  
-    latexString += `\\resumeSubHeadingListEnd\n`;
-    latexString += `\\vspace{10pt}\n`;
-    latexString += `\\end{document}\n`
-  
-    return latexString;
-  };
-  
+    if (index < activityObj.items.length - 1) {
+      headerLatex += ` ~ \\small{-} ~ `;
+    }
+  });
+
+  headerLatex += `\\vspace{7pt}\n`;
+  headerLatex += `\\end{center}`;
+  return headerLatex;
+};
+
+// Define a mock HeadingsType object with sample data
+export const mockHeaderData: HeadingsType = {
+  user: "johndoe",
+  itemName: "John Doe Header",
+  name: "John Doe",
+  items: [
+    { item: "+1 (123) 456 7890", href: "" },
+    { item: "Portfolio", href: "http://johndoeportfolio.com" },
+    { item: "john.doe@example.com", href: "mailto:john.doe@example.com" },
+    {
+      item: "linkedin.com/in/johndoe",
+      href: "https://www.linkedin.com/in/johndoe",
+    },
+    { item: "github.com/johndoe", href: "https://github.com/johndoe" },
+  ],
+};
+
+// Generate the LaTeX code for the header using the mock data
+export const headerLatex = generateHeaderLatexT2(mockHeaderData);
+
+// Generates the LaTeX code for the education section of the resume.
+export const generateEducationLatexT2 = (
+  educationArray: EducationType,
+): string => {
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString += `\\begin{document}\n`;
+  latexString += `\\resumeSubHeadingListStart\n`;
+
+  // Iterate over each education entry and append its LaTeX code
+  latexString += generateEducationLatexHelperT2(
+    educationArray as EducationType,
+  );
+
+  latexString += `\\resumeSubHeadingListEnd\n`;
+  latexString += `\\vspace{-\lastskip}\n`;
+  latexString += `\\end{document}\n`;
+
+  return latexString;
+};
+
 // Helper function to generate LaTeX code for an individual education entry
-export const generateEducationLatexHelper = (educationObj: EducationType): string => {
+export const generateEducationLatexHelperT2 = (
+  educationObj: EducationType,
+): string => {
   let latexString = `\\resumeSubheading\n`;
   latexString += `{${sanitize(educationObj.title)}}\n`; // University Name
   latexString += `{${sanitize(educationObj.location)}}\n`; // Location
@@ -394,8 +376,7 @@ export const generateEducationLatexHelper = (educationObj: EducationType): strin
   }
 
   return latexString;
-  };
-  
+};
 
 // Define a single education entry for testing
 const mockEducationEntry: EducationType = {
@@ -409,11 +390,8 @@ const mockEducationEntry: EducationType = {
 };
 
 // Generate the LaTeX code for the education entry
-export const mockEducationEntry2 = generateEducationLatex(mockEducationEntry);
-  
+export const mockEducationEntry2 = generateEducationLatexT2(mockEducationEntry);
 
-  
-  
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
 /*  ------------------------------------------------- */
@@ -425,50 +403,52 @@ export const mockEducationEntry2 = generateEducationLatex(mockEducationEntry);
  * @param {ExperienceType} activityObj - An object containing data for the experience section.
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
-export const generateExperienceLatex = (activityObj: ExperienceType) => {
-    let latexString = getLatexContentSizedPreamble();
-    latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
-  
-    latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
-  
-    latexString +=
-      "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
-  
-    return latexString;
-  };
-  
-  export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
-    let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title,)},${sanitize(activityObj.location,)}}{${sanitize(activityObj.year)}}
+export const generateExperienceLatexT2 = (activityObj: ExperienceType) => {
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
+
+  latexString += generateExperienceLatexHelperT2(activityObj as ExperienceType);
+
+  latexString +=
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
+
+  return latexString;
+};
+
+export const generateExperienceLatexHelperT2 = (
+  activityObj: ExperienceType,
+) => {
+  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title)},${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
       `;
-  
-    if (activityObj.bullets.length > 0) {
-      latexString += "\\resumeItemListStart\n";
-      activityObj.bullets.forEach((bulletPoint) => {
-        latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
-      });
-      latexString += "\\resumeItemListEnd\n";
-    }
-  
-    return latexString;
-  };
-  
-  const experienceData: ExperienceType = {
-    user: "janesmith",
-    itemName: "Senior Software Engineer",
-    bullets: [
-      "Led the development of a large-scale e-commerce platform using microservices architecture",
-      "Implemented server-side rendering and client-side hydration for optimal performance",
-      "Utilized Docker and Kubernetes for containerization and deployment",
-      "Collaborated with product and design teams to deliver high-quality user experiences",
-      "Mentored junior developers and conducted code reviews to maintain code quality",
-    ],
-    title: "DEF Company",
-    subtitle: "Senior Software Engineer",
-    year: "2020 - Present",
-    location: "City, State",
-  };
-  
-  export const experMock = (generateExperienceLatex(experienceData));
+
+  if (activityObj.bullets.length > 0) {
+    latexString += "\\resumeItemListStart\n";
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
+    });
+    latexString += "\\resumeItemListEnd\n";
+  }
+
+  return latexString;
+};
+
+const experienceData: ExperienceType = {
+  user: "janesmith",
+  itemName: "Senior Software Engineer",
+  bullets: [
+    "Led the development of a large-scale e-commerce platform using microservices architecture",
+    "Implemented server-side rendering and client-side hydration for optimal performance",
+    "Utilized Docker and Kubernetes for containerization and deployment",
+    "Collaborated with product and design teams to deliver high-quality user experiences",
+    "Mentored junior developers and conducted code reviews to maintain code quality",
+  ],
+  title: "DEF Company",
+  subtitle: "Senior Software Engineer",
+  year: "2020 - Present",
+  location: "City, State",
+};
+
+export const experMock = generateExperienceLatexT2(experienceData);
 
 /*  ------------------------------------------------- */
 /*  -------------------Project-------------------- */
@@ -481,20 +461,21 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
  * @param {ExperienceType} activityObj - An object containing data for the experience section.
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
-export const generateProjectLatex = (activityObj: ProjectsType) => {
-  let latexString = getLatexContentSizedPreamble();
+export const generateProjectLatexT2 = (activityObj: ProjectsType) => {
+  let latexString = getLatexContentSizedPreambleT2();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
-  latexString += generateProjectLatexHelper(activityObj as ProjectsType);
+  latexString += generateProjectLatexHelperT2(activityObj as ProjectsType);
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-export const generateProjectLatexHelper = (activityObj: ProjectsType) => {
-  let latexString = `\n\\resumeSubheadingTwo{${sanitize(activityObj.title,)}}{}{${sanitize(activityObj.technologies  ?? '',
+export const generateProjectLatexHelperT2 = (activityObj: ProjectsType) => {
+  let latexString = `\n\\resumeSubheadingTwo{${sanitize(activityObj.title)}}{}{${sanitize(
+    activityObj.technologies ?? "",
   )}}{${sanitize(activityObj.year)}}
     `;
 
@@ -508,8 +489,6 @@ export const generateProjectLatexHelper = (activityObj: ProjectsType) => {
 
   return latexString;
 };
-
-
 
 const projectData: ProjectsType = {
   user: "janesmith",
@@ -526,7 +505,7 @@ const projectData: ProjectsType = {
   year: "2020 - Present",
 };
 
-export const projectDataMock = (generateProjectLatex(projectData));
+export const projectDataMock = generateProjectLatexT2(projectData);
 
 /*  ------------------------------------------------- */
 /*  -------------------SKILLS==---------------------- */
@@ -539,31 +518,28 @@ export const projectDataMock = (generateProjectLatex(projectData));
  * @param {SkillsType} skillsObj - An object containing data for the skills section.
  * @returns {string} The generated LaTeX code for the skills section of the resume.
  */
-export const generateSkillsLatex = (skillsObj: SkillsType): string => {
-  let latexString = getLatexContentSizedPreamble();
+export const generateSkillsLatexT2 = (skillsObj: SkillsType): string => {
+  let latexString = getLatexContentSizedPreambleT2();
   latexString += "\\begin{document}\n";
 
-  latexString += generateSkillsLatexHelper(skillsObj as SkillsType);
+  latexString += generateSkillsLatexHelperT2(skillsObj as SkillsType);
 
-  latexString += "\\vspace{\\lastskip}\n\\end{document}\n";
+  latexString += "\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
-  let latexString = "\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
+export const generateSkillsLatexHelperT2 = (skillsObj: SkillsType): string => {
+  let latexString = "\n\\begin{itemize}[leftmargin=0in, label={}]\n";
   latexString += "\\small{\\item{";
   latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(
     skillsObj.description,
   )}} \\\\`;
 
-    
-
   latexString += "}}\n\\end{itemize}\n";
 
   return latexString;
 };
-
 
 const skillsData: SkillsType = {
   user: "janesmith",
@@ -572,7 +548,7 @@ const skillsData: SkillsType = {
   description: "JavaScript, Python, Java, C++, HTML/CSS",
 };
 
-export const skillsMock = generateSkillsLatex(skillsData);
+export const skillsMock = generateSkillsLatexT2(skillsData);
 
 /*  ------------------------------------------------- */
 /*  -------------------Activity-------------------- */
@@ -585,23 +561,21 @@ export const skillsMock = generateSkillsLatex(skillsData);
  * @param {ActivitiesType} activityObj - An object containing data for the experience section.
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
-export const generateActivityLatex = (activityObj: ActivitiesType) => {
-  let latexString = getLatexContentSizedPreamble();
+export const generateActivityLatexT2 = (activityObj: ActivitiesType) => {
+  let latexString = getLatexContentSizedPreambleT2();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
-  latexString += generateActivityLatexHelper(activityObj as ActivitiesType);
+  latexString += generateActivityLatexHelperT2(activityObj as ActivitiesType);
 
   latexString +=
-    "\\resumeSubHeadingListEnd\n\\vspace{\\lastskip}\n\\end{document}\n";
+    "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
-    
-  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title,)},${sanitize(activityObj.location,)}}{${sanitize(activityObj.year)}}
+export const generateActivityLatexHelperT2 = (activityObj: ActivitiesType) => {
+  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title)},${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
     `;
-
 
   if (activityObj.bullets.length > 0) {
     latexString += "\\resumeItemListStart\n";
@@ -630,8 +604,7 @@ const activityObjData: ActivitiesType = {
   location: "City, State",
 };
 
-export const activityMock = (generateActivityLatex(activityObjData));
-
+export const activityMock = generateActivityLatexT2(activityObjData);
 
 /*  ------------------------------------------------- */
 /*  -------------------Header---------------------- */
@@ -645,33 +618,26 @@ export const activityMock = (generateActivityLatex(activityObjData));
  * @param {SectionHeadingsType} activityObj - An object containing the title for the section header.
  * @returns {string} The generated LaTeX code for the section header.
  */
-export const generateSectionHeadingLatex = (
+export const generateSectionHeadingLatexT2 = (
   activityObj: SectionHeadingsType,
 ) => {
-  let latexString = getLatexContentSizedPreamble();
-	latexString = latexString.replace(
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString = latexString.replace(
     "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
-    "\\usepackage[top=.05in, left=1in, right=1in, bottom=1in]{geometry}",
+    "\\usepackage[top=.1in, left=1in, right=1in, bottom=1in]{geometry}",
   );
-	latexString = latexString.replace(
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.05in"
-	);
-
   latexString += `\\begin{document}`;
 
-  latexString += generateSectionHeadingLatexHelper(
+  latexString += generateSectionHeadingLatexHelperT2(
     activityObj as SectionHeadingsType,
   );
 
-  latexString += "\n \\vspace{3pt} \\vspace{\\lastskip}\n\\end{document}\n";
+  latexString += "\n \\vspace{-7pt} \\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-
-
-export const generateSectionHeadingLatexHelper = (
+export const generateSectionHeadingLatexHelperT2 = (
   activityObj: SectionHeadingsType,
 ) => {
   let latexString = `\n\\section{\\color{airforceblue}${sanitize(activityObj.title)}}\n`;
@@ -684,31 +650,31 @@ const sectionHeadingData: SectionHeadingsType = {
   title: "Professional Experience",
 };
 
-export const sectionHeadingMock = generateSectionHeadingLatex(sectionHeadingData);
-
+export const sectionHeadingMock =
+  generateSectionHeadingLatexT2(sectionHeadingData);
 
 export const generateLatex = (object: BaseItem): string => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
-      return generateEducationLatex(object as EducationType);
+      return generateEducationLatexT2(object as EducationType);
 
     case resumeItemTypes.EXPERIENCE:
-      return generateExperienceLatex(object as ExperienceType);
+      return generateExperienceLatexT2(object as ExperienceType);
 
     case resumeItemTypes.ACTIVITY:
-      return generateActivityLatex(object as ActivitiesType);
+      return generateActivityLatexT2(object as ActivitiesType);
 
     case resumeItemTypes.HEADING:
-      return generateHeaderLatex(object as HeadingsType);
+      return generateHeaderLatexT2(object as HeadingsType);
 
     case resumeItemTypes.PROJECT:
-      return generateProjectLatex(object as ProjectsType);
+      return generateProjectLatexT2(object as ProjectsType);
 
     case resumeItemTypes.SECTIONHEADING:
-      return generateSectionHeadingLatex(object as SectionHeadingsType);
+      return generateSectionHeadingLatexT2(object as SectionHeadingsType);
 
     case resumeItemTypes.SKILL:
-      return generateSkillsLatex(object as SkillsType);
+      return generateSkillsLatexT2(object as SkillsType);
   }
 };
 
@@ -719,8 +685,8 @@ const itemsInSubHeadingList = [
   resumeItemTypes.PROJECT,
 ];
 
-export const generateFullResume = (resumeItems: BaseItem[]): string => {
-  let latexString = getLatexPreamble();
+export const generateFullResumeT2 = (resumeItems: BaseItem[]): string => {
+  let latexString = getLatexPreambleT2();
   latexString += "\\begin{document}\n";
   let isInSubHeadingList = false;
 
@@ -743,33 +709,33 @@ export const generateFullResume = (resumeItems: BaseItem[]): string => {
 
     switch (item.type) {
       case resumeItemTypes.HEADING:
-        latexString += generateHeaderLatexHelper(item as HeadingsType);
+        latexString += generateHeaderLatexHelperT2(item as HeadingsType);
         break;
       case resumeItemTypes.SECTIONHEADING:
         latexString += `\\section{\\color{airforceblue}${sanitize((item as SectionHeadingsType).title)}}\n`;
         break;
       case resumeItemTypes.EDUCATION:
         startList();
-        latexString += generateEducationLatexHelper(item as EducationType);
+        latexString += generateEducationLatexHelperT2(item as EducationType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.EXPERIENCE:
         startList();
-        latexString += generateExperienceLatexHelper(item as ExperienceType);
+        latexString += generateExperienceLatexHelperT2(item as ExperienceType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.ACTIVITY:
         startList();
-        latexString += generateActivityLatexHelper(item as ActivitiesType);
+        latexString += generateActivityLatexHelperT2(item as ActivitiesType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.PROJECT:
         startList();
-        latexString += generateProjectLatexHelper(item as ProjectsType);
+        latexString += generateProjectLatexHelperT2(item as ProjectsType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.SKILL:
-        latexString += generateSkillsLatexHelper(item as SkillsType);
+        latexString += generateSkillsLatexHelperT2(item as SkillsType);
         break;
     }
   }
@@ -1233,6 +1199,6 @@ export const comprehensiveTestResumeItems2: BaseItem[] = [
 ];
 
 // Generate the full resume LaTeX code
-export const FullResumeSample = generateFullResume(
+export const FullResumeSample = generateFullResumeT2(
   comprehensiveTestResumeItems2,
 );

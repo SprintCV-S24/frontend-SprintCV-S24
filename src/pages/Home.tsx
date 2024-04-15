@@ -38,16 +38,16 @@ const Home: React.FC = () => {
     void updateToken();
 
     // console.log(generatedLatexCode);
-    // console.log(headerLatex);
-  //   console.log(experMock); // double checked and works as wanted 
+    console.log("HEADERLATEX", headerLatex);
+    // console.log("EXPERMOCK", experMock); // double checked and works as wanted 
    //  console.log(activityMock);
     //console.log(testHeaderLatex2);
     // console.log(headerLatex); double checked behaves correctly 
-  //  console.log(mockEducationEntry2); //double checked behaves correctly 
+  //  console.log("EDUMOCK:", mockEducationEntry2); //double checked behaves correctly 
      // console.log(projectDataMock); //double checked behaves correctly 
-    // console.log(skillsMock); //double checked behaves correctly 
-     // console.log(sectionHeadingMock); //double checked behaves correctly 
-      console.log(FullResumeSample); //double checked behaves correctly 
+    // console.log("SKILLSMOCK:", skillsMock); //double checked behaves correctly 
+    //  console.log("SECTIONMOCK:", sectionHeadingMock); //double checked behaves correctly 
+      // console.log("FULLRESUMESAMPLE:",FullResumeSample); //double checked behaves correctly 
     
   }, [currentUser]);
 
