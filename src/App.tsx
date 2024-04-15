@@ -27,6 +27,7 @@ import { notifyInitializationComplete } from "./latexUtils/renderQueue";
 import { pdfInit } from "./latexUtils/pdfUtils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { testlatex4 } from "./tests/dummyData";
+import { Toaster } from "@/components/ui/sonner"
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -78,6 +79,7 @@ const App: React.FC = () => {
           <RouterProvider router={router} />
         </ResumeContext.Provider>
       </QueryClientProvider>
+      <Toaster />
     </AuthProvider>
   );
 };
