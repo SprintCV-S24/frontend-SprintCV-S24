@@ -329,7 +329,7 @@ const Editor: React.FC = () => {
               dropdownIsOpen={dropdownIsOpen}
               setDropdownIsOpen={setDropdownIsOpen}
             ></NewItemDropdown>
-            <div className="flex">
+            <div className="flex items-center">
               <Input
                 className="w-[1/2] h-full"
                 placeholder="Search Items..."
@@ -373,15 +373,15 @@ const Editor: React.FC = () => {
             ></ResumeName>
             <ResumeSaved isSaved={isSaved}></ResumeSaved>
             <Button
-              className="text-red-500 font-bold px-[.5rem] mx-[.5rem]"
+              className="text-red-500 font-bold px-[.5rem]"
               variant="ghost"
               onClick={handleClearResume}
             >
               Clear
             </Button>
-            <PageCount items={itemsInResume}></PageCount>
+            <PageCount items={itemsInResume} templateId={resume?.templateId}></PageCount>
             <Button
-              className={"px-[.5rem] mx-[.5rem]"}
+              className={"px-[.5rem]"}
               variant="ghost"
               disabled={!isResumeValid()}
               onClick={() => {
@@ -492,7 +492,7 @@ const Editor: React.FC = () => {
                                 : "hidden"
                             }
                           >
-                            Loading Document...
+                            Loading Item...
                           </Skeleton>
                         </div>
                       </Card>
@@ -553,7 +553,7 @@ const Editor: React.FC = () => {
                             : "hidden"
                         }
                       >
-                        Loading Document...
+                        Loading Item...
                       </Skeleton>
                     </div>
                   ))}
