@@ -66,7 +66,7 @@ export const ResumeName: React.FC<{
 
   return (
     <Input
-      className="m-2 min-w-[50px]"
+      className="m-2 min-w-[50px] h-full ml-8"
       type="text"
       value={resumeName}
       onChange={handleInputChange}

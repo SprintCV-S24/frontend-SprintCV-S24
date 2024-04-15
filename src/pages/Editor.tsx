@@ -90,6 +90,8 @@ const Editor: React.FC = () => {
   } = useDeleteItem(queryClient, storedToken);
 
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+  const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
+    useState<boolean>(false);
 
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
@@ -189,14 +191,22 @@ const Editor: React.FC = () => {
     const lowerCaseString = searchString.toLowerCase();
     const fields = Object.values(item);
     for (const field of fields) {
-      if (typeof field === "string" && field != "item.id" && field.toLowerCase().includes(lowerCaseString)) {
+      if (
+        typeof field === "string" &&
+        field != "item.id" &&
+        field.toLowerCase().includes(lowerCaseString)
+      ) {
         console.log(field.toLowerCase());
         return true;
       }
       if (Array.isArray(field)) {
         for (const item of field) {
-          if (typeof item === "string" && item != "item.id" && item.toLowerCase().includes(lowerCaseString)) {
-            console.log(item.toLowerCase())
+          if (
+            typeof item === "string" &&
+            item != "item.id" &&
+            item.toLowerCase().includes(lowerCaseString)
+          ) {
+            console.log(item.toLowerCase());
             return true;
           }
         }
@@ -205,11 +215,13 @@ const Editor: React.FC = () => {
     return false;
   }
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Filter items in the bank based on the search query
-  const filteredItemsInBank = itemsInBank?.filter(item => isSubstringInFields(item, searchQuery));
-  
+  const filteredItemsInBank = itemsInBank?.filter((item) =>
+    isSubstringInFields(item, searchQuery),
+  );
+
   // Handle search query change
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value.toString());
@@ -279,63 +291,120 @@ const Editor: React.FC = () => {
         </div>
       </div>
       <div className="w-full h-[3rem] flex items-center bg-white">
-        <Card className="w-full h-[2.5rem] mr-1 ml-1 bg-[#e7ecef]">a</Card>
+        <Card className="w-full h-[2.5rem] mr-3 ml-3 bg-[#e7ecef] flex items-center p-1">
+          <div className="flex items-center justify-start justify-between w-1/2">
+            <DropdownMenu
+              open={dropdownIsOpen}
+              onOpenChange={setDropdownIsOpen}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="h-full"
+                  variant="ghost"
+                  disabled={exceedsMaximumItems()}
+                >
+                  <PlusIcon className="mr-2"></PlusIcon>
+                  Add Resume Item
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel className="text-center">
+                  Item Type
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <HeadingItem
+                  setDropdownIsOpen={setDropdownIsOpen}
+                ></HeadingItem>
+                <DropdownMenuSeparator />
+                <SubheadingItem
+                  setDropdownIsOpen={setDropdownIsOpen}
+                ></SubheadingItem>
+                <DropdownMenuSeparator></DropdownMenuSeparator>
+                <EducationItem
+                  setDropdownIsOpen={setDropdownIsOpen}
+                ></EducationItem>
+                <DropdownMenuSeparator />
+                <ExperienceItem
+                  setDropdownIsOpen={setDropdownIsOpen}
+                ></ExperienceItem>
+                <DropdownMenuSeparator />
+                <ExtracurricularItem
+                  setDropdownIsOpen={setDropdownIsOpen}
+                ></ExtracurricularItem>
+                <DropdownMenuSeparator />
+                <ProjectItem
+                  setDropdownIsOpen={setDropdownIsOpen}
+                ></ProjectItem>
+                <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Input
+              className="w-[1/2] h-full center"
+              placeholder="Search Items..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <DropdownMenu
+              open={templateDropdownIsOpen}
+              onOpenChange={setTemplateDropdownIsOpen}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="h-full mr-4"
+                  variant="ghost"
+                  disabled={exceedsMaximumItems()}
+                >
+                  Change Template
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Button variant="ghost">Template 1</Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Button variant="ghost">Template 2</Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="flex items-center justify-start w-1/2">
+            <ResumeName
+              token={storedToken}
+              resumeId={id as string}
+              resumeName={resumeName}
+              setResumeName={setResumeName}
+              setSaving={() => {
+                setIsSaved(false);
+              }}
+              setSaved={() => {
+                setIsSaved(true);
+              }}
+            ></ResumeName>
+            <ResumeSaved isSaved={isSaved}></ResumeSaved>
+            <Button
+              className="text-red-500 font-bold px-[.5rem] mx-[.5rem]"
+              variant="ghost"
+              onClick={handleClearResume}
+            >
+              Clear
+            </Button>
+            <PageCount items={itemsInResume}></PageCount>
+            <Button
+              className={"px-[.5rem] mx-[.5rem]"}
+              variant="ghost"
+              disabled={!isResumeValid()}
+              onClick={() => {
+                generatePdfAndOpen(itemsInResume);
+              }}
+            >
+              <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
+            </Button>
+          </div>
+        </Card>
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-screen overflow-y-auto">
         <div className="w-1/2 p-4 flex-col">
-          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
-              <DropdownMenu
-                open={dropdownIsOpen}
-                onOpenChange={setDropdownIsOpen}
-              >
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    disabled={exceedsMaximumItems()}
-                  >
-                    <PlusIcon className="mr-2"></PlusIcon>
-                    Add Resume Item
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel className="text-center">
-                    Item Type
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <HeadingItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></HeadingItem>
-                  <DropdownMenuSeparator />
-                  <SubheadingItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></SubheadingItem>
-                  <DropdownMenuSeparator></DropdownMenuSeparator>
-                  <EducationItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></EducationItem>
-                  <DropdownMenuSeparator />
-                  <ExperienceItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></ExperienceItem>
-                  <DropdownMenuSeparator />
-                  <ExtracurricularItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></ExtracurricularItem>
-                  <DropdownMenuSeparator />
-                  <ProjectItem
-                    setDropdownIsOpen={setDropdownIsOpen}
-                  ></ProjectItem>
-                  <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Input
-                  className="w-[1/2] center"
-                  placeholder="Search Items..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-          </Card>
-          <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-xl">
+          <ScrollArea className="h-[91%] w-full rounded-md mb-4 border bg-white shadow-xl">
             <div className="p-4 w-full h-full">
               <div className="flex justify-between">
                 <h4 className="mb-4 text-sm flex-none font-medium leading-none mr-4">
@@ -357,7 +426,7 @@ const Editor: React.FC = () => {
                         className="w-full p-2 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
                         key={item._id}
                       >
-                        <div className="w-full flex justify-between items-center p-2 mb-2">
+                        <div className="w-full flex justify-between items-center p-2">
                           {<p className="text-sm">{item.itemName}</p>}
                           <DropdownMenu
                             open={editOpenMap[item.id]}
@@ -440,40 +509,6 @@ const Editor: React.FC = () => {
           </ScrollArea>
         </div>
         <div className="w-[calc(50%-4rem)] ml-8 mt-4">
-          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
-            <ResumeName
-              token={storedToken}
-              resumeId={id as string}
-              resumeName={resumeName}
-              setResumeName={setResumeName}
-              setSaving={() => {
-                setIsSaved(false);
-              }}
-              setSaved={() => {
-                setIsSaved(true);
-              }}
-            ></ResumeName>
-            <ResumeSaved isSaved={isSaved}></ResumeSaved>
-            <Button
-              className="text-red-500 font-bold px-[.5rem] mx-[.5rem]"
-              variant="ghost"
-              onClick={handleClearResume}
-            >
-              Clear
-            </Button>
-            <PageCount items={itemsInResume}></PageCount>
-						<Button
-							className={"px-[.5rem] mx-[.5rem]"}
-              variant="ghost"
-              disabled={!isResumeValid()}
-              onClick={() => {
-                generatePdfAndOpen(itemsInResume);
-              }}
-            >
-              <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
-            </Button>
-            <PageCount items={itemsInResume}></PageCount>
-          </Card>
           <div className="bg-white h-[90%] w-full min-w-6 shadow-xl">
             {itemsInResume && id && (
               <ReactSortable
