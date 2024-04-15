@@ -60,7 +60,7 @@ const Home: React.FC = () => {
       <div className="flex-col">
         <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
           <MainNav className="mx-6" />
-          <Button variant="ghost">
+          <Button className="mr-4" variant="secondary">
             <Link to="/profile">Profile</Link>
           </Button>
         </div>
