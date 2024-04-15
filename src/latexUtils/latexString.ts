@@ -389,6 +389,7 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
 
+  console.log("This shouldn't be loading a lot", latexString);
   return latexString;
 };
 

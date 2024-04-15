@@ -37,7 +37,7 @@ export function BugReport({ setDropdownIsOpen }: BugReportProps) {
   const validationSchema = Yup.object().shape({
     bugTitle: Yup.string().required("Bug Title is required"),
     browser: Yup.string().required("Browser is required"),
-    bugDescription: Yup.string().required("Role is required"),
+    bugDescription: Yup.string().required("Bug Description is required"),
   });
 
   const {

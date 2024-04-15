@@ -238,6 +238,6 @@ export const LatexImage: React.FC<{
 
   //it ends up working better checking imageSrc directly rather than having a dedicated
   //  loading state b/c this way there is no small period where a blank image is displayed
-  if (!imageSrc) return <div>Loading...</div>;
+  if (!imageSrc) return <div></div>;
   return <img src={imageSrc} alt="Rendered Latex" />;
 };

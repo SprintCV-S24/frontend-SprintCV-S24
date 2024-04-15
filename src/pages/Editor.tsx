@@ -305,7 +305,8 @@ const Editor: React.FC = () => {
       </div>
       <div className="w-full h-[3rem] flex items-center bg-white">
         <Card className="w-full h-[2.5rem] mr-3 ml-3 bg-[#e7ecef] flex items-center p-1">
-          <div className="flex items-center justify-start justify-between w-1/2">
+          <div className="flex items-center justify-start justify-between w-1/2 hidden lg:block">
+            <div className="flex">
             <NewItemDropdown
               dropdownIsOpen={dropdownIsOpen}
               setDropdownIsOpen={setDropdownIsOpen}
@@ -328,7 +329,7 @@ const Editor: React.FC = () => {
               onOpenChange={setTemplateDropdownIsOpen}
             >
               <DropdownMenuTrigger asChild>
-                <Button className="h-full mr-4" variant="ghost">
+                <Button className="h-full" variant="ghost">
                   Change Template
                 </Button>
               </DropdownMenuTrigger>
@@ -341,8 +342,11 @@ const Editor: React.FC = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
+            <div className="w-[3.5rem]"></div>
+
           </div>
-          <div className="flex items-center justify-start w-1/2">
+          <div className="h-full flex items-center justify-start w-full">
             <ResumeName
               token={storedToken}
               resumeId={id as string}
@@ -391,7 +395,7 @@ const Editor: React.FC = () => {
                 </h4>
               </div>
               <Separator className="mb-2"></Separator>
-              {itemsInBank && (
+              {filteredItemsInBank && (
                 <ReactSortable
                   animation={150}
                   list={itemsInBank}
