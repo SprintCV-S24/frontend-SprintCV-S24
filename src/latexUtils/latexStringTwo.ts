@@ -10,353 +10,362 @@ import {
   BaseItem,
 } from "../api/models/interfaces";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { sanitize } from "./latexString";
 
-/**
- * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
- * string, which includes the document class, necessary packages, and custom commands essential for formatting
- * the resume. The preamble is vital for creating a LaTeX document that can be
-@returns {string} A string representing the LaTeX preamble for the resume document.
- */
-export function getLatexPreamble(): string {
-  return `
-        \\documentclass[letterpaper,11pt]{article}
-        \\usepackage[T1]{fontenc}
-        \\usepackage{latexsym}
-        \\usepackage[empty]{fullpage}
-        \\usepackage{titlesec}
-        \\usepackage{marvosym}
-        \\usepackage[usenames,dvipsnames]{color}
-        \\usepackage{verbatim}
-        \\usepackage{enumitem}
-        \\usepackage[hidelinks]{hyperref}
-        \\usepackage{fancyhdr}
-        \\usepackage[english]{babel}
-        \\usepackage{tabularx}
-        \\input{glyphtounicode}
-        
-        %----------FONT OPTIONS----------
-        % sans-serif
-        % \\usepackage[sfdefault]{FiraSans}
-        % \\usepackage[sfdefault]{roboto}
-        % \\usepackage[sfdefault]{noto-sans}
-        % \\usepackage[default]{sourcesanspro}
-        
-        % serif
-        % \\usepackage{CormorantGaramond}
-        % \\usepackage{charter}
-        
-        \\pagestyle{fancy}
-        \\fancyhf{} % clear all header and footer fields
-        \\fancyfoot{}
-        \\renewcommand{\\headrulewidth}{0pt}
-        \\renewcommand{\\footrulewidth}{0pt}
-        
-        % Adjust margins
-        \\addtolength{\\oddsidemargin}{-0.5in}
-        \\addtolength{\\evensidemargin}{-0.5in}
-        \\addtolength{\\textwidth}{1in}
-        \\addtolength{\\topmargin}{-.5in}
-        \\addtolength{\\textheight}{1.0in}
-        
-        \\urlstyle{same}
-        
-        \\raggedbottom
-        \\raggedright
-        \\setlength{\\tabcolsep}{0in}
-        
-        % Sections formatting
-        \\titleformat{\\section}{
-            \\vspace{-4pt}\\scshape\\raggedright\\large
-        }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
-        
-        % Ensure that generate pdf is machine readable/ATS parsable
-        \\pdfgentounicode=1
-        
-        %-------------------------
-        % Custom commands
-        \\newcommand{\\resumeItem}[1]{
-            \\item\\small{
-            {#1 \\vspace{-2pt}}
-            }
-        }
-        
-        \\newcommand{\\resumeSubheading}[4]{
-            \\vspace{-2pt}\\item
-            \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-                \\textbf{#1} & #2 \\\\
-                \\textit{\\small#3} & \\textit{\\small #4} \\\\
-            \\end{tabular*}\\vspace{-7pt}
-        }
-        
-        \\newcommand{\\resumeSubSubheading}[2]{
-            \\item
-            \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-                \\textit{\\small#1} & \\textit{\\small #2} \\\\
-            \\end{tabular*}\\vspace{-7pt}
-        }
-        
-        \\newcommand{\\resumeProjectHeading}[2]{
-            \\item
-            \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-                \\small#1 & #2 \\\\
-            \\end{tabular*}\\vspace{-7pt}
-        }
-        
-        \\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-        
-        \\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-        
-        \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-        
-        \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-        \\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-        \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}\n
+// Step 1: Set up the bforasic structure
 
-            `.trim();
+export function getLatexPreambleT2(): string {
+  return `\\documentclass[letterpaper,11pt]{article}
+  
+  \\usepackage{latexsym}
+  \\usepackage[empty]{fullpage}
+  \\usepackage{titlesec}
+  \\usepackage{marvosym}
+  \\usepackage[usenames,dvipsnames]{color}
+  \\usepackage{verbatim}
+  \\usepackage{enumitem}
+  \\usepackage[hidelinks]{hyperref}
+  \\usepackage[english]{babel}
+  \\usepackage{tabularx}
+  \\usepackage{fontawesome5}
+  \\usepackage{multicol}
+  \\usepackage{graphicx}%\\setmainfont{Times New Roman}
+  \\setlength{\\multicolsep}{-3.0pt}
+  \\setlength{\\columnsep}{-1pt}
+  \\input{glyphtounicode}
+  
+  \\RequirePackage{tikz}
+  \\RequirePackage{xcolor}
+  
+  \\definecolor{cvblue}{HTML}{0E5484}
+  \\definecolor{black}{HTML}{130810}
+  \\definecolor{darkcolor}{HTML}{0F4539}
+  \\definecolor{cvgreen}{HTML}{3BD80D}
+  \\definecolor{taggreen}{HTML}{00E278}
+  \\definecolor{SlateGrey}{HTML}{2E2E2E}
+  \\definecolor{LightGrey}{HTML}{666666}
+  \\colorlet{name}{black}
+  \\colorlet{tagline}{darkcolor}
+  \\colorlet{heading}{darkcolor}
+  \\colorlet{headingrule}{cvblue}
+  \\colorlet{accent}{darkcolor}
+  \\colorlet{emphasis}{SlateGrey}
+  \\colorlet{body}{LightGrey}
+
+  \\usepackage{CormorantGaramond}
+  \\usepackage{charter}
+  
+
+  \\addtolength{\\oddsidemargin}{-0.6in}
+  \\addtolength{\\evensidemargin}{-0.5in}
+  \\addtolength{\\textwidth}{1.19in}
+  \\addtolength{\\topmargin}{-.7in}
+  \\addtolength{\\textheight}{1.4in}
+  \\urlstyle{same}
+  
+  \\definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
+  
+  \\raggedbottom
+  \\raggedright
+  \\setlength{\\tabcolsep}{0in}
+  
+  \\titleformat{\\section}{
+    \\vspace{-4pt}\\scshape\\raggedright\\large\\bfseries
+  }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
+  
+  \\pdfgentounicode=1
+  
+  \\newcommand{\\resumeItem}[1]{
+    \\item\\small{
+      {#1 \\vspace{-1pt}}
+    }
+  }
+  
+  \\newcommand{\\classesList}[4]{
+      \\item\\small{
+          {#1 #2 #3 #4 \\vspace{-2pt}}
+    }
+  }
+  
+  \\newcommand{\\resumeSubheading}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\large#3} &  \\textit{\\small #4} \\\\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubheadingTwo}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\small#3} &  \\textit{\\small #4} \\\\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSingleSubheading}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+        \\textbf{\\large#1} & \\textbf{\\small #2} \\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubSubheading}[2]{
+      \\item
+      \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+        \\textit{\\small#1} & \\textit{\\small #2} \\
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  
+  \\newcommand{\\resumeProjectHeading}[2]{
+      \\item
+      \\begin{tabular*}{1.001\\textwidth}{l@{\\extracolsep{\\fill}}r}
+        \\small#1 & \\textbf{\\small #2}\\
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
+  
+  \\renewcommand\\labelitemi{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+  \\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+  
+  \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.0in, label={}]}
+  \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
+  \\newcommand{\\resumeItemListStart}{\\begin{itemize}[leftmargin=0.1in]}
+  \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
+  
+  \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
+  `.trim();
 }
 
-/**
- * Generates the LaTeX preamble required for the resume document. This function constructs the preamble
- * string, which includes the document class, necessary packages, and custom commands essential for formatting
- * the resume. The preamble is vital for creating a LaTeX document that can be
-@returns {string} A string representing the LaTeX preamble for the resume document.
- */
-export function getLatexContentSizedPreamble(): string {
-  return `
-        \\documentclass[letterpaper,11pt]{article}
-        
-        \\usepackage[T1]{fontenc}
-        \\usepackage{latexsym}
-        \\usepackage[empty]{fullpage}
-        \\usepackage{titlesec}
-        \\usepackage{marvosym}
-        \\usepackage[usenames,dvipsnames]{color}
-        \\usepackage{verbatim}
-        \\usepackage{enumitem}
-        \\usepackage[hidelinks]{hyperref}
-        \\usepackage{fancyhdr}
-        \\usepackage{etoolbox}
-        \\usepackage[english]{babel}
-        \\usepackage{tabularx}
-        \\input{glyphtounicode}
-        \\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
-        
-        %----------FONT OPTIONS----------
-        % sans-serif
-        % \\usepackage[sfdefault]{FiraSans}
-        % \\usepackage[sfdefault]{roboto}
-        % \\usepackage[sfdefault]{noto-sans}
-        % \\usepackage[default]{sourcesanspro}
+export function getLatexContentSizedPreambleT2(): string {
+  return `\\documentclass[letterpaper,11pt]{article}
+  
+  \\usepackage{latexsym}
+  \\usepackage[empty]{fullpage}
+  \\usepackage{titlesec}
+  \\usepackage{marvosym}
+  \\usepackage[usenames,dvipsnames]{color}
+  \\usepackage{verbatim}
+  \\usepackage{enumitem}
+  \\usepackage[hidelinks]{hyperref}
+  \\usepackage[english]{babel}
+  \\usepackage{tabularx}
+  \\usepackage{fontawesome5}
+  \\usepackage{multicol}
+  \\usepackage{graphicx}%\\setmainfont{Times New Roman}
+  \\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}
+  \\setlength{\\multicolsep}{-3.0pt}
+  \\setlength{\\columnsep}{-1pt}
+  \\input{glyphtounicode}
 
-        
-        % serif
-        % \\usepackage{CormorantGaramond}
-        % \\usepackage{charter}
-        
-        \\pagestyle{fancy}
-        \\fancyhf{} % clear all header and footer fields
-        \\fancyfoot{}
-        \\renewcommand{\\headrulewidth}{0pt}
-        \\renewcommand{\\footrulewidth}{0pt}
-        
-        % Adjust margins
-        \\addtolength{\\oddsidemargin}{-0.5in}
-        \\addtolength{\\evensidemargin}{-0.5in}
-        \\addtolength{\\textwidth}{1in}
-        \\addtolength{\\textheight}{1.0in}
-        
-        \\urlstyle{same}
-        
-        \\raggedbottom
-        \\raggedright
-        \\setlength{\\tabcolsep}{0in}
-        
-        % Sections formatting
-        \\titleformat{\\section}{
-            \\vspace{-4pt}\\scshape\\raggedright\\large
-        }{}{0em}{}[\\color{black}\\titlerule \\vspace{-20pt}]
-        
-        % Ensure that generate pdf is machine readable/ATS parsable
-        \\pdfgentounicode=1
-        
-        %-------------------------
-        % Custom commands
-        \\newcommand{\\resumeItem}[1]{
-            \\item\\small{
-            {#1 \\vspace{-2pt}}
-            }
-        }
-        
-        \\newcommand{\\resumeSubheading}[4]{
-            \\vspace{-2pt}\\item
-            \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
-                \\textbf{#1} & #2 \\\\
-                \\textit{\\small#3} & \\textit{\\small #4} \\\\
-            \\end{tabular*}\\vspace{-7pt}
-        }
-        
-        \\newcommand{\\resumeSubSubheading}[2]{
-            \\item
-            \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-                \\textit{\\small#1} & \\textit{\\small #2} \\\\
-            \\end{tabular*}\\vspace{-7pt}
-        }
-        
-        \\newcommand{\\resumeProjectHeading}[2]{
-            \\item
-            \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-                \\small#1 & #2 \\\\
-            \\end{tabular*}\\vspace{-7pt}
-        }
-        
-        \\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
-        
-        \\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
-        
-        \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
-        
-        \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
-        \\newcommand{\\resumeItemListStart}{\\begin{itemize}}
-        \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}\n
+  
+  \\RequirePackage{tikz}
+  \\RequirePackage{xcolor}
+  
+  \\definecolor{cvblue}{HTML}{0E5484}
+  \\definecolor{black}{HTML}{130810}
+  \\definecolor{darkcolor}{HTML}{0F4539}
+  \\definecolor{cvgreen}{HTML}{3BD80D}
+  \\definecolor{taggreen}{HTML}{00E278}
+  \\definecolor{SlateGrey}{HTML}{2E2E2E}
+  \\definecolor{LightGrey}{HTML}{666666}
+  \\colorlet{name}{black}
+  \\colorlet{tagline}{darkcolor}
+  \\colorlet{heading}{darkcolor}
+  \\colorlet{headingrule}{cvblue}
+  \\colorlet{accent}{darkcolor}
+  \\colorlet{emphasis}{SlateGrey}
+  \\colorlet{body}{LightGrey}
 
-        \\AtBeginDocument{
+  \\usepackage{CormorantGaramond}
+  \\usepackage{charter}
+  
+
+  \\addtolength{\\oddsidemargin}{-0.6in}
+  \\addtolength{\\evensidemargin}{-0.5in}
+  \\addtolength{\\textwidth}{1.19in}
+  \\addtolength{\\textheight}{1.4in}
+  \\urlstyle{same}
+  
+  \\definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
+  
+  \\raggedbottom
+  \\raggedright
+  \\setlength{\\tabcolsep}{0in}
+  
+  \\titleformat{\\section}{
+    \\vspace{-4pt}\\scshape\\raggedright\\large\\bfseries
+  }{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
+  
+  \\pdfgentounicode=1
+  
+  \\newcommand{\\resumeItem}[1]{
+    \\item\\small{
+      {#1 \\vspace{-1pt}}
+    }
+  }
+  
+  \\newcommand{\\classesList}[4]{
+      \\item\\small{
+          {#1 #2 #3 #4 \\vspace{-2pt}}
+    }
+  }
+  
+  \\newcommand{\\resumeSubheading}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\large#3} &  \\textit{\\small #4} \\\\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+
+  \\newcommand{\\resumeSubheadingTwo}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+          \\textbf{\\large#1} & \\textbf{\\small#2}  \\\\
+          \\textit{\\small#3} &  \\textit{\\small #4} \\\\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  
+  \\newcommand{\\resumeSingleSubheading}[4]{
+    \\vspace{-2pt}\\item
+      \\begin{tabular*}{1.0\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+        \\textbf{\\large#1} & \\textbf{\\small #2} \\
+        
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubSubheading}[2]{
+      \\item
+      \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+        \\textit{\\small#1} & \\textit{\\small #2} \\
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  
+  \\newcommand{\\resumeProjectHeading}[2]{
+      \\item
+      \\begin{tabular*}{1.001\\textwidth}{l@{\\extracolsep{\\fill}}r}
+        \\small#1 & \\textbf{\\small #2}\\
+      \\end{tabular*}\\vspace{-7pt}
+  }
+  
+  \\newcommand{\\resumeSubItem}[1]{\\resumeItem{#1}\\vspace{-4pt}}
+  
+  \\renewcommand\\labelitemi{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+  \\renewcommand\\labelitemii{$\\vcenter{\\hbox{\\tiny$\\bullet$}}$}
+  
+  \\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.0in, label={}]}
+  \\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
+  \\newcommand{\\resumeItemListStart}{\\begin{itemize}[leftmargin=0.1in]}
+  \\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
+  
+  \\newcommand\\sbullet[1][.5]{\\mathbin{\\vcenter{\\hbox{\\scalebox{#1}{$\\bullet$}}}}}
+
+  \\AtBeginDocument{
             \\setbox0=\\vbox\\bgroup
             \\preto\\enddocument{\\egroup
                 \\dimen0=\\dp0
                 \\pdfpageheight=\\dimexpr\\ht0+\\dimen0
                 \\unvbox0\\kern-\\dimen0 }
-        }
+			}		
 
-            `.trim();
+  `.trim();
 }
 
-/**
- * Sanitizes a given string to escape LaTeX special characters. This function is essential for ensuring
- * the integrity of the LaTeX code by escaping characters that LaTeX interprets in a specific manner.
- * It prevents compilation errors and ensures that the text is rendered correctly in the final document.
- *
- * @param {string} str - The string to be sanitized for LaTeX.
- * @returns {string} The sanitized string, safe for inclusion in LaTeX code.
- */
-export function sanitize(str: string): string {
-  const symbolMap: { [key: string]: string } = {
-    "'": "\\textquotesingle{}",
-    '"': "\\textquotedbl{}",
-    "`": "\\textasciigrave{}",
-    "^": "\\textasciicircum{}",
-    "~": "\\textasciitilde{}",
-    "<": "\\textless{}",
-    ">": "\\textgreater{}",
-    "|": "\\textbar{}",
-    "\\": "\\textbackslash{}",
-    "{": "\\{",
-    "}": "\\}",
-    $: "\\$",
-    "&": "\\&",
-    "#": "\\#",
-    _: "\\_",
-    "%": "\\%",
-    "/": "\\textbackslash{}",
-    "[": "\\textlbrack{}",
-    "]": "\\textrbrack{}",
-  };
-
-  return Array.from(str)
-    .map((char) => symbolMap[char] || char)
-    .join("");
-}
-
-/*  ------------------------------------------------- */
-/*  -------------------Heading----------------------- */
-/*  ------------------------------------------------- */
-
-/**
- * Generates the LaTeX header for the resume, including personal details and contact information. This
- * function creates a LaTeX block that represents the header section of the resume, formatted according
- * to the specified LaTeX commands and styles.
- *
- * @param {HeadingsType} activityObj - An object containing the necessary data to populate the header section.
- * @returns {string} The generated LaTeX code for the resume header.
- */
-export const generateHeaderLatex = (activityObj: HeadingsType): string => {
-  let headerLatex = getLatexContentSizedPreamble();
+export const generateHeaderLatexT2 = (activityObj: HeadingsType): string => {
+  let headerLatex = getLatexContentSizedPreambleT2();
   headerLatex = headerLatex.replace(
     "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
     "\\usepackage[top=.3in, left=1in, right=1in, bottom=1in]{geometry}",
   );
-	headerLatex = headerLatex.replace(
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.3in"
-	);
   headerLatex += `\\begin{document}\n`;
-
-  headerLatex += generateHeaderLatexHelper(activityObj as HeadingsType);
-
-  headerLatex += `\\vspace{-\\lastskip}\\end{document}`;
-
+  headerLatex += generateHeaderLatexHelperT2(activityObj);
+  headerLatex += `\\end{document}`;
   return headerLatex;
 };
 
-export const generateHeaderLatexHelper = (
+export const generateHeaderLatexHelperT2 = (
   activityObj: HeadingsType,
 ): string => {
   let headerLatex = `\\begin{center}\n`;
-  headerLatex += `\\textbf{\\Huge ${sanitize(
-    activityObj.name,
-  )}} \\\\ \\vspace{1pt}\n`;
-  headerLatex += `\\small `;
+  headerLatex += `{\\huge ${sanitize(activityObj.name)}} \\\\ \\vspace{2pt}\n`;
 
-  // Iterate over each item to append it to the LaTeX string
   activityObj.items.forEach((item, index) => {
     const sanitizedItem = sanitize(item.item);
     if (item.href) {
-      headerLatex += `\\href{${item.href}}{\\underline{${sanitizedItem}}}`;
+      headerLatex += `\\href{${item.href}}{\\color{blue}{${sanitizedItem}}}`;
     } else {
-      headerLatex += sanitizedItem;
+      headerLatex += `${sanitizedItem}`;
     }
 
-    // Add a separator if it's not the last item
     if (index < activityObj.items.length - 1) {
-      headerLatex += ` $|$ `;
+      headerLatex += ` ~ \\small{-} ~ `;
     }
   });
-  headerLatex += `\n\\end{center}`;
 
+  headerLatex += `\\vspace{7pt}\n`;
+  headerLatex += `\\end{center}`;
   return headerLatex;
 };
 
-/*  ------------------------------------------------- */
-/*  -------------------Education--------------------- */
-/*  ------------------------------------------------- */
+// Define a mock HeadingsType object with sample data
+export const mockHeaderData: HeadingsType = {
+  user: "johndoe",
+  itemName: "John Doe Header",
+  name: "John Doe",
+  items: [
+    { item: "+1 (123) 456 7890", href: "" },
+    { item: "Portfolio", href: "http://johndoeportfolio.com" },
+    { item: "john.doe@example.com", href: "mailto:john.doe@example.com" },
+    {
+      item: "linkedin.com/in/johndoe",
+      href: "https://www.linkedin.com/in/johndoe",
+    },
+    { item: "github.com/johndoe", href: "https://github.com/johndoe" },
+  ],
+};
 
-/**
- * Generates the LaTeX code for the education section of the resume. This function constructs a LaTeX
- * block that lists educational qualifications, including institution names, degrees, and dates.
- *
- * @param {EducationType} educationObj - An object containing data for the education section.
- * @returns {string} The generated LaTeX code for the education section of the resume.
- */
-export const generateEducationLatex = (educationObj: EducationType): string => {
-  let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
+// Generate the LaTeX code for the header using the mock data
+export const headerLatex = generateHeaderLatexT2(mockHeaderData);
 
-  latexString += generateEducationLatexHelper(educationObj as EducationType);
+// Generates the LaTeX code for the education section of the resume.
+export const generateEducationLatexT2 = (
+  educationArray: EducationType,
+): string => {
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString += `\\begin{document}\n`;
+  latexString += `\\resumeSubHeadingListStart\n`;
 
-  latexString += `\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n`;
+  // Iterate over each education entry and append its LaTeX code
+  latexString += generateEducationLatexHelperT2(
+    educationArray as EducationType,
+  );
+
+  latexString += `\\resumeSubHeadingListEnd\n`;
+  latexString += `\\vspace{-\lastskip}\n`;
+  latexString += `\\end{document}\n`;
 
   return latexString;
 };
 
-export const generateEducationLatexHelper = (
+// Helper function to generate LaTeX code for an individual education entry
+export const generateEducationLatexHelperT2 = (
   educationObj: EducationType,
 ): string => {
-  let latexString = ``;
-
-  // Assuming educationObj is a single object and not an array here
-  latexString += `\\resumeSubheading
-      {${sanitize(educationObj.title)}}{${sanitize(educationObj.location)}}
-      {${sanitize(educationObj.subtitle)}}{${sanitize(educationObj.year)}}
-    `;
+  let latexString = `\\resumeSubheading\n`;
+  latexString += `{${sanitize(educationObj.title)}}\n`; // University Name
+  latexString += `{${sanitize(educationObj.location)}}\n`; // Location
+  latexString += `{${sanitize(educationObj.subtitle)}}\n`; // Degree and Specialization
+  latexString += `{${sanitize(educationObj.year)}}\n`; // Month Year - Month Year
 
   if (educationObj.bullets.length > 0) {
     latexString += `\\resumeItemListStart\n`;
@@ -369,6 +378,20 @@ export const generateEducationLatexHelper = (
   return latexString;
 };
 
+// Define a single education entry for testing
+const mockEducationEntry: EducationType = {
+  user: "user1",
+  itemName: "Education 1",
+  title: "University 1",
+  location: "Location, State, USA",
+  subtitle: "Degree and Specialization",
+  year: "Month Year - Month Year",
+  bullets: [],
+};
+
+// Generate the LaTeX code for the education entry
+export const mockEducationEntry2 = generateEducationLatexT2(mockEducationEntry);
+
 /*  ------------------------------------------------- */
 /*  -------------------Experience-------------------- */
 /*  ------------------------------------------------- */
@@ -380,11 +403,11 @@ export const generateEducationLatexHelper = (
  * @param {ExperienceType} activityObj - An object containing data for the experience section.
  * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
-export const generateExperienceLatex = (activityObj: ExperienceType) => {
-  let latexString = getLatexContentSizedPreamble();
+export const generateExperienceLatexT2 = (activityObj: ExperienceType) => {
+  let latexString = getLatexContentSizedPreambleT2();
   latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
-  latexString += generateExperienceLatexHelper(activityObj as ExperienceType);
+  latexString += generateExperienceLatexHelperT2(activityObj as ExperienceType);
 
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
@@ -392,16 +415,14 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
   return latexString;
 };
 
-export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
-  let latexString = `\n\\resumeSubheading{${sanitize(
-    activityObj.subtitle,
-  )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
-    activityObj.location,
-  )}}
-    `;
+export const generateExperienceLatexHelperT2 = (
+  activityObj: ExperienceType,
+) => {
+  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title)},${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
+      `;
 
   if (activityObj.bullets.length > 0) {
-    latexString += `\\resumeItemListStart\n`;
+    latexString += "\\resumeItemListStart\n";
     activityObj.bullets.forEach((bulletPoint) => {
       latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
@@ -411,22 +432,40 @@ export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
   return latexString;
 };
 
+const experienceData: ExperienceType = {
+  user: "janesmith",
+  itemName: "Senior Software Engineer",
+  bullets: [
+    "Led the development of a large-scale e-commerce platform using microservices architecture",
+    "Implemented server-side rendering and client-side hydration for optimal performance",
+    "Utilized Docker and Kubernetes for containerization and deployment",
+    "Collaborated with product and design teams to deliver high-quality user experiences",
+    "Mentored junior developers and conducted code reviews to maintain code quality",
+  ],
+  title: "DEF Company",
+  subtitle: "Senior Software Engineer",
+  year: "2020 - Present",
+  location: "City, State",
+};
+
+export const experMock = generateExperienceLatexT2(experienceData);
+
 /*  ------------------------------------------------- */
-/*  -------------------Projects---------------------- */
+/*  -------------------Project-------------------- */
 /*  ------------------------------------------------- */
 
 /**
- * Generates the LaTeX code for the projects section of the resume. This function constructs a LaTeX
- * block that showcases personal or academic projects, including titles, technologies used, and descriptions.
+ * Generates the LaTeX code for the experience section of the resume. This function creates a LaTeX
+ * block that details professional experience, including job titles, company names, dates, and descriptions.
  *
- * @param {ProjectsType} projectObj - An object containing data for the projects section.
- * @returns {string} The generated LaTeX code for the projects section of the resume.
+ * @param {ExperienceType} activityObj - An object containing data for the experience section.
+ * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
-export const generateProjectLatex = (projectObj: ProjectsType): string => {
-  let latexString = getLatexContentSizedPreamble();
-  latexString += "\\begin{document}\n\\resumeSubHeadingListStart\n";
+export const generateProjectLatexT2 = (activityObj: ProjectsType) => {
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
-  latexString += generateProjectLatexHelper(projectObj as ProjectsType);
+  latexString += generateProjectLatexHelperT2(activityObj as ProjectsType);
 
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
@@ -434,32 +473,39 @@ export const generateProjectLatex = (projectObj: ProjectsType): string => {
   return latexString;
 };
 
-export const generateProjectLatexHelper = (
-  projectObj: ProjectsType,
-): string => {
-  let latexString = "";
+export const generateProjectLatexHelperT2 = (activityObj: ProjectsType) => {
+  let latexString = `\n\\resumeSubheadingTwo{${sanitize(activityObj.title)}}{}{${sanitize(
+    activityObj.technologies ?? "",
+  )}}{${sanitize(activityObj.year)}}
+    `;
 
-  // Check if technologies are provided and append them to the title
-  const titleWithTechnologies = projectObj.technologies
-    ? `\\textbf{${sanitize(projectObj.title)}} $|$ \\emph{${sanitize(
-        projectObj.technologies,
-      )}}`
-    : `\\textbf{${sanitize(projectObj.title)}}`;
-
-  latexString += `\\resumeProjectHeading\n`;
-  latexString += `{${titleWithTechnologies}}{${sanitize(projectObj.year)}}\n`;
-
-  if (projectObj.bullets.length > 0) {
-    latexString += `\\resumeItemListStart\n`;
-    projectObj.bullets.forEach((bullet) => {
-      latexString += `\\resumeItem{${sanitize(bullet)}}\n`;
+  if (activityObj.bullets.length > 0) {
+    latexString += "\\resumeItemListStart\n";
+    activityObj.bullets.forEach((bulletPoint) => {
+      latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
-
     latexString += "\\resumeItemListEnd\n";
   }
 
   return latexString;
 };
+
+const projectData: ProjectsType = {
+  user: "janesmith",
+  itemName: "Senior Software Engineer",
+  bullets: [
+    "Led the development of a large-scale e-commerce platform using microservices architecture",
+    "Implemented server-side rendering and client-side hydration for optimal performance",
+    "Utilized Docker and Kubernetes for containerization and deployment",
+    "Collaborated with product and design teams to deliver high-quality user experiences",
+    "Mentored junior developers and conducted code reviews to maintain code quality",
+  ],
+  title: "This is myy project ",
+  technologies: "React GoodCode Jamal Najib",
+  year: "2020 - Present",
+};
+
+export const projectDataMock = generateProjectLatexT2(projectData);
 
 /*  ------------------------------------------------- */
 /*  -------------------SKILLS==---------------------- */
@@ -472,44 +518,54 @@ export const generateProjectLatexHelper = (
  * @param {SkillsType} skillsObj - An object containing data for the skills section.
  * @returns {string} The generated LaTeX code for the skills section of the resume.
  */
-export const generateSkillsLatex = (skillsObj: SkillsType): string => {
-  let latexString = getLatexContentSizedPreamble();
+export const generateSkillsLatexT2 = (skillsObj: SkillsType): string => {
+  let latexString = getLatexContentSizedPreambleT2();
   latexString += "\\begin{document}\n";
 
-  latexString += generateSkillsLatexHelper(skillsObj as SkillsType);
+  latexString += generateSkillsLatexHelperT2(skillsObj as SkillsType);
 
   latexString += "\\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-export const generateSkillsLatexHelper = (skillsObj: SkillsType): string => {
-  let latexString = "\n\\begin{itemize}[leftmargin=0.15in, label={}]\n";
+export const generateSkillsLatexHelperT2 = (skillsObj: SkillsType): string => {
+  let latexString = "\n\\begin{itemize}[leftmargin=0in, label={}]\n";
   latexString += "\\small{\\item{";
   latexString += `\\textbf{${sanitize(skillsObj.title)}}{: ${sanitize(
     skillsObj.description,
   )}} \\\\`;
+
   latexString += "}}\n\\end{itemize}\n";
 
   return latexString;
 };
 
+const skillsData: SkillsType = {
+  user: "janesmith",
+  itemName: "Technical Skills",
+  title: "Programming Languages",
+  description: "JavaScript, Python, Java, C++, HTML/CSS",
+};
+
+export const skillsMock = generateSkillsLatexT2(skillsData);
+
 /*  ------------------------------------------------- */
-/*  -------------------Activity---------------------- */
+/*  -------------------Activity-------------------- */
 /*  ------------------------------------------------- */
 
 /**
- * Generates the LaTeX code for the activities section of the resume. This function constructs a LaTeX
- * block that details extracurricular activities, volunteer work, or other non-professional experiences.
+ * Generates the LaTeX code for the experience section of the resume. This function creates a LaTeX
+ * block that details professional experience, including job titles, company names, dates, and descriptions.
  *
- * @param {ActivitiesType} activityObj - An object containing data for the activities section.
- * @returns {string} The generated LaTeX code for the activities section of the resume.
+ * @param {ActivitiesType} activityObj - An object containing data for the experience section.
+ * @returns {string} The generated LaTeX code for the experience section of the resume.
  */
-export const generateActivityLatex = (activityObj: ActivitiesType) => {
-  let latexString = getLatexContentSizedPreamble();
-  latexString += `\\begin{document}\n\\resumeSubHeadingListStart\n`;
+export const generateActivityLatexT2 = (activityObj: ActivitiesType) => {
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString += `\\begin{document}\n\\resumeSubHeadingListStart`;
 
-  latexString += generateActivityLatexHelper(activityObj as ActivitiesType);
+  latexString += generateActivityLatexHelperT2(activityObj as ActivitiesType);
 
   latexString +=
     "\\resumeSubHeadingListEnd\n\\vspace{-\\lastskip}\n\\end{document}\n";
@@ -517,25 +573,38 @@ export const generateActivityLatex = (activityObj: ActivitiesType) => {
   return latexString;
 };
 
-export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
-  let latexString = `\\resumeSubheading{${sanitize(
-    activityObj.title,
-  )}}{${sanitize(activityObj.year)}}{${sanitize(
-    activityObj.subtitle,
-  )}}{${sanitize(activityObj.location)}}`;
+export const generateActivityLatexHelperT2 = (activityObj: ActivitiesType) => {
+  let latexString = `\n\\resumeSubheading{${sanitize(activityObj.subtitle)}}{}{${sanitize(activityObj.title)},${sanitize(activityObj.location)}}{${sanitize(activityObj.year)}}
+    `;
 
   if (activityObj.bullets.length > 0) {
-    latexString += `\\resumeItemListStart\n`;
+    latexString += "\\resumeItemListStart\n";
     activityObj.bullets.forEach((bulletPoint) => {
       latexString += `\\resumeItem{${sanitize(bulletPoint)}}`;
     });
-    latexString += `\\resumeItemListEnd\n`;
+    latexString += "\\resumeItemListEnd\n";
   }
-
-  latexString += "";
 
   return latexString;
 };
+
+const activityObjData: ActivitiesType = {
+  user: "janesmith",
+  itemName: "Senior Software Engineer",
+  bullets: [
+    "Led the development of a large-scale e-commerce platform using microservices architecture",
+    "Implemented server-side rendering and client-side hydration for optimal performance",
+    "Utilized Docker and Kubernetes for containerization and deployment",
+    "Collaborated with product and design teams to deliver high-quality user experiences",
+    "Mentored junior developers and conducted code reviews to maintain code quality",
+  ],
+  title: "Activity",
+  subtitle: "Senior Software Engineer",
+  year: "2020 - Present",
+  location: "City, State",
+};
+
+export const activityMock = generateActivityLatexT2(activityObjData);
 
 /*  ------------------------------------------------- */
 /*  -------------------Header---------------------- */
@@ -549,59 +618,63 @@ export const generateActivityLatexHelper = (activityObj: ActivitiesType) => {
  * @param {SectionHeadingsType} activityObj - An object containing the title for the section header.
  * @returns {string} The generated LaTeX code for the section header.
  */
-export const generateSectionHeadingLatex = (
+export const generateSectionHeadingLatexT2 = (
   activityObj: SectionHeadingsType,
 ) => {
-  let latexString = getLatexContentSizedPreamble();
-	latexString = latexString.replace(
+  let latexString = getLatexContentSizedPreambleT2();
+  latexString = latexString.replace(
     "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
-    "\\usepackage[top=.05in, left=1in, right=1in, bottom=1in]{geometry}",
+    "\\usepackage[top=.1in, left=1in, right=1in, bottom=1in]{geometry}",
   );
-	latexString = latexString.replace(
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.05in"
-	);
-
   latexString += `\\begin{document}`;
 
-  latexString += generateSectionHeadingLatexHelper(
+  latexString += generateSectionHeadingLatexHelperT2(
     activityObj as SectionHeadingsType,
   );
 
-  latexString += "\n\\vspace{-\\lastskip}\n\\end{document}\n";
+  latexString += "\n \\vspace{-7pt} \\vspace{-\\lastskip}\n\\end{document}\n";
 
   return latexString;
 };
 
-export const generateSectionHeadingLatexHelper = (
+export const generateSectionHeadingLatexHelperT2 = (
   activityObj: SectionHeadingsType,
 ) => {
-  let latexString = `\n\\section{${sanitize(activityObj.title)}}\n`;
+  let latexString = `\n\\section{\\color{airforceblue}${sanitize(activityObj.title)}}\n`;
   return latexString;
 };
+
+const sectionHeadingData: SectionHeadingsType = {
+  user: "janesmith",
+  itemName: "Experience",
+  title: "Professional Experience",
+};
+
+export const sectionHeadingMock =
+  generateSectionHeadingLatexT2(sectionHeadingData);
 
 export const generateLatex = (object: BaseItem): string => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
-      return generateEducationLatex(object as EducationType);
+      return generateEducationLatexT2(object as EducationType);
 
     case resumeItemTypes.EXPERIENCE:
-      return generateExperienceLatex(object as ExperienceType);
+      return generateExperienceLatexT2(object as ExperienceType);
 
     case resumeItemTypes.ACTIVITY:
-      return generateActivityLatex(object as ActivitiesType);
+      return generateActivityLatexT2(object as ActivitiesType);
 
     case resumeItemTypes.HEADING:
-      return generateHeaderLatex(object as HeadingsType);
+      return generateHeaderLatexT2(object as HeadingsType);
 
     case resumeItemTypes.PROJECT:
-      return generateProjectLatex(object as ProjectsType);
+      return generateProjectLatexT2(object as ProjectsType);
 
     case resumeItemTypes.SECTIONHEADING:
-      return generateSectionHeadingLatex(object as SectionHeadingsType);
+      return generateSectionHeadingLatexT2(object as SectionHeadingsType);
 
     case resumeItemTypes.SKILL:
-      return generateSkillsLatex(object as SkillsType);
+      return generateSkillsLatexT2(object as SkillsType);
   }
 };
 
@@ -612,8 +685,8 @@ const itemsInSubHeadingList = [
   resumeItemTypes.PROJECT,
 ];
 
-export const generateFullResume = (resumeItems: BaseItem[]): string => {
-  let latexString = getLatexPreamble();
+export const generateFullResumeT2 = (resumeItems: BaseItem[]): string => {
+  let latexString = getLatexPreambleT2();
   latexString += "\\begin{document}\n";
   let isInSubHeadingList = false;
 
@@ -636,33 +709,33 @@ export const generateFullResume = (resumeItems: BaseItem[]): string => {
 
     switch (item.type) {
       case resumeItemTypes.HEADING:
-        latexString += generateHeaderLatexHelper(item as HeadingsType);
+        latexString += generateHeaderLatexHelperT2(item as HeadingsType);
         break;
       case resumeItemTypes.SECTIONHEADING:
-        latexString += `\\section{${sanitize((item as SectionHeadingsType).title)}}\n`;
+        latexString += `\\section{\\color{airforceblue}${sanitize((item as SectionHeadingsType).title)}}\n`;
         break;
       case resumeItemTypes.EDUCATION:
         startList();
-        latexString += generateEducationLatexHelper(item as EducationType);
+        latexString += generateEducationLatexHelperT2(item as EducationType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.EXPERIENCE:
         startList();
-        latexString += generateExperienceLatexHelper(item as ExperienceType);
+        latexString += generateExperienceLatexHelperT2(item as ExperienceType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.ACTIVITY:
         startList();
-        latexString += generateActivityLatexHelper(item as ActivitiesType);
+        latexString += generateActivityLatexHelperT2(item as ActivitiesType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.PROJECT:
         startList();
-        latexString += generateProjectLatexHelper(item as ProjectsType);
+        latexString += generateProjectLatexHelperT2(item as ProjectsType);
         endList(resumeItems[i + 1]);
         break;
       case resumeItemTypes.SKILL:
-        latexString += generateSkillsLatexHelper(item as SkillsType);
+        latexString += generateSkillsLatexHelperT2(item as SkillsType);
         break;
     }
   }
@@ -671,7 +744,7 @@ export const generateFullResume = (resumeItems: BaseItem[]): string => {
   return latexString;
 };
 
-const comprehensiveTestResumeItems: BaseItem[] = [
+export const comprehensiveTestResumeItems: BaseItem[] = [
   {
     _id: "JohnDoe",
     user: "johndoe",
@@ -688,22 +761,6 @@ const comprehensiveTestResumeItems: BaseItem[] = [
       { item: "github.com/johndoe", href: "https://github.com/johndoe" },
     ],
     type: resumeItemTypes.HEADING,
-  },
-  {
-    _id: "Summary",
-    user: "johndoe",
-    itemName: "Summary",
-    title: "Summary",
-    type: resumeItemTypes.SECTIONHEADING,
-  },
-  {
-    _id: "SummaryDescription",
-    user: "johndoe",
-    itemName: "Summary Description",
-    title: "Summary",
-    description:
-      "Experienced software engineer with a passion for developing innovative solutions. Skilled in Java, Python, and web development. Proven track record of delivering high-quality software on time and collaborating effectively with cross-functional teams.",
-    type: resumeItemTypes.SKILL,
   },
   {
     _id: "TechnicalSkills",
@@ -942,7 +999,7 @@ const comprehensiveTestResumeItems: BaseItem[] = [
   // Add more resume items as needed
 ];
 
-const comprehensiveTestResumeItems2: BaseItem[] = [
+export const comprehensiveTestResumeItems2: BaseItem[] = [
   {
     _id: "JaneSmith",
     user: "janesmith",
@@ -1142,6 +1199,6 @@ const comprehensiveTestResumeItems2: BaseItem[] = [
 ];
 
 // Generate the full resume LaTeX code
-export const generatedLatexCode = generateFullResume(
+export const FullResumeSample = generateFullResumeT2(
   comprehensiveTestResumeItems2,
 );
