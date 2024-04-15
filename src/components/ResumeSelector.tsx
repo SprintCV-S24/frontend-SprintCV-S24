@@ -49,6 +49,7 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
   } = useDeleteResume(queryClient, storedToken);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownIsOpen, setDropdownIsOpen] = useState(false);
 
   useEffect(() => {
     const updateToken = async () => {
@@ -86,23 +87,24 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <Button>This is your trigger</Button>
-                  
-                  </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
-                  <DialogHeader>
-                    <DialogTitle>Add Subheading</DialogTitle>
-                    <DialogDescription>
-                      Fill in the following information
-                    </DialogDescription>
-                  </DialogHeader>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  This is your trigger
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Your Trigger</DialogTitle>
+                  <DialogDescription>
+                    Fill in the following information
+                  </DialogDescription>
+                </DialogHeader>
+                <div>
                   <form
                     onSubmit={(e) => {
                       console.log("AHHHHHHHH");
@@ -118,14 +120,12 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
                       />
                     </div>
                     <DialogFooter>
-                      <DialogClose
-                        asChild
-                      ></DialogClose>
+                      <DialogClose asChild onClick={(e)=> e.stopPropagation()}></DialogClose>
                     </DialogFooter>
                   </form>
-                </DialogContent>
-              </Dialog>
-            </DropdownMenuItem>
+                </div>
+              </DialogContent>
+            </Dialog>
             <DropdownMenuItem
               onClick={(e) => {
                 //this removes the id field
