@@ -47,7 +47,7 @@ export function ExtracurricularItem({
   // const [role, setRole] = useState(original?.title || "");
   // const [date, setDate] = useState(original?.year || "");
   // const [itemName, setItemName] = useState(original?.itemName || "");
-  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || [""]);
   // const [location, setLocation] = useState(original?.location || "");
 
   const defaultOrgName = original?.subtitle || "";
@@ -56,7 +56,6 @@ export function ExtracurricularItem({
   const defaultLocation = original?.location || "";
   const defaultDate = original?.year || "";
 
-  const [errorMessage, setErrorMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
     formSubmissionTypes | undefined
@@ -75,7 +74,7 @@ export function ExtracurricularItem({
       .required("Item Name is required")
       .test("unique-item-name", "Item Name already exists", async (value) => {
         // This code is a bit sloppy but works for now.
-        if (submissionType !== formSubmissionTypes.EDIT){
+        if (submissionType !== formSubmissionTypes.EDIT) {
           try {
             const response = await checkForDuplicate(value, storedToken!);
             return !response; // Return true if item name doesn't exist
@@ -83,7 +82,7 @@ export function ExtracurricularItem({
             console.error("Error checking item name existence:", error);
             return false; // Return false to indicate validation failure
           }
-        }else {
+        } else {
           return true;
         }
       }),
@@ -96,6 +95,7 @@ export function ExtracurricularItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -126,11 +126,6 @@ export function ExtracurricularItem({
     setBullets((prev) => prev.map((resp, i) => (i === index ? value : resp)));
   };
 
-  const resetBullets = () => {
-    setBullets([""]);
-    setErrorMessage("");
-  };
-
   const handleDeleteBullet = (index: number) => {
     setBullets((prevResponsibilities) =>
       prevResponsibilities.filter((_, i) => i !== index),
@@ -140,17 +135,14 @@ export function ExtracurricularItem({
   const resetForm = () => {
     setBullets([""]); // Reset bullets
     setIsOpen(false);
+    reset({
+      itemName: defaultItemName,
+      orgName: defaultOrgName,
+      role: defaultRole,
+      date: defaultDate,
+      location: defaultLocation,
+    });
   };
-
-  // const resetForm = () => {
-  //   setOrgName("");
-  //   setRole("");
-  //   setDate("");
-  //   setItemName("");
-  //   setBullets([""]); // Reset bullets
-  //   setLocation("");
-  //   setErrorMessage("");
-  // };
 
   const handleFormSubmit = async (data: any) => {
     // event.preventDefault();
@@ -184,7 +176,6 @@ export function ExtracurricularItem({
         console.error("Error updating item:", error);
       }
     } else {
-      console.log(activityData);
       try {
         mutate(activityData, {
           onSuccess: (response) => {
@@ -192,30 +183,26 @@ export function ExtracurricularItem({
             setDropdownIsOpen(false);
             resetForm();
           },
-          onError: (error) => {
-            setErrorMessage(
-              "Error: Unable to submit form. Please try again later.",
-            );
-          },
+          onError: (error) => {},
         });
-      } catch (error) {
-        setErrorMessage(
-          "Error: Unable to submit form. Please try again later.",
-        );
-      }
+      } catch (error) {}
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >
@@ -229,33 +216,8 @@ export function ExtracurricularItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.orgName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.orgName.message}
-          </div>
-        )}
-        {errors.location && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.location.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
-        {errors.role && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.role.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
-          <div className="grid grid-cols-2 gap-4 flex">
+          <div className="grid grid-cols-2 gap-4 flex max-h-[70vh]">
             <Input
               className="col-span-2"
               id="item-name"
@@ -265,6 +227,11 @@ export function ExtracurricularItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="org-name"
@@ -274,6 +241,11 @@ export function ExtracurricularItem({
               // value={orgName}
               // onChange={(e) => setOrgName(e.target.value)}
             />
+            {errors.orgName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.orgName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -283,6 +255,11 @@ export function ExtracurricularItem({
               // value={role}
               // onChange={(e) => setRole(e.target.value)}
             />
+            {errors.role && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.role.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -304,6 +281,16 @@ export function ExtracurricularItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.location && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.location.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
@@ -313,12 +300,14 @@ export function ExtracurricularItem({
                   setList={setBullets as any}
                   group="Acitivties"
                   handle=".handle"
-                  className="h-full w-full mb-2"
+                  className="h-full max-h-[15vh] w-full mb-2"
                 >
                   {bullets &&
                     bullets.map((bullet, index) => (
-                      <div key={index} className="ml-1 mt-2 flex">
-                        {" "}
+                      <div key={index} className="mt-2 flex">
+                        <div className="h-[40px] w-[40px]">
+                          <DragHandleHorizontalIcon className="handle w-full h-full mr-1"></DragHandleHorizontalIcon>
+                        </div>{" "}
                         <AutosizeTextarea
                           className="mb-2 resize-none h-[35px]"
                           placeholder="Description"
@@ -340,9 +329,6 @@ export function ExtracurricularItem({
                             className="h-[40px] w-[40px]"
                           ></img>
                         </Button>
-                        <div className="h-[40px] w-[40px]">
-                          <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
-                        </div>
                       </div>
                     ))}
                 </ReactSortable>
@@ -386,7 +372,7 @@ export function ExtracurricularItem({
                   ) : (
                     "Save as Copy"
                   )}
-                </Button>{" "}
+                </Button>
                 <Button
                   className="mt-2"
                   type="submit"
@@ -401,7 +387,7 @@ export function ExtracurricularItem({
                   ) : (
                     "Save and Replace"
                   )}
-                </Button>{" "}
+                </Button>
               </div>
             )}
             <DialogClose asChild onClick={() => setIsOpen(false)}></DialogClose>

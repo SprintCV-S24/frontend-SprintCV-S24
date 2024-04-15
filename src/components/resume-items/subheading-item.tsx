@@ -58,30 +58,27 @@ export function SubheadingItem({
   const validationSchema = Yup.object().shape({
     itemName: Yup.string()
       .required("Item Name is required")
-      .test(
-        "unique-item-name",
-        "Item Name already exists",
-        async value => {
-          // This code is a bit sloppy but works for now.
-          if (submissionType !== formSubmissionTypes.EDIT)
-            try {
-              const response = await checkForDuplicate(value, storedToken!);
-              return !response; // Return true if item name doesn't exist
-            } catch (error) {
-              console.error("Error checking item name existence:", error);
-              return false; // Return false to indicate validation failure
-            }
-          else {
-            return true;
+      .test("unique-item-name", "Item Name already exists", async (value) => {
+        // This code is a bit sloppy but works for now.
+        if (submissionType !== formSubmissionTypes.EDIT)
+          try {
+            const response = await checkForDuplicate(value, storedToken!);
+            return !response; // Return true if item name doesn't exist
+          } catch (error) {
+            console.error("Error checking item name existence:", error);
+            return false; // Return false to indicate validation failure
           }
-        },
-      ),
-    subtitle: Yup.string().required("Subtitle is required"),
+        else {
+          return true;
+        }
+      }),
+    subtitle: Yup.string().required("Title is required"),
   });
 
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -89,6 +86,10 @@ export function SubheadingItem({
 
   const resetForm = () => {
     setIsOpen(false);
+    reset({
+      itemName: defaultItemName,
+      subtitle: defaultSubtitle,
+    });
   };
 
   useEffect(() => {
@@ -153,7 +154,14 @@ export function SubheadingItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}

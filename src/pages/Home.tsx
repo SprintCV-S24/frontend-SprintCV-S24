@@ -69,12 +69,11 @@ const Home: React.FC = () => {
     <>
       <div className="md:hidden"></div>
       <div className="flex-col">
-        <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
-          <Button className="absolute right-4 top-4" variant="ghost">
+        <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
+          <MainNav className="mx-6" />
+          <Button variant="ghost">
             <Link to="/profile">Profile</Link>
           </Button>
-          <MainNav className="mx-6" />
-          <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
 

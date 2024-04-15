@@ -47,7 +47,7 @@ export function ExperienceItem({
   // const [date, setDate] = useState(original?.year || "");
   // const [location, setLocation] = useState(original?.location || "");
   // const [jobTitle, setjobTitle] = useState(original?.title || "");
-  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || [""]);
   // const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const [isOpen, setIsOpen] = useState(false);
   const [submissionType, setSubmissionType] = useState<
@@ -94,6 +94,7 @@ export function ExperienceItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -102,6 +103,13 @@ export function ExperienceItem({
   const resetForm = () => {
     setBullets([""]); // Reset bullet
     setIsOpen(false);
+    reset({
+      itemName: defaultItemName,
+      companyName: defaultCompany,
+      jobTitle: defaultTitle,
+      date: defaultDate,
+      location: defaultLocation,
+    });
   };
 
   useEffect(() => {
@@ -190,15 +198,19 @@ export function ExperienceItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >
@@ -212,33 +224,8 @@ export function ExperienceItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.companyName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.companyName.message}
-          </div>
-        )}
-        {errors.location && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.location.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
-        {errors.jobTitle && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.jobTitle.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
-          <div className="grid grid-cols-2 gap-4 flex">
+          <div className="grid grid-cols-2 gap-4 flex max-h-[70vh]">
             <Input
               className="col-span-2"
               id="item-name"
@@ -248,6 +235,11 @@ export function ExperienceItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -257,6 +249,11 @@ export function ExperienceItem({
               // value={companyName}
               // onChange={(e) => setCompanyName(e.target.value)}
             />
+            {errors.companyName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.companyName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="job-title"
@@ -266,6 +263,11 @@ export function ExperienceItem({
               // value={jobTitle}
               // onChange={(e) => setjobTitle(e.target.value)}
             />
+            {errors.jobTitle && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.jobTitle.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -287,6 +289,16 @@ export function ExperienceItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.location && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.location.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
@@ -296,11 +308,13 @@ export function ExperienceItem({
                   setList={setBullets as any}
                   group="Acitivties"
                   handle=".handle"
-                  className="h-full w-full mb-2"
+                  className="h-full max-h-[15vh] w-full mb-2"
                 >
                   {bullets.map((bullet, index) => (
-                    <div key={index} className="ml-1 mt-2 flex">
-                      {" "}
+                    <div key={index} className="mt-2 flex">
+                      <div className="h-[40px] w-[40px]">
+                        <DragHandleHorizontalIcon className="handle w-full h-full mr-1"></DragHandleHorizontalIcon>
+                      </div>
                       <AutosizeTextarea
                         className="mb-2 resize-none h-[35px]"
                         placeholder="Description"
@@ -322,9 +336,6 @@ export function ExperienceItem({
                           className="h-[40px] w-[40px]"
                         ></img>
                       </Button>
-                      <div className="h-[40px] w-[40px]">
-                        <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
-                      </div>
                     </div>
                   ))}
                 </ReactSortable>

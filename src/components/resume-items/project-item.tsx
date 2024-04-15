@@ -45,7 +45,7 @@ export function ProjectItem({
   // const [itemName, setItemName] = useState(original?.itemName || "");
   // const [projectName, setProjectName] = useState(original?.title || "");
   // const [date, setDate] = useState(original?.year || "");
-  const [bullets, setBullets] = useState<string[]>(original?.bullets || []);
+  const [bullets, setBullets] = useState<string[]>(original?.bullets || [""]);
   // const [technologies, setTechnologies] = useState(
   //   original?.technologies || "",
   // );
@@ -93,6 +93,7 @@ export function ProjectItem({
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -123,10 +124,6 @@ export function ProjectItem({
     setBullets((prev) => prev.map((resp, i) => (i === index ? value : resp)));
   };
 
-  const resetBullets = () => {
-    setBullets([""]);
-  };
-
   const handleDeleteBullet = (index: number) => {
     setBullets((prevResponsibilities) =>
       prevResponsibilities.filter((_, i) => i !== index),
@@ -134,13 +131,14 @@ export function ProjectItem({
   };
 
   const resetForm = () => {
-    // setProjectName("");
-    // setTechnologies("");
-    // setDate("");
-    // setItemName("");
     setBullets([""]); // Reset bullets
     setIsOpen(false);
-    // setErrorMessage("");
+    reset({
+      itemName: defaultItemName,
+      projectName: defaultProjectName,
+      technologies: defaultTechnologies,
+      date: defaultDate,
+    });
   };
 
   const handleFormSubmit = async (data: any) => {
@@ -189,15 +187,19 @@ export function ProjectItem({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetForm(); // Reset the form when dialog is closed
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           className={original ? "text-left" : "text-left w-full"}
           variant="ghost"
           onClick={() => {
-            if (!original) {
-              resetBullets();
-            }
             setIsOpen(true);
           }}
         >
@@ -211,28 +213,8 @@ export function ProjectItem({
             Fill in the following information
           </DialogDescription>
         </DialogHeader>
-        {errors.itemName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.itemName.message}
-          </div>
-        )}
-        {errors.projectName && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.projectName.message}
-          </div>
-        )}
-        {errors.technologies && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.technologies.message}
-          </div>
-        )}
-        {errors.date && (
-          <div className="error-message text-red-400 font-bold">
-            {errors.date.message}
-          </div>
-        )}
         <form onSubmit={handleSubmit(handleFormSubmit)}>
-          <div className="grid grid-cols-2 gap-4 flex">
+          <div className="grid grid-cols-2 gap-4 flex max-h-[70vh]">
             <Input
               className="col-span-2"
               id="item-name"
@@ -242,6 +224,11 @@ export function ProjectItem({
               // value={itemName}
               // onChange={(e) => setItemName(e.target.value)}
             />
+            {errors.itemName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.itemName.message}
+              </div>
+            )}
             <Input
               className="col-span-2"
               id="item-name"
@@ -251,6 +238,11 @@ export function ProjectItem({
               // value={projectName}
               // onChange={(e) => setProjectName(e.target.value)}
             />
+            {errors.projectName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.projectName.message}
+              </div>
+            )}
             <div className="col-span-2">
               <div className="flex items-center space-x-4">
                 <Input
@@ -272,6 +264,16 @@ export function ProjectItem({
                   // onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+              {errors.technologies && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.technologies.message}
+                </div>
+              )}
+              {errors.date && (
+                <div className="error-message text-red-400 font-bold">
+                  {errors.date.message}
+                </div>
+              )}
             </div>
             <div className="flex flex-col col-span-2">
               <div className="flex-grow overflow-y-auto">
@@ -281,11 +283,13 @@ export function ProjectItem({
                   setList={setBullets as any}
                   group="Acitivties"
                   handle=".handle"
-                  className="h-full w-full mb-2"
+                  className="h-full max-h-[15vh] w-full mb-2"
                 >
                   {bullets.map((bullet, index) => (
-                    <div key={index} className="ml-1 mt-2 flex">
-                      {" "}
+                    <div key={index} className="mt-2 flex">
+                      <div className="h-[40px] w-[40px]">
+                        <DragHandleHorizontalIcon className="handle w-full h-full mr-1"></DragHandleHorizontalIcon>
+                      </div>
                       <AutosizeTextarea
                         className="mb-2 resize-none h-[35px]"
                         placeholder="Description"
@@ -307,9 +311,6 @@ export function ProjectItem({
                           className="h-[40px] w-[40px]"
                         ></img>
                       </Button>
-                      <div className="h-[40px] w-[40px]">
-                        <DragHandleHorizontalIcon className="handle w-full h-full"></DragHandleHorizontalIcon>
-                      </div>
                     </div>
                   ))}
                 </ReactSortable>
@@ -326,11 +327,7 @@ export function ProjectItem({
           </div>
           <DialogFooter>
             {!original && (
-              <Button
-                className="mt-2"
-                type="submit"
-                disabled={isPending}
-              >
+              <Button className="mt-2" type="submit" disabled={isPending}>
                 {isPending ? (
                   <>
                     <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -354,7 +351,7 @@ export function ProjectItem({
                       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                       Please wait
                     </>
-                  ) :  (
+                  ) : (
                     "Save as Copy"
                   )}
                 </Button>{" "}

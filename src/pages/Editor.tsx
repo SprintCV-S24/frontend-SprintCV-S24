@@ -14,9 +14,11 @@ import { SkillItem } from "@/components/resume-items/skill-item";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
+import { PlusIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -183,6 +185,36 @@ const Editor: React.FC = () => {
     }
   };
 
+  function isSubstringInFields(item: any, searchString: string): boolean {
+    const lowerCaseString = searchString.toLowerCase();
+    const fields = Object.values(item);
+    for (const field of fields) {
+      if (typeof field === "string" && field != "item.id" && field.toLowerCase().includes(lowerCaseString)) {
+        console.log(field.toLowerCase());
+        return true;
+      }
+      if (Array.isArray(field)) {
+        for (const item of field) {
+          if (typeof item === "string" && item != "item.id" && item.toLowerCase().includes(lowerCaseString)) {
+            console.log(item.toLowerCase())
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Filter items in the bank based on the search query
+  const filteredItemsInBank = itemsInBank?.filter(item => isSubstringInFields(item, searchQuery));
+  
+  // Handle search query change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toString());
+  };
+
   useEffect(() => {
     if (id != null && allItems != null) {
       // this means no resume had that id
@@ -239,28 +271,26 @@ const Editor: React.FC = () => {
   return (
     <>
       <div className="flex-col">
-        <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
-          <Button className="absolute right-4 top-4" variant="ghost">
+        <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
+          <MainNav className="mx-6" />
+          <Button variant="ghost">
             <Link to="/profile">Profile</Link>
           </Button>
-          <MainNav className="mx-6" />
-          <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
-      <div className="flex flex-row bg-[#E7ECEF] h-screen">
+      <div className="flex flex-row bg-[#E7ECEF] h-screen overflow-y-auto">
         <div className="w-1/2 p-4 flex-col">
-          <Card className="h-12 ">
-            <div className="flex items-center justify-between">
+          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
               <DropdownMenu
                 open={dropdownIsOpen}
                 onOpenChange={setDropdownIsOpen}
               >
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="mt-1 ml-1"
                     variant="outline"
                     disabled={exceedsMaximumItems()}
                   >
+                    <PlusIcon className="mr-2"></PlusIcon>
                     Add Resume Item
                   </Button>
                 </DropdownMenuTrigger>
@@ -295,13 +325,20 @@ const Editor: React.FC = () => {
                   <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+              <Input
+                  className="w-[1/2] center"
+                  placeholder="Search Items..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
           </Card>
-          <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-md">
+          <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-xl">
             <div className="p-4 w-full h-full">
-              <h4 className="mb-4 text-sm font-medium leading-none">
-                Resume Items
-              </h4>
+              <div className="flex justify-between">
+                <h4 className="mb-4 text-sm flex-none font-medium leading-none mr-4">
+                  Resume Items
+                </h4>
+              </div>
               <Separator className="mb-2"></Separator>
               {itemsInBank && (
                 <ReactSortable
@@ -311,41 +348,14 @@ const Editor: React.FC = () => {
                   group="ResumeItems"
                   className="h-[500px] w-full mb-2"
                 >
-                  {itemsInBank &&
-                    itemsInBank.map((item) => (
+                  {filteredItemsInBank &&
+                    filteredItemsInBank.map((item) => (
                       <Card
-                        className="w-full p-1 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
+                        className="w-full p-2 mb-2 bg-grey border border-grey flex flex-col items-center justify-between"
                         key={item._id}
                       >
-                        {<p className="text-sm">{item.itemName}</p>}
-                        <div className="flex w-full h-full">
-                          <div className={loadingMap[item._id] ? "hidden" : ""}>
-                            <LatexImage
-                              onRenderStart={() =>
-                                setLoadingMap((prevState: any) => ({
-                                  ...prevState,
-                                  [item.id]: true,
-                                }))
-                              }
-                              onRenderEnd={() =>
-                                setLoadingMap((prevState: any) => ({
-                                  ...prevState,
-                                  [item.id]: false,
-                                }))
-                              }
-                              latexCode={generateLatex(item)}
-                              itemId={item._id}
-                            ></LatexImage>
-                          </div>
-                          <Skeleton
-                            className={
-                              loadingMap[item._id]
-                                ? "w-full h-[40px] text-center"
-                                : "hidden"
-                            }
-                          >
-                            Loading Document...
-                          </Skeleton>
+                        <div className="w-full flex justify-between items-center p-2 mb-2">
+                          {<p className="text-sm">{item.itemName}</p>}
                           <DropdownMenu
                             open={editOpenMap[item.id]}
                             onOpenChange={(isOpen) =>
@@ -383,6 +393,41 @@ const Editor: React.FC = () => {
                               </Button>
                             </DropdownMenuContent>
                           </DropdownMenu>
+                        </div>
+                        <div className="flex w-full h-full">
+                          <div
+                            className={
+                              loadingMap[item._id]
+                                ? "hidden"
+                                : "pt-1 pb-1 bg-white border border-gray"
+                            }
+                          >
+                            <LatexImage
+                              onRenderStart={() =>
+                                setLoadingMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: true,
+                                }))
+                              }
+                              onRenderEnd={() =>
+                                setLoadingMap((prevState: any) => ({
+                                  ...prevState,
+                                  [item.id]: false,
+                                }))
+                              }
+                              latexCode={generateLatex(item)}
+                              itemId={item._id}
+                            ></LatexImage>
+                          </div>
+                          <Skeleton
+                            className={
+                              loadingMap[item._id]
+                                ? "w-full h-[40px] text-center"
+                                : "hidden"
+                            }
+                          >
+                            Loading Document...
+                          </Skeleton>
                         </div>
                       </Card>
                     ))}
@@ -424,8 +469,9 @@ const Editor: React.FC = () => {
             >
               <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
             </Button>
+            <PageCount items={itemsInResume}></PageCount>
           </Card>
-          <div className="bg-white h-[90%] w-full min-w-6">
+          <div className="bg-white h-[90%] w-full min-w-6 shadow-xl">
             {itemsInResume && id && (
               <ReactSortable
                 animation={150}
