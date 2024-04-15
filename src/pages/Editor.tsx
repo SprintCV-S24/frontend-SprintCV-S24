@@ -480,10 +480,10 @@ const Editor: React.FC = () => {
                               latexCode={
                                 generateLatexGeneric(
                                   item,
-                                  templates.BLUE,
-                                ) as string
+                                  resume?.templateId,
+                                )
                               }
-                              itemId={item._id}
+                              cacheKey={`${item._id}${resume?.templateId}`}
                             ></LatexImage>
                           </div>
                           <Skeleton
@@ -541,9 +541,9 @@ const Editor: React.FC = () => {
                             }))
                           }
                           latexCode={
-                            generateLatexGeneric(item, templates.BLUE) as string
+                            generateLatexGeneric(item, resume?.templateId)
                           }
-                          itemId={item._id}
+                          cacheKey={`${item._id}${resume?.templateId}`}
                         ></LatexImage>
                       </div>
                       <Skeleton
