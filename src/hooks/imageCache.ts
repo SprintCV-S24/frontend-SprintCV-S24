@@ -18,23 +18,23 @@ type UseImageCacheStore = ImageCacheState & ImageCacheActions;
 export const useImageCacheStore = create<UseImageCacheStore>((set, get) => ({
   cache: {}, // Initial state
 
-  getItem: (id) => {
-    return get().cache[id];
+  getItem: (key) => {
+    return get().cache[key];
   },
 
-  setItem: (id, dataUrl) => {
+  setItem: (key, dataUrl) => {
     set((state) => ({
       cache: {
         ...state.cache,
-        [id]: dataUrl,
+        [key]: dataUrl,
       },
     }));
   },
 
-  invalidateItem: (id) => {
+  invalidateItem: (key) => {
     set((state) => {
       const newCache = { ...state.cache };
-      delete newCache[id];
+      delete newCache[key];
       return { cache: newCache };
     });
   },

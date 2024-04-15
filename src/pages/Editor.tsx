@@ -16,6 +16,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReactSortable } from "react-sortablejs";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -34,12 +43,12 @@ import { ResumeSaved } from "@/components/ResumeSaved";
 import { PageCount } from "@/components/PageCount";
 import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
-import { generateLatex } from "@/latexUtils/latexString";
+import { generateLatexGeneric, generateFullResumeGeneric } from "@/latexUtils/genericLatexString";
+import { templates } from "@/api/models/templates";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInResume } from "@/hooks/mutations";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
-import { generateFullResume } from "@/latexUtils/latexString";
 import { useDeleteItem } from "@/hooks/mutations";
 import ECHelper from "@/components/ec-helper";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
@@ -66,9 +75,7 @@ const Editor: React.FC = () => {
     Array<BaseItem & { id: string }> | undefined
   >(undefined);
 
-
-  const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
-    useState<boolean>(false);
+  // const [templateValue, setTemplateValue] = useState<string | undefined>(templates.JAKES);
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -102,7 +109,6 @@ const Editor: React.FC = () => {
     isPending: deleteItemPending,
     isError: deleteItemError,
   } = useDeleteItem(queryClient, storedToken);
-
 
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
@@ -186,9 +192,9 @@ const Editor: React.FC = () => {
   };
 
   const generatePdfAndOpen = async (items: BaseItem[] | undefined) => {
-    if (items && resume) {
-      const latexString = generateFullResume(items);
-      const blob = await generatePdfBlobSafe(latexString);
+    if (items && resume && resume.templateId) {
+      const latexString = generateFullResumeGeneric(items, resume.templateId);
+      const blob = await generatePdfBlobSafe(latexString as string); //this is valid b/c latexString can only be undefined if resume.templateId is undefined and we already checked that
       const url = URL.createObjectURL(blob);
       // window.open(url, "_blank");
       let fileLink = document.createElement("a");
@@ -222,7 +228,7 @@ const Editor: React.FC = () => {
       }
     }
     return false;
-  }
+  };
 
   const filterByItemType = (item: BaseItem): boolean => {
     if (selectedItemType === null) return true; // If no filter selected, return true for all items
@@ -240,6 +246,13 @@ const Editor: React.FC = () => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value.toString());
   };
+
+	const handleTemplateUpdate = (templateId: templates) => {
+		if(templateId != null && resume != null){
+			mutate({updatedFields: {templateId}, resumeId: resume._id});
+		}
+
+	}
 
   useEffect(() => {
     if (id != null && allItems != null) {
@@ -324,27 +337,18 @@ const Editor: React.FC = () => {
                 setSelectedItemType={setSelectedItemType}
               ></ResumeItemTypeDropdown>
             </div>
-            <DropdownMenu
-              open={templateDropdownIsOpen}
-              onOpenChange={setTemplateDropdownIsOpen}
-            >
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="h-full mr-4"
-                  variant="ghost"
-                >
-                  Change Template
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Button variant="ghost">Template 1</Button>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Button variant="ghost">Template 2</Button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Select value={resume?.templateId} onValueChange={handleTemplateUpdate}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select template"/>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Templates</SelectLabel>
+                  <SelectItem value={templates.JAKES}>Jake's Resume</SelectItem>
+                  <SelectItem value={templates.BLUE}>Blue Theme</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center justify-start w-1/2">
             <ResumeName
@@ -361,15 +365,15 @@ const Editor: React.FC = () => {
             ></ResumeName>
             <ResumeSaved isSaved={isSaved}></ResumeSaved>
             <Button
-              className="text-red-500 font-bold px-[.5rem] mx-[.5rem]"
+              className="text-red-500 font-bold px-[.5rem]"
               variant="ghost"
               onClick={handleClearResume}
             >
               Clear
             </Button>
-            <PageCount items={itemsInResume}></PageCount>
+            <PageCount items={itemsInResume} templateId={resume?.templateId}></PageCount>
             <Button
-              className={"px-[.5rem] mx-[.5rem]"}
+              className={"px-[.5rem]"}
               variant="ghost"
               disabled={!isResumeValid()}
               onClick={() => {
@@ -437,6 +441,7 @@ const Editor: React.FC = () => {
                                   deleteItem({
                                     itemType: item.type,
                                     itemId: item._id,
+																		templateId: resume?.templateId
                                   });
                                 }}
                               >
@@ -466,8 +471,9 @@ const Editor: React.FC = () => {
                                   [item.id]: false,
                                 }))
                               }
-                              latexCode={generateLatex(item)}
+                              latexCode={generateLatexGeneric(item, resume?.templateId)}
                               itemId={item._id}
+															templateId={resume?.templateId}
                             ></LatexImage>
                           </div>
                           <Skeleton
@@ -524,8 +530,9 @@ const Editor: React.FC = () => {
                               [item.id]: false,
                             }))
                           }
-                          latexCode={generateLatex(item)}
+                          latexCode={generateLatexGeneric(item, resume?.templateId)}
                           itemId={item._id}
+													templateId={resume?.templateId}
                         ></LatexImage>
                       </div>
                       <Skeleton

@@ -33,6 +33,7 @@ import {
   updateItem,
 } from "@/api/resumeItemInterface";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
+import { templates } from "@/api/models/templates";
 
 export const useAddActivity = (
   queryClient: QueryClient,
@@ -163,21 +164,23 @@ export const useUpdateItem = (
     mutationFn: async ({
       itemType,
       itemId,
+	  templateId,
       updatedFields,
     }: {
       itemType: resumeItemTypes;
       itemId: string;
+	  templateId: templates | undefined,
       updatedFields: itemUpdatedFields;
     }) => {
-      if (token === undefined) {
+      if (token === undefined || templateId === undefined) {
         throw new Error("Token is undefined");
       }
       console.log("First Layer");
       console.log(updatedFields);
       return await updateItem(itemType, itemId, updatedFields, token);
     },
-    onSuccess: (_, { itemId }) => {
-      invalidateItem(itemId);
+    onSuccess: (_, { itemId, templateId }) => {
+      invalidateItem(`${itemId}${templateId}`);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });
@@ -305,17 +308,19 @@ export const useDeleteItem = (
     mutationFn: async ({
       itemType,
       itemId,
+	  templateId,
     }: {
       itemType: resumeItemTypes;
       itemId: string;
+	  templateId: templates | undefined;
     }) => {
-      if (token === undefined) {
+      if (token === undefined || templateId === undefined) {
         throw new Error("Token is undefined");
       }
       return await deleteItem(itemType, itemId, token);
     },
-    onSuccess: (_, { itemId }) => {
-      invalidateItem(itemId);
+    onSuccess: (_, { itemId, templateId }) => {
+      invalidateItem(`${itemId}${templateId}`);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });

@@ -653,7 +653,7 @@ const sectionHeadingData: SectionHeadingsType = {
 export const sectionHeadingMock =
   generateSectionHeadingLatexT2(sectionHeadingData);
 
-export const generateLatex = (object: BaseItem): string => {
+export const generateLatexT2 = (object: BaseItem): string => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
       return generateEducationLatexT2(object as EducationType);

@@ -135,7 +135,8 @@ function compileLaTeXRoutine() {
       [pdfArrayBuffer.buffer],
     );
   } else {
-    console.error("Compilation failed, with status code " + status);
+    // console.error("Compilation failed, with status code " + status);
+		console.error("Log:", self.memlog);
     self.postMessage({
       result: "failed",
       status: status,

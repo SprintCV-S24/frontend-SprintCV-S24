@@ -191,7 +191,7 @@ export const usePngRenderer = (
       // Cleanup
       return () => URL.revokeObjectURL(fileURL);
     }
-  }, [blob, width, canvasRef]);
+  }, [blob, width, canvasRef, setCachedUrl]);
 };
 
 export const use2ndPageRenderer = (

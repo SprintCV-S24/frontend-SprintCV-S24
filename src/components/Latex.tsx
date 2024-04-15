@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { usePngRenderer } from "@/latexUtils/pdfUtils";
 import { useImageCacheStore } from "@/hooks/imageCache";
+import { templates } from "@/api/models/templates";
 
 const testLatex = `\\documentclass[12pt]{article}
 \\usepackage{lingmacros}
@@ -192,11 +193,12 @@ const testLatex2 = `
 //  generatePdfBlobSafe masks the problem but you will see the pdf flash when it renders, which I think is because the render method
 //  is being called twice)
 export const LatexImage: React.FC<{
-  latexCode: string;
+  latexCode: string | undefined;
   itemId: string;
+	templateId: templates | undefined;
   onRenderStart?: () => void;
   onRenderEnd?: () => void;
-}> = ({ latexCode, itemId, onRenderStart, onRenderEnd }) => {
+}> = ({ latexCode, itemId, templateId, onRenderStart, onRenderEnd }) => {
   const setItem = useImageCacheStore((state) => state.setItem);
   const getItem = useImageCacheStore((state) => state.getItem);
 
@@ -206,32 +208,44 @@ export const LatexImage: React.FC<{
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [imageSrc, setImageSrc] = useState("");
 
+	const cacheKey = `${itemId}${templateId}`;
+
   //This custom hook renders an image using the provided blob
-  usePngRenderer(blob, canvasRef, setImageSrc, setError, onRenderEnd, (dataUrl) => setItem(itemId, dataUrl));
+  usePngRenderer(
+    blob,
+    canvasRef,
+    setImageSrc,
+    setError,
+    onRenderEnd,
+    (dataUrl) => setItem(cacheKey, dataUrl),
+  );
 
   //Once the component mounts, generate the blob that will be used to render the pdf
   useEffect(() => {
-    const cachedUrl = getItem(itemId);
+    const cachedUrl = getItem(cacheKey);
     if (cachedUrl != null) {
       setImageSrc(cachedUrl);
     } else {
       onRenderStart?.(); // Call if callback is provided
 
-      const canvas = document.createElement("canvas");
-      canvasRef.current = canvas;
+      if (latexCode != null && templateId != null) {
+        const canvas = document.createElement("canvas");
+        canvasRef.current = canvas;
 
-      generatePdfBlobSafe(latexCode)
-        .then((res) => {
-          setBlob(res);
-          onRenderEnd?.();
-        })
-        .catch((err) => {
-          setError("Error rendering latex");
-          console.log(err);
-          onRenderEnd?.();
-        });
+				console.log("latexCode:", latexCode);
+        generatePdfBlobSafe(latexCode)
+          .then((res) => {
+            setBlob(res);
+            onRenderEnd?.();
+          })
+          .catch((err) => {
+            setError("Error rendering latex");
+            // console.log(err);
+            onRenderEnd?.();
+          });
+      }
     }
-  }, [latexCode]);
+  }, [latexCode, templateId]);
 
   //TODO: improve loading and error styling
   if (error != null) return <div>{error}</div>;

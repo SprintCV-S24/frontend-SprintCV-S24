@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { BaseItem } from "@/api/models/interfaces";
 import { generatePdfBlobSafe } from "@/latexUtils/latexUtils";
 import { use2ndPageRenderer } from "@/latexUtils/pdfUtils";
-import { generateFullResume } from "@/latexUtils/latexString";
+import { generateFullResumeGeneric } from "@/latexUtils/genericLatexString";
+import { templates } from "@/api/models/templates";
 
-export const PageCount: React.FC<{ items: BaseItem[] | undefined }> = ({
-  items,
-}) => {
+export const PageCount: React.FC<{
+  items: BaseItem[] | undefined;
+  templateId: templates | undefined;
+}> = ({ items, templateId }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [blob, setBlob] = useState<Blob | null>(null);
@@ -33,22 +35,24 @@ export const PageCount: React.FC<{ items: BaseItem[] | undefined }> = ({
       const canvas = document.createElement("canvas");
       canvasRef.current = canvas;
 
-      const latexCode = generateFullResume(items || []);
+      const latexCode = generateFullResumeGeneric(items || [], templateId);
 
-      generatePdfBlobSafe(latexCode)
-        .then((res) => {
-          console.log("blob generated");
-          setBlob(res);
-        })
-        .catch((err) => {
-          setError("Error rendering latex");
-          console.log(err);
-          setIsLoading(false);
-        });
+      if (latexCode != null) {
+        generatePdfBlobSafe(latexCode)
+          .then((res) => {
+            console.log("blob generated");
+            setBlob(res);
+          })
+          .catch((err) => {
+            setError("Error rendering latex");
+            console.log(err);
+            setIsLoading(false);
+          });
+      }
     } else {
       setNumPages(1);
     }
-  }, [items]);
+  }, [items, templateId]);
 
   //TODO: improve loading and error styling
   if (error != null) return <div>{error}</div>;
@@ -56,18 +60,26 @@ export const PageCount: React.FC<{ items: BaseItem[] | undefined }> = ({
   return (
     <HoverCard openDelay={200} closeDelay={200}>
       <HoverCardTrigger asChild>
-        <Button className="h-full" variant="ghost">Pages: {numPages}</Button>
+        <Button className="h-full px-[.5rem] mx-0" variant="ghost">
+          Pages: {numPages}
+        </Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
         <div className="grid gap-2">
           {imageSrc ? (
             <>
               <span className="text-sm">Page 2 Preview:</span>
-              <img src={imageSrc} alt="Rendered Latex" className="border border-gray" />
+              <img
+                src={imageSrc}
+                alt="Rendered Latex"
+                className="border border-gray"
+              />
             </>
-          ) : (isLoading) ? (
+          ) : isLoading ? (
             <div>Loading...</div>
-          ) : <span className="text-sm">No second page</span>}
+          ) : (
+            <span className="text-sm">No second page</span>
+          )}
         </div>
       </HoverCardContent>
     </HoverCard>

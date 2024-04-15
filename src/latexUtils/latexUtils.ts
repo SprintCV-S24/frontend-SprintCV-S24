@@ -29,7 +29,7 @@ const compileLatex = async (latexCode: string) => {
     // console.log(compilation.log);
     return compilation.pdf as Uint8Array;
   } else {
-    console.log(compilation.log);
+    // console.log(compilation.log);
     throw new Error("Error compiling: " + compilation.log);
   }
 };
