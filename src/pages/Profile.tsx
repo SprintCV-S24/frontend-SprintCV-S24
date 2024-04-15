@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
+import { BugReport } from "@/components/BugReport";
 
 type User = {
   displayName: string | null;
@@ -14,6 +15,8 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const currentUser = getUser();
+  const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+
 
   useEffect(() => {
     if (currentUser) {
@@ -43,6 +46,7 @@ const Profile: React.FC = () => {
           <button onClick={handleLogout}>Logout</button>
         </div>
       )}
+      <BugReport setDropdownIsOpen={setDropdownIsOpen}></BugReport>
     </div>
   );
 };

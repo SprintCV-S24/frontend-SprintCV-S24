@@ -1,8 +1,8 @@
 import { toast } from "sonner"
 
 
-export const showErrorToast = (errorMessage: string) => {
-    toast("Error!", {
+export const showErrorToast = (messageType: string, errorMessage: string) => {
+    toast(messageType, {
         description: errorMessage,
         action: {
             label: "Dismiss",

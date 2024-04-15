@@ -370,7 +370,7 @@ const Editor: React.FC = () => {
               // disabled={!isResumeValid()}
               onClick={() => {
                 if (!isResumeValid()) {
-                  showErrorToast("Resume is Empty!")
+                  showErrorToast("Error!", "Resume is Empty!")
                 } else {
                   generatePdfAndOpen(itemsInResume);
                 }
