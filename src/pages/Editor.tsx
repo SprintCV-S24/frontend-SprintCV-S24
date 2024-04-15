@@ -20,6 +20,7 @@ import { DownloadIcon } from "@radix-ui/react-icons";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import { PlusIcon } from "@radix-ui/react-icons";
 import Filter from "@/assets/filter.png";
+import showErrorToast from "@/components/resume-items/ErrorToast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,7 +67,6 @@ const Editor: React.FC = () => {
     Array<BaseItem & { id: string }> | undefined
   >(undefined);
 
-
   const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
     useState<boolean>(false);
 
@@ -102,7 +102,6 @@ const Editor: React.FC = () => {
     isPending: deleteItemPending,
     isError: deleteItemError,
   } = useDeleteItem(queryClient, storedToken);
-
 
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
@@ -222,7 +221,7 @@ const Editor: React.FC = () => {
       }
     }
     return false;
-  }
+  };
 
   const filterByItemType = (item: BaseItem): boolean => {
     if (selectedItemType === null) return true; // If no filter selected, return true for all items
@@ -311,7 +310,7 @@ const Editor: React.FC = () => {
               dropdownIsOpen={dropdownIsOpen}
               setDropdownIsOpen={setDropdownIsOpen}
             ></NewItemDropdown>
-            <div className="flex">
+            <div className="flex items-center">
               <Input
                 className="w-[1/2] h-full"
                 placeholder="Search Items..."
@@ -329,10 +328,7 @@ const Editor: React.FC = () => {
               onOpenChange={setTemplateDropdownIsOpen}
             >
               <DropdownMenuTrigger asChild>
-                <Button
-                  className="h-full mr-4"
-                  variant="ghost"
-                >
+                <Button className="h-full mr-4" variant="ghost">
                   Change Template
                 </Button>
               </DropdownMenuTrigger>
@@ -371,9 +367,13 @@ const Editor: React.FC = () => {
             <Button
               className={"px-[.5rem] mx-[.5rem]"}
               variant="ghost"
-              disabled={!isResumeValid()}
+              // disabled={!isResumeValid()}
               onClick={() => {
-                generatePdfAndOpen(itemsInResume);
+                if (!isResumeValid()) {
+                  showErrorToast("Resume is Empty!")
+                } else {
+                  generatePdfAndOpen(itemsInResume);
+                }
               }}
             >
               <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
