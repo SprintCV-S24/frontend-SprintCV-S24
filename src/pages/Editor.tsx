@@ -271,12 +271,15 @@ const Editor: React.FC = () => {
   return (
     <>
       <div className="flex-col">
-        <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
+        <div className="flex w-full h-[3rem] items-center px-4 relative">
           <MainNav className="mx-6" />
           <Button variant="ghost">
             <Link to="/profile">Profile</Link>
           </Button>
         </div>
+      </div>
+      <div className="w-full h-[3rem] flex items-center bg-white">
+        <Card className="w-full h-[2.5rem] mr-1 ml-1 bg-[#e7ecef]">a</Card>
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-screen overflow-y-auto">
         <div className="w-1/2 p-4 flex-col">
