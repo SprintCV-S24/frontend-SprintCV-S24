@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { ResumesType } from "@/api/models/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAddResume } from "@/hooks/mutations";
-import { generateFullResume, generatedLatexCode } from "../latexUtils/latexString";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
@@ -35,17 +34,7 @@ const Home: React.FC = () => {
       }
     };
     void updateToken();
-
-    console.log(generatedLatexCode);
   }, [currentUser]);
-
-  // Checks if too many resumes have been added.
-  const exceedsMaximumResumes = () => {
-    if (data && data.length > 10) {
-      return true;
-    }
-    return false;
-  }
 
 	const onClickAddResume = () => {
     const blankResume: ResumesType = {
@@ -90,9 +79,9 @@ const Home: React.FC = () => {
                 gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
               }}
             >
-              {!exceedsMaximumResumes() && (
-                <Add onClick={onClickAddResume}></Add>
-              )}
+              <Add
+                onClick={onClickAddResume}
+              ></Add>
               {isSuccess &&
                 data.map((resume: ResumesServerType) => {
                   return (
