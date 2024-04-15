@@ -51,6 +51,10 @@ const Editor: React.FC = () => {
   const [resumeName, setResumeName] = useState<string | undefined>(undefined);
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
   const [isSaved, setIsSaved] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
+  const [typeDropdown, setTypeDropdown] = useState<boolean>(false);
+
   const [selectedItemType, setSelectedItemType] =
     useState<resumeItemTypes | null>(null);
 
@@ -61,6 +65,10 @@ const Editor: React.FC = () => {
   const [itemsInResume, setItemsInResume] = useState<
     Array<BaseItem & { id: string }> | undefined
   >(undefined);
+
+
+  const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
+    useState<boolean>(false);
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -95,11 +103,6 @@ const Editor: React.FC = () => {
     isError: deleteItemError,
   } = useDeleteItem(queryClient, storedToken);
 
-  const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
-  const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
-    useState<boolean>(false);
-
-  const [typeDropdown, setTypeDropdown] = useState<boolean>(false);
 
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
@@ -167,12 +170,12 @@ const Editor: React.FC = () => {
   };
 
   // Used to disable add resume item button if too many bullets are present.
-  const exceedsMaximumItems = () => {
-    if (allItems && allItems.length > 50) {
-      return true;
-    }
-    return false;
-  };
+  // const exceedsMaximumItems = () => {
+  //   if (allItems && allItems.length > 50) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
 
   // Used to make sure resume has some items in it before downloading
   const isResumeValid = () => {
@@ -204,7 +207,6 @@ const Editor: React.FC = () => {
         field != "item.id" &&
         field.toLowerCase().includes(lowerCaseString)
       ) {
-        console.log(field.toLowerCase());
         return true;
       }
       if (Array.isArray(field)) {
@@ -214,7 +216,6 @@ const Editor: React.FC = () => {
             item != "item.id" &&
             item.toLowerCase().includes(lowerCaseString)
           ) {
-            console.log(item.toLowerCase());
             return true;
           }
         }
@@ -227,8 +228,6 @@ const Editor: React.FC = () => {
     if (selectedItemType === null) return true; // If no filter selected, return true for all items
     return item.type == selectedItemType; // Customize the condition based on your item type property
   };
-
-  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Filter items in the bank based on the search query
   const filteredItemsInBank = itemsInBank?.filter(
