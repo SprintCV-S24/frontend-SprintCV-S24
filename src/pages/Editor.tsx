@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
+import { PlusIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -257,28 +258,26 @@ const Editor: React.FC = () => {
   return (
     <>
       <div className="flex-col">
-        <div className="flex w-full h-16 items-center px-4 relative shadow-xl">
-          <Button className="absolute right-4 top-4" variant="ghost">
+        <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
+          <MainNav className="mx-6" />
+          <Button variant="ghost">
             <Link to="/profile">Profile</Link>
           </Button>
-          <MainNav className="mx-6" />
-          <div className="ml-auto flex items-center space-x-4"></div>
         </div>
       </div>
       <div className="flex flex-row bg-[#E7ECEF] h-screen overflow-y-auto">
         <div className="w-1/2 p-4 flex-col">
-          <Card className="h-12 ">
-            <div className="flex items-center justify-between">
+          <Card className="w-full h-12 white mb-4 flex items-center justify-between p-2 min-w-64">
               <DropdownMenu
                 open={dropdownIsOpen}
                 onOpenChange={setDropdownIsOpen}
               >
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="mt-1 ml-1"
                     variant="outline"
                     disabled={exceedsMaximumItems()}
                   >
+                    <PlusIcon className="mr-2"></PlusIcon>
                     Add Resume Item
                   </Button>
                 </DropdownMenuTrigger>
@@ -313,7 +312,12 @@ const Editor: React.FC = () => {
                   <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+              <Input
+                  className="w-[1/2] center"
+                  placeholder="Search Items..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
           </Card>
           <ScrollArea className="h-[91%] w-full rounded-md mt-4 mb-4 border bg-white shadow-xl">
             <div className="p-4 w-full h-full">
@@ -321,12 +325,6 @@ const Editor: React.FC = () => {
                 <h4 className="mb-4 text-sm flex-none font-medium leading-none mr-4">
                   Resume Items
                 </h4>
-                <Input
-                  className="w-[1/2] h-[20px]"
-                  placeholder="Search Items..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
               </div>
               <Separator className="mb-2"></Separator>
               {itemsInBank && (
