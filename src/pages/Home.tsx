@@ -11,8 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { ResumesType } from "@/api/models/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAddResume } from "@/hooks/mutations";
-import { generateFullResume, generatedLatexCode } from "../latexUtils/latexString";
-import { headerLatex, mockEducationEntry2, experMock, projectDataMock, skillsMock, activityMock, sectionHeadingMock, FullResumeSample } from "../latexUtils/latexStringTwo";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
@@ -36,19 +34,6 @@ const Home: React.FC = () => {
       }
     };
     void updateToken();
-
-    // console.log(generatedLatexCode);
-    console.log("HEADERLATEX", headerLatex);
-    // console.log("EXPERMOCK", experMock); // double checked and works as wanted 
-   //  console.log(activityMock);
-    //console.log(testHeaderLatex2);
-    // console.log(headerLatex); double checked behaves correctly 
-  //  console.log("EDUMOCK:", mockEducationEntry2); //double checked behaves correctly 
-     // console.log(projectDataMock); //double checked behaves correctly 
-    // console.log("SKILLSMOCK:", skillsMock); //double checked behaves correctly 
-    //  console.log("SECTIONMOCK:", sectionHeadingMock); //double checked behaves correctly 
-      // console.log("FULLRESUMESAMPLE:",FullResumeSample); //double checked behaves correctly 
-    
   }, [currentUser]);
 
 	const onClickAddResume = () => {
