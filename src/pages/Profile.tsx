@@ -9,8 +9,6 @@ import {
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
-import { BackgroundBeams } from "@/components/ui/background-beams";
-
 
 type User = {
   displayName: string | null;
@@ -31,9 +29,13 @@ const Profile: React.FC = () => {
     }
   }, [currentUser]);
 
-  const handleLogout = () => {
-    void logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   return (
@@ -42,19 +44,19 @@ const Profile: React.FC = () => {
       <div className="flex-col">
         <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
           <MainNav className="mx-6" />
-          <Button variant="ghost">
+          <Button className="mr-4" variant="secondary">
             <Link to="/profile">Profile</Link>
           </Button>
         </div>
       </div>
-      <div className="mx-auto flex flex-col justify-center space-y-6 w-[350px]">
+      <div className="mx-auto flex flex-col justify-center min-h-screen space-y-6 w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Account Information</h1>
           <Card>
             <CardHeader>
-              <h2 className="text-xl font-semibold">User Information</h2>
+              <h2 className="text-xl font-semibold"> </h2>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {isLoading ? (
                 <p>Loading...</p>
               ) : (
@@ -66,9 +68,9 @@ const Profile: React.FC = () => {
                     <strong>Email:</strong> {user?.email}
                   </p>
                   <Button
-                    variant="outline"
-                    onClick={handleLogout}
                     className="mt-4"
+                    variant="secondary"
+                    onClick={handleLogout}
                   >
                     Logout
                   </Button>
@@ -77,7 +79,6 @@ const Profile: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-        <BackgroundBeams />
       </div>
     </>
   );
