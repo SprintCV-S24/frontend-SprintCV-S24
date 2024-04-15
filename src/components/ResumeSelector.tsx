@@ -9,6 +9,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Link, useNavigate } from "react-router-dom";
 import { FileTextIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import { ResumesServerType } from "@/api/models/resumeModel";
@@ -35,6 +47,8 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
     isPending: deleteResumePending,
     isError: deleteResumeError,
   } = useDeleteResume(queryClient, storedToken);
+
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const updateToken = async () => {
@@ -72,7 +86,46 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>Rename</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <Button>This is your trigger</Button>
+                  
+                  </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Add Subheading</DialogTitle>
+                    <DialogDescription>
+                      Fill in the following information
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form
+                    onSubmit={(e) => {
+                      console.log("AHHHHHHHH");
+                    }}
+                  >
+                    <div className="gap-4 flex flex-col">
+                      <Input
+                        className="w-full"
+                        id="item-name"
+                        placeholder="Unique Item Name"
+                        // defaultValue={defaultItemName}
+                        // {...register("itemName")}
+                      />
+                    </div>
+                    <DialogFooter>
+                      <DialogClose
+                        asChild
+                      ></DialogClose>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
                 //this removes the id field
