@@ -469,7 +469,6 @@ const Editor: React.FC = () => {
             >
               <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
             </Button>
-            <PageCount items={itemsInResume}></PageCount>
           </Card>
           <div className="bg-white h-[90%] w-full min-w-6 shadow-xl">
             {itemsInResume && id && (
