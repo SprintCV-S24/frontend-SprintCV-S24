@@ -18,6 +18,7 @@ export function getLatexPreambleT2(): string {
   return `\\documentclass[letterpaper,11pt]{article}
   
   \\usepackage{latexsym}
+  \\usepackage{etoolbox}
   \\usepackage[empty]{fullpage}
   \\usepackage{titlesec}
   \\usepackage{marvosym}
@@ -151,6 +152,7 @@ export function getLatexContentSizedPreambleT2(): string {
   \\usepackage{marvosym}
   \\usepackage[usenames,dvipsnames]{color}
   \\usepackage{verbatim}
+  \\usepackage{etoolbox}
   \\usepackage{enumitem}
   \\usepackage[hidelinks]{hyperref}
   \\usepackage[english]{babel}
@@ -351,7 +353,7 @@ export const generateEducationLatexT2 = (
   );
 
   latexString += `\\resumeSubHeadingListEnd\n`;
-  latexString += `\\vspace{-\lastskip}\n`;
+  latexString += `\\vspace{-\\lastskip}\n`;
   latexString += `\\end{document}\n`;
 
   return latexString;
@@ -653,7 +655,7 @@ const sectionHeadingData: SectionHeadingsType = {
 export const sectionHeadingMock =
   generateSectionHeadingLatexT2(sectionHeadingData);
 
-export const generateLatex = (object: BaseItem): string => {
+export const generateLatexT2 = (object: BaseItem): string => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
       return generateEducationLatexT2(object as EducationType);

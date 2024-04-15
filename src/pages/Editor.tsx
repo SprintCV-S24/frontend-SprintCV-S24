@@ -28,13 +28,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LatexImage } from "@/components/Latex";
 import { ResumeName } from "@/components/ResumeName";
 import { ResumeSaved } from "@/components/ResumeSaved";
 import { PageCount } from "@/components/PageCount";
 import { BaseItem, ResumesType } from "@/api/models/interfaces";
 import { useGetAllItems, useGetResume } from "@/hooks/queries";
-import { generateLatex } from "@/latexUtils/latexString";
+import {
+  generateLatexGeneric,
+  generateFullResumeGeneric,
+} from "@/latexUtils/genericLatexString";
 import { useUpdateResume } from "@/hooks/mutations";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCustomSetItemsInResume } from "@/hooks/mutations";
@@ -45,6 +57,7 @@ import ECHelper from "@/components/ec-helper";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import ResumeItemTypeDropdown from "@/components/ResumeItemDropdown";
 import NewItemDropdown from "@/components/NewItemDropdown";
+import { templates } from "@/api/models/templates";
 
 const Editor: React.FC = () => {
   const { currentUser } = useAuth();
@@ -65,7 +78,6 @@ const Editor: React.FC = () => {
   const [itemsInResume, setItemsInResume] = useState<
     Array<BaseItem & { id: string }> | undefined
   >(undefined);
-
 
   const [templateDropdownIsOpen, setTemplateDropdownIsOpen] =
     useState<boolean>(false);
@@ -102,7 +114,6 @@ const Editor: React.FC = () => {
     isPending: deleteItemPending,
     isError: deleteItemError,
   } = useDeleteItem(queryClient, storedToken);
-
 
   const [editOpenMap, setEditOpenMap] = useState<{ [key: string]: boolean }>(
     () => {
@@ -222,7 +233,7 @@ const Editor: React.FC = () => {
       }
     }
     return false;
-  }
+  };
 
   const filterByItemType = (item: BaseItem): boolean => {
     if (selectedItemType === null) return true; // If no filter selected, return true for all items
@@ -294,6 +305,12 @@ const Editor: React.FC = () => {
     void fetchFact();
   }, [currentUser, storedToken]);
 
+  const handleTemplateUpdate = (templateId: templates) => {
+    if (templateId != null && resume != null) {
+      mutate({ updatedFields: { templateId }, resumeId: resume._id });
+    }
+  };
+
   return (
     <>
       <div className="flex-col">
@@ -324,27 +341,21 @@ const Editor: React.FC = () => {
                 setSelectedItemType={setSelectedItemType}
               ></ResumeItemTypeDropdown>
             </div>
-            <DropdownMenu
-              open={templateDropdownIsOpen}
-              onOpenChange={setTemplateDropdownIsOpen}
+            <Select
+              value={resume?.templateId}
+              onValueChange={handleTemplateUpdate}
             >
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="h-full mr-4"
-                  variant="ghost"
-                >
-                  Change Template
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Button variant="ghost">Template 1</Button>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Button variant="ghost">Template 2</Button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select template" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Templates</SelectLabel>
+                  <SelectItem value={templates.JAKES}>Jake's Resume</SelectItem>
+                  <SelectItem value={templates.BLUE}>Blue Theme</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center justify-start w-1/2">
             <ResumeName
@@ -466,7 +477,12 @@ const Editor: React.FC = () => {
                                   [item.id]: false,
                                 }))
                               }
-                              latexCode={generateLatex(item)}
+                              latexCode={
+                                generateLatexGeneric(
+                                  item,
+                                  templates.BLUE,
+                                ) as string
+                              }
                               itemId={item._id}
                             ></LatexImage>
                           </div>
@@ -524,7 +540,9 @@ const Editor: React.FC = () => {
                               [item.id]: false,
                             }))
                           }
-                          latexCode={generateLatex(item)}
+                          latexCode={
+                            generateLatexGeneric(item, templates.BLUE) as string
+                          }
                           itemId={item._id}
                         ></LatexImage>
                       </div>
