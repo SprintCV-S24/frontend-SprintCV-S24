@@ -407,24 +407,23 @@ const Editor: React.FC = () => {
             ></ResumeName>
             <ResumeSaved isSaved={isSaved}></ResumeSaved>
             <Button
-              className="text-red-500 font-bold"
-              variant="outline"
+              className="text-red-500 font-bold px-[.5rem] mx-[.5rem]"
+              variant="ghost"
               onClick={handleClearResume}
             >
-              Clear Resume
+              Clear
             </Button>
-            <Button
-              variant="secondary"
+            <PageCount items={itemsInResume}></PageCount>
+						<Button
+							className={"px-[.5rem] mx-[.5rem]"}
+              variant="ghost"
               disabled={!isResumeValid()}
               onClick={() => {
                 generatePdfAndOpen(itemsInResume);
               }}
             >
-              {" "}
-              Download
-              <DownloadIcon className="ml-2"></DownloadIcon>
+              <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
             </Button>
-            <PageCount items={itemsInResume}></PageCount>
           </Card>
           <div className="bg-white h-[90%] w-full min-w-6">
             {itemsInResume && id && (

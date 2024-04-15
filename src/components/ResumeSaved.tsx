@@ -19,14 +19,18 @@ export const ResumeSaved: React.FC<{
   if (isSaved && !inSavingTimeout) {
     return (
       <>
-        <CheckCircledIcon className="w-12 h-12 pr-[2px]"></CheckCircledIcon>
+        <div className="w-[30px] h-[30px] flex items-center justify-center">
+          <CheckCircledIcon className="pr-[2px]"></CheckCircledIcon>
+        </div>
         <span className="text-sm">Saved</span>
       </>
     );
   } else {
     return (
       <>
-        <ReloadIcon className="w-12 h-12 pr-[2px]"></ReloadIcon>
+        <div className="w-[30px] h-[30px] flex items-center justify-center">
+          <ReloadIcon className="pr-[2px]"></ReloadIcon>
+        </div>
         <span className="text-sm">Saving...</span>
       </>
     );
