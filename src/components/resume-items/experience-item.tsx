@@ -163,8 +163,8 @@ export function ExperienceItem({
       user: token!,
       bullets: filteredBullets,
       itemName: data.itemName,
-      title: data.companyName,
-      subtitle: data.jobTitle,
+      title: data.jobTitle,
+      subtitle: data.companyName,
       year: data.date,
       location: data.location,
     };
@@ -246,20 +246,6 @@ export function ExperienceItem({
             )}
             <Input
               className="col-span-2"
-              id="item-name"
-              placeholder="Company Name"
-              defaultValue={defaultCompany}
-              {...register("companyName")}
-              // value={companyName}
-              // onChange={(e) => setCompanyName(e.target.value)}
-            />
-            {errors.companyName && (
-              <div className="error-message text-red-400 font-bold">
-                {errors.companyName.message}
-              </div>
-            )}
-            <Input
-              className="col-span-2"
               id="job-title"
               placeholder="Job Title"
               defaultValue={defaultTitle}
@@ -270,6 +256,20 @@ export function ExperienceItem({
             {errors.jobTitle && (
               <div className="error-message text-red-400 font-bold">
                 {errors.jobTitle.message}
+              </div>
+            )}
+						<Input
+              className="col-span-2"
+              id="item-name"
+              placeholder="Company Name"
+              defaultValue={defaultCompany}
+              {...register("companyName")}
+              // value={companyName}
+              // onChange={(e) => setCompanyName(e.target.value)}
+            />
+            {errors.companyName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.companyName.message}
               </div>
             )}
             <div className="col-span-2">

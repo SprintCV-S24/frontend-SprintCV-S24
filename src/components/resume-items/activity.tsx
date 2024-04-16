@@ -165,7 +165,6 @@ export function ExtracurricularItem({
     };
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
-				console.log("templateId passed into activity edit:", templateId);
         // Call the mutation function with necessary parameters
         mutation.mutate({
           itemType: resumeItemTypes.ACTIVITY,
@@ -239,20 +238,6 @@ export function ExtracurricularItem({
             )}
             <Input
               className="col-span-2"
-              id="org-name"
-              placeholder="Organization Name"
-              defaultValue={defaultOrgName}
-              {...register("orgName")}
-              // value={orgName}
-              // onChange={(e) => setOrgName(e.target.value)}
-            />
-            {errors.orgName && (
-              <div className="error-message text-red-400 font-bold">
-                {errors.orgName.message}
-              </div>
-            )}
-            <Input
-              className="col-span-2"
               id="item-name"
               placeholder="Role"
               defaultValue={defaultRole}
@@ -263,6 +248,20 @@ export function ExtracurricularItem({
             {errors.role && (
               <div className="error-message text-red-400 font-bold">
                 {errors.role.message}
+              </div>
+            )}
+						<Input
+              className="col-span-2"
+              id="org-name"
+              placeholder="Organization Name"
+              defaultValue={defaultOrgName}
+              {...register("orgName")}
+              // value={orgName}
+              // onChange={(e) => setOrgName(e.target.value)}
+            />
+            {errors.orgName && (
+              <div className="error-message text-red-400 font-bold">
+                {errors.orgName.message}
               </div>
             )}
             <div className="col-span-2">
