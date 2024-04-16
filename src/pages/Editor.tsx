@@ -67,6 +67,8 @@ const Editor: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dropdownIsOpen, setDropdownIsOpen] = useState<boolean>(false);
   const [typeDropdown, setTypeDropdown] = useState<boolean>(false);
+  const [downloadDropdownIsOpen, setDownloadDropdownIsOpen] =
+    useState<boolean>(false);
 
   const [selectedItemType, setSelectedItemType] =
     useState<resumeItemTypes | null>(null);
@@ -207,6 +209,26 @@ const Editor: React.FC = () => {
         fileLink.href = url;
         fileLink.download = resume.itemName;
         fileLink.click();
+        URL.revokeObjectURL(url);
+      }
+    }
+  };
+
+  const generateTexAndOpen = async (items: BaseItem[] | undefined) => {
+    if (items && resume) {
+      const filename = `${resume.itemName}.tex`;
+      const latexString = generateFullResumeGeneric(items, resume.templateId);
+      if (latexString != null) {
+        const blob = new Blob([latexString], {
+          type: "text/plain;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        // window.open(url, "_blank");
+        let fileLink = document.createElement("a");
+        fileLink.href = url;
+        fileLink.download = filename;
+        fileLink.click();
+        URL.revokeObjectURL(url);
       }
     }
   };
@@ -380,21 +402,55 @@ const Editor: React.FC = () => {
             >
               Clear
             </Button>
-            <PageCount items={itemsInResume} templateId={resume?.templateId}></PageCount>
-            <Button
-              className={"px-[.5rem]"}
-              variant="ghost"
-              // disabled={!isResumeValid()}
-              onClick={() => {
-                if (!isResumeValid()) {
-                  showErrorToast("Resume is Empty!")
-                } else {
-                  generatePdfAndOpen(itemsInResume);
-                }
-              }}
+            <PageCount
+              items={itemsInResume}
+              templateId={resume?.templateId}
+            ></PageCount>
+            <DropdownMenu
+              open={downloadDropdownIsOpen}
+              onOpenChange={setDownloadDropdownIsOpen}
             >
-              <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
-            </Button>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className={"px-[.5rem]"}
+                  variant="ghost"
+                  onClick={() => {
+                    if (!isResumeValid()) {
+                      showErrorToast("Resume is Empty!");
+                    } else {
+                      generatePdfAndOpen(itemsInResume);
+                    }
+                  }}
+                >
+                  <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!isResumeValid()) {
+                      showErrorToast("Resume is Empty!");
+                    } else {
+                      generatePdfAndOpen(itemsInResume);
+                    }
+                  }}
+                >
+                  Pdf
+                </DropdownMenuItem>
+                <DropdownMenuSeparator></DropdownMenuSeparator>
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (!isResumeValid()) {
+                      showErrorToast("Resume is Empty!");
+                    } else {
+                      generateTexAndOpen(itemsInResume);
+                    }
+                  }}
+                >
+                  Tex
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </Card>
       </div>
