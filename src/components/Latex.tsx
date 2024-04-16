@@ -192,11 +192,11 @@ const testLatex2 = `
 //  generatePdfBlobSafe masks the problem but you will see the pdf flash when it renders, which I think is because the render method
 //  is being called twice)
 export const LatexImage: React.FC<{
-  latexCode: string;
-  itemId: string;
+  latexCode: string | undefined;
+  cacheKey: string;
   onRenderStart?: () => void;
   onRenderEnd?: () => void;
-}> = ({ latexCode, itemId, onRenderStart, onRenderEnd }) => {
+}> = ({ latexCode, cacheKey, onRenderStart, onRenderEnd }) => {
   const setItem = useImageCacheStore((state) => state.setItem);
   const getItem = useImageCacheStore((state) => state.getItem);
 
@@ -207,29 +207,38 @@ export const LatexImage: React.FC<{
   const [imageSrc, setImageSrc] = useState("");
 
   //This custom hook renders an image using the provided blob
-  usePngRenderer(blob, canvasRef, setImageSrc, setError, onRenderEnd, (dataUrl) => setItem(itemId, dataUrl));
+  usePngRenderer(
+    blob,
+    canvasRef,
+    setImageSrc,
+    setError,
+    onRenderEnd,
+    (dataUrl) => setItem(cacheKey, dataUrl),
+  );
 
   //Once the component mounts, generate the blob that will be used to render the pdf
   useEffect(() => {
-    const cachedUrl = getItem(itemId);
+    const cachedUrl = getItem(cacheKey);
     if (cachedUrl != null) {
       setImageSrc(cachedUrl);
     } else {
       onRenderStart?.(); // Call if callback is provided
 
-      const canvas = document.createElement("canvas");
-      canvasRef.current = canvas;
+      if (latexCode != undefined) {
+        const canvas = document.createElement("canvas");
+        canvasRef.current = canvas;
 
-      generatePdfBlobSafe(latexCode)
-        .then((res) => {
-          setBlob(res);
-          onRenderEnd?.();
-        })
-        .catch((err) => {
-          setError("Error rendering latex");
-          console.log(err);
-          onRenderEnd?.();
-        });
+        generatePdfBlobSafe(latexCode)
+          .then((res) => {
+            setBlob(res);
+            onRenderEnd?.();
+          })
+          .catch((err) => {
+            setError("Error rendering latex");
+            console.log(err);
+            onRenderEnd?.();
+          });
+      }
     }
   }, [latexCode]);
 

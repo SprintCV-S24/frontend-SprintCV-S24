@@ -5,6 +5,7 @@ import { HeadingServerExplicitType } from "./headingModel";
 import { ProjectServerExplicitType } from "./projectModel";
 import { SkillServerExplicitType } from "./skillModel";
 import { SectionHeadingServerExplicitType } from "./subheadingModel";
+import { templates } from "./templates";
 
 export type BaseItem =
   | ActivitiesServerExplicitType
@@ -94,7 +95,7 @@ export interface SkillsType {
 }
 
 export interface ResumesType {
-	itemName: string;
+  itemName: string;
   itemIds: string[];
-  templateId: string | null;
+  templateId: templates;
 }
