@@ -17,12 +17,15 @@ import { HeadingItem } from "./resume-items/heading-item";
 import { ProjectItem } from "./resume-items/project-item";
 import { SubheadingItem } from "./resume-items/subheading-item";
 import { SkillItem } from "./resume-items/skill-item";
+import { templates } from "@/api/models/templates";
 
 const ECHelper: React.FC<{
   object: BaseItem;
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   itemId: string;
-}> = ({ object, setDropdownIsOpen, itemId}) => {
+  templateId: templates | undefined;
+
+}> = ({ object, setDropdownIsOpen, itemId, templateId}) => {
   switch (object.type) {
     case resumeItemTypes.EDUCATION:
       return (
@@ -30,6 +33,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as EducationType}
           originalId={itemId}
+          templateId={templateId}
         ></EducationItem>
       );
 
@@ -39,6 +43,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as ExperienceType}
           originalId={itemId}
+          templateId={templateId}
         ></ExperienceItem>
       );
 
@@ -48,6 +53,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as ActivitiesType}
           originalId={itemId}
+          templateId={templateId}
         ></ExtracurricularItem>
       );
 
@@ -57,6 +63,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as HeadingsType}
           originalId={itemId}
+          templateId={templateId}
         ></HeadingItem>
       );
 
@@ -66,6 +73,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as ProjectsType}
           originalId={itemId}
+          templateId={templateId}
         ></ProjectItem>
       );
 
@@ -75,6 +83,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as SectionHeadingsType}
           originalId={itemId}
+          templateId={templateId}
         ></SubheadingItem>
       );
 
@@ -84,6 +93,7 @@ const ECHelper: React.FC<{
           setDropdownIsOpen={setDropdownIsOpen}
           original={object as SkillsType}
           originalId={itemId}
+          templateId={templateId}
         ></SkillItem>
       );
 

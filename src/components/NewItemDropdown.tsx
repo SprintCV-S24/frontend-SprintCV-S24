@@ -17,11 +17,14 @@ import { SubheadingItem } from "@/components/resume-items/subheading-item";
 import { ProjectItem } from "@/components/resume-items/project-item";
 import { SkillItem } from "@/components/resume-items/skill-item";
 import { PlusIcon } from "@radix-ui/react-icons";
+import { templates } from "@/api/models/templates";
 
 export const NewItemDropdown: React.FC<{
   dropdownIsOpen: boolean;
   setDropdownIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ dropdownIsOpen, setDropdownIsOpen }) => {
+  templateId: templates | undefined;
+}> = ({ dropdownIsOpen, setDropdownIsOpen, templateId }) => {
+	console.log("templateId in newitemdropdown:", templateId);
   return (
     <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -33,20 +36,39 @@ export const NewItemDropdown: React.FC<{
       <DropdownMenuContent>
         <DropdownMenuLabel className="text-center">Item Type</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <HeadingItem setDropdownIsOpen={setDropdownIsOpen}></HeadingItem>
+        <HeadingItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
+        ></HeadingItem>
         <DropdownMenuSeparator />
-        <SubheadingItem setDropdownIsOpen={setDropdownIsOpen}></SubheadingItem>
+        <SubheadingItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
+        ></SubheadingItem>
         <DropdownMenuSeparator></DropdownMenuSeparator>
-        <EducationItem setDropdownIsOpen={setDropdownIsOpen}></EducationItem>
+        <EducationItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
+        ></EducationItem>
         <DropdownMenuSeparator />
-        <ExperienceItem setDropdownIsOpen={setDropdownIsOpen}></ExperienceItem>
+        <ExperienceItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
+        ></ExperienceItem>
         <DropdownMenuSeparator />
         <ExtracurricularItem
           setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
         ></ExtracurricularItem>
         <DropdownMenuSeparator />
-        <ProjectItem setDropdownIsOpen={setDropdownIsOpen}></ProjectItem>
-        <SkillItem setDropdownIsOpen={setDropdownIsOpen}></SkillItem>
+        <ProjectItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
+        ></ProjectItem>
+        <SkillItem
+          setDropdownIsOpen={setDropdownIsOpen}
+          templateId={templateId}
+        ></SkillItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -27,17 +27,20 @@ import { checkForDuplicate } from "@/api/itemInterface";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { templates } from "@/api/models/templates";
 
 interface HeadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: HeadingsType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function HeadingItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: HeadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -164,6 +167,7 @@ export function HeadingItem({
           itemType: resumeItemTypes.HEADING,
           itemId: originalId!,
           updatedFields: headingData,
+					templateId,
         });
 
         setIsOpen(false);
