@@ -26,17 +26,20 @@ import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { ReactSortable } from "react-sortablejs";
 import { checkForDuplicate } from "@/api/itemInterface";
+import { templates } from "@/api/models/templates";
 
 interface ExperienceItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: ExperienceType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function ExperienceItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: ExperienceItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
@@ -173,6 +176,7 @@ export function ExperienceItem({
           itemType: resumeItemTypes.EXPERIENCE,
           itemId: originalId!,
           updatedFields: experienceData,
+					templateId,
         });
 
         setIsOpen(false);

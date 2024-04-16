@@ -23,17 +23,20 @@ import { formSubmissionTypes } from "./formSubmissionTypes";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { useUpdateItem } from "@/hooks/mutations";
 import { checkForDuplicate } from "@/api/itemInterface";
+import { templates } from "@/api/models/templates";
 
 interface SubheadingItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: SectionHeadingsType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function SubheadingItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: SubheadingItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -123,6 +126,7 @@ export function SubheadingItem({
           itemType: resumeItemTypes.SECTIONHEADING,
           itemId: originalId!,
           updatedFields: headingData,
+					templateId,
         });
 
         setIsOpen(false);

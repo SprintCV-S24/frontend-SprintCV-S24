@@ -72,7 +72,6 @@ export const ResumeSelector: React.FC<{ resume: ResumesServerType }> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>Rename</DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
                 //this removes the id field
