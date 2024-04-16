@@ -346,16 +346,16 @@ const Editor: React.FC = () => {
         </div>
       </div>
       <div className="w-full h-[3rem] flex items-center bg-white">
-        <Card className="w-full h-[2.5rem] mr-3 ml-3 bg-[#e7ecef] flex items-center p-1">
-          <div className="flex items-center justify-start justify-between w-1/2">
+        <Card className="w-full min-h-[2.5rem] mr-3 ml-3 bg-[#e7ecef] flex items-center p-1">
+          <div className="flex items-center justify-start justify-between w-1/2 flex-wrap md:flex-nowrap">
             <NewItemDropdown
               dropdownIsOpen={dropdownIsOpen}
               setDropdownIsOpen={setDropdownIsOpen}
-							templateId={resume?.templateId}
+              templateId={resume?.templateId}
             ></NewItemDropdown>
             <div className="flex items-center">
               <Input
-                className="w-[1/2] h-full"
+                className="min-w-[125px] h-full"
                 placeholder="Search Items..."
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -382,76 +382,83 @@ const Editor: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center justify-start w-1/2">
-            <ResumeName
-              token={storedToken}
-              resumeId={id as string}
-              resumeName={resumeName}
-              setResumeName={setResumeName}
-              setSaving={() => {
-                setIsSaved(false);
-              }}
-              setSaved={() => {
-                setIsSaved(true);
-              }}
-            ></ResumeName>
-            <ResumeSaved isSaved={isSaved}></ResumeSaved>
-            <Button
-              className="text-red-500 font-bold px-[.5rem]"
-              variant="ghost"
-              onClick={handleClearResume}
-            >
-              Clear
-            </Button>
-            <PageCount
-              items={itemsInResume}
-              templateId={resume?.templateId}
-            ></PageCount>
-            <DropdownMenu
-              open={downloadDropdownIsOpen}
-              onOpenChange={setDownloadDropdownIsOpen}
-            >
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className={"px-[.5rem]"}
-                  variant="ghost"
-                  onClick={() => {
-                    if (!isResumeValid()) {
-                      showErrorToast("Error!", "Resume is Empty!");
-                    } else {
-                      generatePdfAndOpen(itemsInResume);
-                    }
-                  }}
-                >
-                  <DownloadIcon stroke="#394c74" strokeWidth="1"></DownloadIcon>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => {
-                    if (!isResumeValid()) {
-                      showErrorToast("Error!", "Resume is Empty!");
-                    } else {
-                      generatePdfAndOpen(itemsInResume);
-                    }
-                  }}
-                >
-                  Pdf
-                </DropdownMenuItem>
-                <DropdownMenuSeparator></DropdownMenuSeparator>
-                <DropdownMenuItem
-                  onClick={() => {
-                    if (!isResumeValid()) {
-                      showErrorToast("Error!", "Resume is Empty!");
-                    } else {
-                      generateTexAndOpen(itemsInResume);
-                    }
-                  }}
-                >
-                  Tex
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex flex-wrap items-center justify-end w-1/2">
+            <div className="flex flex-grow">
+              <ResumeName
+                token={storedToken}
+                resumeId={id as string}
+                resumeName={resumeName}
+                setResumeName={setResumeName}
+                setSaving={() => {
+                  setIsSaved(false);
+                }}
+                setSaved={() => {
+                  setIsSaved(true);
+                }}
+              ></ResumeName>
+              <ResumeSaved isSaved={isSaved}></ResumeSaved>
+            </div>
+            <div className="flex">
+              <Button
+                className="text-red-500 font-bold px-[.5rem]"
+                variant="ghost"
+                onClick={handleClearResume}
+              >
+                Clear
+              </Button>
+              <PageCount
+                items={itemsInResume}
+                templateId={resume?.templateId}
+              ></PageCount>
+              <DropdownMenu
+                open={downloadDropdownIsOpen}
+                onOpenChange={setDownloadDropdownIsOpen}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className={"px-[.5rem]"}
+                    variant="ghost"
+                    onClick={() => {
+                      if (!isResumeValid()) {
+                        showErrorToast("Error!", "Resume is Empty!");
+                      } else {
+                        generatePdfAndOpen(itemsInResume);
+                      }
+                    }}
+                  >
+                    <DownloadIcon
+                      stroke="#394c74"
+                      strokeWidth="1"
+                    ></DownloadIcon>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (!isResumeValid()) {
+                        showErrorToast("Error!", "Resume is Empty!");
+                      } else {
+                        generatePdfAndOpen(itemsInResume);
+                      }
+                    }}
+                  >
+                    Pdf
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator></DropdownMenuSeparator>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (!isResumeValid()) {
+                        showErrorToast("Error!", "Resume is Empty!");
+                      } else {
+                        generateTexAndOpen(itemsInResume);
+                      }
+                    }}
+                  >
+                    Tex
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </Card>
       </div>

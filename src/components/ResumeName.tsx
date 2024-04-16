@@ -66,7 +66,7 @@ export const ResumeName: React.FC<{
 
   return (
     <Input
-      className="m-2 min-w-[50px] h-full rounded-md ml-8 px-2 bg-white"
+      className="m-2 min-w-[150px] h-full rounded-md ml-8 px-2 bg-white flex-grow"
       type="text"
       value={resumeName}
       onChange={handleInputChange}

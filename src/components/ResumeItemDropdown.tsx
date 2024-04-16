@@ -21,7 +21,7 @@ export const ResumeItemTypeDropdown: React.FC<{
     <DropdownMenu open={typeDropdown} onOpenChange={setTypeDropdown}>
       <DropdownMenuTrigger asChild>
         <Button className="h-full" variant="ghost">
-          <img src={Filter} alt="filterimg" className="w-[1rem] h-[1rem]" />
+          <img src={Filter} alt="filterimg" className="w-[1rem] h-[1rem] min-w-[1rem] flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

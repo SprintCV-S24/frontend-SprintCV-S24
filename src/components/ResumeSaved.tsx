@@ -18,21 +18,21 @@ export const ResumeSaved: React.FC<{
 
   if (isSaved && !inSavingTimeout) {
     return (
-      <>
+      <div className="flex items-center">
         <div className="w-[30px] h-[30px] flex items-center justify-center">
           <CheckCircledIcon className="pr-[2px]"></CheckCircledIcon>
         </div>
         <span className="text-sm mr-[.5rem]">Saved</span>
-      </>
+      </div>
     );
   } else {
     return (
-      <>
+      <div className="flex items-center justify-center">
         <div className="w-[30px] h-[30px] flex items-center justify-center">
           <ReloadIcon className="pr-[2px]"></ReloadIcon>
         </div>
         <span className="text-sm mr-[.5rem]">Saving...</span>
-      </>
+      </div>
     );
   }
 };

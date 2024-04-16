@@ -29,8 +29,8 @@ export const NewItemDropdown: React.FC<{
     <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button className="h-full" variant="ghost">
-          <PlusIcon className="mr-2"></PlusIcon>
-          Add Resume Item
+          <PlusIcon className="lg:mr-2"></PlusIcon>
+          <span className="sr-only lg:not-sr-only whitespace-nowrap text-nowrap min-w-[120px]">Add Resume Item</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
