@@ -417,7 +417,7 @@ const Editor: React.FC = () => {
                   variant="ghost"
                   onClick={() => {
                     if (!isResumeValid()) {
-                      showErrorToast("Resume is Empty!");
+                      showErrorToast("Error!", "Resume is Empty!");
                     } else {
                       generatePdfAndOpen(itemsInResume);
                     }
@@ -430,7 +430,7 @@ const Editor: React.FC = () => {
                 <DropdownMenuItem
                   onClick={() => {
                     if (!isResumeValid()) {
-                      showErrorToast("Resume is Empty!");
+                      showErrorToast("Error!", "Resume is Empty!");
                     } else {
                       generatePdfAndOpen(itemsInResume);
                     }
@@ -442,7 +442,7 @@ const Editor: React.FC = () => {
                 <DropdownMenuItem
                   onClick={() => {
                     if (!isResumeValid()) {
-                      showErrorToast("Resume is Empty!");
+                      showErrorToast("Error!", "Resume is Empty!");
                     } else {
                       generateTexAndOpen(itemsInResume);
                     }

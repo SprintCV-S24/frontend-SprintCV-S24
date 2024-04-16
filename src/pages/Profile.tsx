@@ -9,6 +9,7 @@ import {
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
+import { BugReport } from "@/components/BugReport";
 
 type User = {
   displayName: string | null;
@@ -21,6 +22,7 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const currentUser = getUser();
+  const [bugOpen, setBugOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -67,6 +69,7 @@ const Profile: React.FC = () => {
                   <p>
                     <strong>Email:</strong> {user?.email}
                   </p>
+                  <BugReport setDialogOpen={setBugOpen}></BugReport>
                   <Button
                     className="mt-4"
                     variant="secondary"

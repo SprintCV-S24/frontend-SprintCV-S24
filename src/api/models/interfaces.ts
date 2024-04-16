@@ -99,3 +99,9 @@ export interface ResumesType {
   itemIds: string[];
   templateId: templates;
 }
+
+export interface BugType {
+  bugTitle: string,
+  bugDesc: string,
+  bugBrowser: string,
+}
