@@ -503,6 +503,7 @@ const Editor: React.FC = () => {
                                   }))
                                 }
                                 itemId={item.id}
+                                templateId={resume?.templateId}
                               />
                               <Button
                                 className="text-red-500 font-bold"
