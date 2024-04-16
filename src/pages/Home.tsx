@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { ResumesType } from "@/api/models/interfaces";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAddResume } from "@/hooks/mutations";
+import { templates } from "@/api/models/templates";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
@@ -40,7 +41,7 @@ const Home: React.FC = () => {
     const blankResume: ResumesType = {
       itemName: "Untitled resume",
 			itemIds: [],
-			templateId: null,
+			templateId: templates.JAKES,
     };
 
     mutate(blankResume, {
@@ -60,7 +61,7 @@ const Home: React.FC = () => {
       <div className="flex-col">
         <div className="flex w-full h-[3rem] items-center px-4 relative shadow-xl">
           <MainNav className="mx-6" />
-          <Button variant="ghost">
+          <Button className="mr-4" variant="secondary">
             <Link to="/profile">Profile</Link>
           </Button>
         </div>
