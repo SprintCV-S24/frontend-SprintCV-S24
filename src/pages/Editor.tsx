@@ -442,7 +442,7 @@ const Editor: React.FC = () => {
                 <DropdownMenuItem
                   onClick={() => {
                     if (!isResumeValid()) {
-                      showErrorToast("Resume is Empty!");
+                      showErrorToast("Error!", "Resume is Empty!");
                     } else {
                       generateTexAndOpen(itemsInResume);
                     }
