@@ -26,17 +26,20 @@ import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { ReactSortable } from "react-sortablejs";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { checkForDuplicate } from "@/api/itemInterface";
+import { templates } from "@/api/models/templates";
 
 interface EducationItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: EducationType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function EducationItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: EducationItemProps) {
   // Global context(s)
   const { currentUser } = useAuth();
@@ -174,6 +177,7 @@ export function EducationItem({
           itemType: resumeItemTypes.EDUCATION,
           itemId: originalId!,
           updatedFields: educationData,
+					templateId,
         });
 
         setIsOpen(false);

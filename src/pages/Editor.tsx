@@ -351,6 +351,7 @@ const Editor: React.FC = () => {
             <NewItemDropdown
               dropdownIsOpen={dropdownIsOpen}
               setDropdownIsOpen={setDropdownIsOpen}
+							templateId={resume?.templateId}
             ></NewItemDropdown>
             <div className="flex items-center">
               <Input

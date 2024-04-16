@@ -27,17 +27,20 @@ import { useUpdateItem } from "@/hooks/mutations";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { ReactSortable } from "react-sortablejs";
 import { useQueryClient } from "@tanstack/react-query";
+import { templates } from "@/api/models/templates";
 
 interface ProjectItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: ProjectsType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function ProjectItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: ProjectItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -164,6 +167,7 @@ export function ProjectItem({
           itemType: resumeItemTypes.PROJECT,
           itemId: originalId!,
           updatedFields: projectData,
+					templateId,
         });
 
         setIsOpen(false);

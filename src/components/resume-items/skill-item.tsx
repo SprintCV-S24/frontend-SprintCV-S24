@@ -23,17 +23,20 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { checkForDuplicate } from "@/api/itemInterface";
+import { templates } from "@/api/models/templates";
 
 interface SkillItemProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: SkillsType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function SkillItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: SkillItemProps) {
   const { currentUser } = useAuth();
   const [storedToken, setStoredToken] = useState<string | undefined>(undefined);
@@ -129,6 +132,7 @@ export function SkillItem({
           itemType: resumeItemTypes.SKILL,
           itemId: originalId!,
           updatedFields: skillsData,
+					templateId,
         });
 
         setIsOpen(false);

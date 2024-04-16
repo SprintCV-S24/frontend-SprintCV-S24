@@ -27,17 +27,20 @@ import { useUpdateItem } from "@/hooks/mutations";
 import { resumeItemTypes } from "@/api/models/resumeItemTypes";
 import { DragHandleHorizontalIcon } from "@radix-ui/react-icons";
 import { checkForDuplicate } from "@/api/itemInterface";
+import { templates } from "@/api/models/templates";
 
 interface ActivityItemsProps {
   setDropdownIsOpen: Dispatch<SetStateAction<boolean>>;
   original?: ActivitiesType; // Mark as optional with '?'
   originalId?: string;
+	templateId: templates | undefined;
 }
 
 export function ExtracurricularItem({
   setDropdownIsOpen,
   original,
   originalId,
+	templateId,
 }: ActivityItemsProps) {
   // Global context(s)
   const { currentUser } = useAuth();
@@ -162,11 +165,13 @@ export function ExtracurricularItem({
     };
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
+				console.log("templateId passed into activity edit:", templateId);
         // Call the mutation function with necessary parameters
         mutation.mutate({
           itemType: resumeItemTypes.ACTIVITY,
           itemId: originalId!,
           updatedFields: activityData,
+					templateId,
         });
 
         setIsOpen(false);
