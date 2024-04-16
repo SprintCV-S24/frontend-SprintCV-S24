@@ -69,7 +69,7 @@ const Profile: React.FC = () => {
                   <p>
                     <strong>Email:</strong> {user?.email}
                   </p>
-                  <BugReport setDropdownIsOpen={setBugOpen}></BugReport>
+                  <BugReport setDialogOpen={setBugOpen}></BugReport>
                   <Button
                     className="mt-4"
                     variant="secondary"
