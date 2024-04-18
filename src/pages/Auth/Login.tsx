@@ -54,7 +54,6 @@ const Login: React.FC = () => {
     try {
       setError("");
       const alal = await login(values.email, values.password);
-      console.log(alal);
       navigate("/"); // Redirect to home page
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument

@@ -275,7 +275,6 @@ export const use2ndPageRenderer = (
               if (onRenderEnd != null) {
                 onRenderEnd();
               }
-              console.log("no second page");
             });
         })
         .catch((err) => {

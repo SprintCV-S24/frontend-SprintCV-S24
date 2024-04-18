@@ -40,7 +40,6 @@ export const PageCount: React.FC<{
       if (latexCode != null) {
         generatePdfBlobSafe(latexCode, true)
           .then((res) => {
-            console.log("blob generated");
             setBlob(res);
           })
           .catch((err) => {

@@ -79,7 +79,7 @@ export function BugReport({ setDialogOpen }: BugReportProps) {
       bugBrowser: data.browswer,
     };
 
-    console.log("Bug Data");
+    // console.log("Bug Data");
 
     try {
       console.log("Bug Report Submitted!");

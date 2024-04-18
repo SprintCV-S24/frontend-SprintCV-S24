@@ -30,7 +30,6 @@ const Home: React.FC = () => {
   } = useAddResume(queryClient, storedToken);
 
 	useEffect(() => {
-		console.log("doing cache fill");
 		generatePdfBlobSafe(testlatex4);
 		// generatePdfBlobSafe(cacheLatex1);
 	}, []);
@@ -56,7 +55,6 @@ const Home: React.FC = () => {
 
     mutate(blankResume, {
 			onSuccess: (response) => {
-				console.log("response:", response);
 				navigate(`/editor/${response._id}`);
 			},
 			onError: () => {

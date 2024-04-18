@@ -345,17 +345,17 @@ const Editor: React.FC = () => {
           </Button>
         </div>
       </div>
-      <div className="w-full h-[3rem] flex items-center bg-white">
-        <Card className="w-full h-[2.5rem] mr-3 ml-3 bg-[#e7ecef] flex items-center p-1">
-          <div className="flex items-center justify-start justify-between w-1/2">
+      <div className="w-full flex items-center bg-white p-1">
+        <Card className="w-full mr-3 ml-3 bg-[#e7ecef] flex flex-col lg:flex-row p-1">
+          <div className="flex items-center h-[2rem] justify-start justify-between w-full lg:w-1/2 lg:ml-8 mb-1 lg:mb-0">
             <NewItemDropdown
               dropdownIsOpen={dropdownIsOpen}
               setDropdownIsOpen={setDropdownIsOpen}
-							templateId={resume?.templateId}
+              templateId={resume?.templateId}
             ></NewItemDropdown>
             <div className="flex items-center">
               <Input
-                className="w-[1/2] h-full"
+                className="lg:w-[1/2] w-full h-full"
                 placeholder="Search Items..."
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -381,8 +381,9 @@ const Editor: React.FC = () => {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            <div className=""></div>
           </div>
-          <div className="flex items-center justify-start w-1/2">
+          <div className="flex items-center h-[2rem] justify-start w-full lg:w-1/2">
             <ResumeName
               token={storedToken}
               resumeId={id as string}
@@ -546,7 +547,7 @@ const Editor: React.FC = () => {
                                 resume?.templateId,
                               )}
                               cacheKey={`${item._id}${resume?.templateId}`}
-															showMessage
+                              showMessage
                             ></LatexImage>
                           </div>
                           <Skeleton
@@ -608,7 +609,7 @@ const Editor: React.FC = () => {
                             resume?.templateId,
                           )}
                           cacheKey={`${item._id}${resume?.templateId}`}
-													showMessage
+                          showMessage
                         ></LatexImage>
                       </div>
                       <Skeleton

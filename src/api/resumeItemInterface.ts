@@ -59,12 +59,12 @@ export const updateItem = async (
   token: string,
 ) => {
   try {
-    console.log(updatedFields);
+    // console.log(updatedFields);
     if (token === undefined) {
       throw new Error("Token is undefined");
     }
 
-    console.log("updateItem token: ", token);
+    // console.log("updateItem token: ", token);
     switch (itemType) {
       case resumeItemTypes.HEADING:
         await updateHeading(updatedFields, itemId, token);
