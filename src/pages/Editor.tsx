@@ -546,6 +546,7 @@ const Editor: React.FC = () => {
                                 resume?.templateId,
                               )}
                               cacheKey={`${item._id}${resume?.templateId}`}
+															showMessage
                             ></LatexImage>
                           </div>
                           <Skeleton
@@ -607,6 +608,7 @@ const Editor: React.FC = () => {
                             resume?.templateId,
                           )}
                           cacheKey={`${item._id}${resume?.templateId}`}
+													showMessage
                         ></LatexImage>
                       </div>
                       <Skeleton

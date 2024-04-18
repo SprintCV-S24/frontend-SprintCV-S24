@@ -51,12 +51,12 @@ const generatePdfBlob = async (latexCode: string) => {
 };
 
 //Wraps generatePdfBlob, providing protections against illegal calls to the engine that will cause errors
-export const generatePdfBlobSafe = async (latexCode: string) => {
+export const generatePdfBlobSafe = async (latexCode: string, showMessage: boolean = false) => {
 	//This promise doesn't get resolved until the engine has been initialized
 	await initializationPromise;
 
 	//This pushes the call to generatePdfBlob into a queue so that it waits its turn since the engine
 	//  can only render 1 thing at a time
-	const blob = await renderQueueManager.enqueue<Blob>(async () => await generatePdfBlob(latexCode));
+	const blob = await renderQueueManager.enqueue<Blob>(async () => await generatePdfBlob(latexCode), showMessage);
 	return blob;
 };
