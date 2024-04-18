@@ -22,7 +22,7 @@ export const notifyInitializationComplete = () => {
 //This class implements a queue which will expand if generatePdfBlobSafe is called multiple
 //  times quickly. This way each call will wait its turn to use the engine
 class RenderQueueManager {
-  private queue: {task: (() => Promise<any>)}[] = [];
+  private queue: { task: () => Promise<any> }[] = [];
   private isProcessing = false;
 
   constructor() {
@@ -30,17 +30,31 @@ class RenderQueueManager {
     this.isProcessing = false;
   }
 
-  async enqueue<T>(task: () => Promise<T>): Promise<T> {
+  async enqueue<T>(task: () => Promise<T>, showMessage: boolean = false): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      const queueItem = { task: () => task().then(resolve).catch(reject) };
+      const queueItem = {
+        task: () => {
+          const timeoutId = setTimeout(() => {
+            if (!messageShown && showMessage) {
+              showErrorToast(
+                "Loading may take up to a minute",
+                "Subsequent page loads will become much faster",
+              );
+              messageShown = true;
+            }
+          }, 5000);
+          return task()
+            .then((result) => {
+              clearTimeout(timeoutId);
+              return resolve(result);
+            })
+            .catch(() => {
+              clearTimeout(timeoutId);
+              return reject();
+            });
+        },
+      };
       this.queue.push(queueItem);
-
-      setTimeout(() => {
-        if (!messageShown && this.queue.includes(queueItem)) {
-          showErrorToast("Loading may take up to a minute", "Subsequent page loads will become much faster");
-		  messageShown = true;
-        }
-      }, 5000);
 
       this.processQueue();
     });

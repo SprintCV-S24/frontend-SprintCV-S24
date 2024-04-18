@@ -196,7 +196,8 @@ export const LatexImage: React.FC<{
   cacheKey: string;
   onRenderStart?: () => void;
   onRenderEnd?: () => void;
-}> = ({ latexCode, cacheKey, onRenderStart, onRenderEnd }) => {
+	showMessage?: boolean;
+}> = ({ latexCode, cacheKey, onRenderStart, onRenderEnd, showMessage = true }) => {
   const setItem = useImageCacheStore((state) => state.setItem);
   const getItem = useImageCacheStore((state) => state.getItem);
 
@@ -228,7 +229,7 @@ export const LatexImage: React.FC<{
         const canvas = document.createElement("canvas");
         canvasRef.current = canvas;
 
-        generatePdfBlobSafe(latexCode)
+        generatePdfBlobSafe(latexCode, showMessage)
           .then((res) => {
             setBlob(res);
             onRenderEnd?.();

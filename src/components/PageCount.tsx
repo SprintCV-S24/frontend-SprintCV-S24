@@ -38,7 +38,7 @@ export const PageCount: React.FC<{
       const latexCode = generateFullResumeGeneric(items || [], templateId);
 
       if (latexCode != null) {
-        generatePdfBlobSafe(latexCode)
+        generatePdfBlobSafe(latexCode, true)
           .then((res) => {
             console.log("blob generated");
             setBlob(res);
