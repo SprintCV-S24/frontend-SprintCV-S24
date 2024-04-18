@@ -123,8 +123,6 @@ export function SkillItem({
       description: data.description,
     };
 
-    console.log(skillsData);
-
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
         // Call the mutation function with necessary parameters

@@ -165,7 +165,6 @@ export function ExtracurricularItem({
     };
     if (submissionType == formSubmissionTypes.EDIT) {
       try {
-				console.log("templateId passed into activity edit:", templateId);
         // Call the mutation function with necessary parameters
         mutation.mutate({
           itemType: resumeItemTypes.ACTIVITY,

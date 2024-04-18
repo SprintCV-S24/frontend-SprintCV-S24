@@ -173,15 +173,11 @@ export const useUpdateItem = (
       updatedFields: itemUpdatedFields;
     }) => {
       if (token === undefined || templateId === undefined) {
-		console.log("templateId is undefined");
         throw new Error("Token is undefined or templateId is undefined");
       }
-      console.log("First Layer");
-      console.log(updatedFields);
       return await updateItem(itemType, itemId, updatedFields, token);
     },
     onSuccess: (_, { itemId, templateId }) => {
-		console.log("calling invalidate item:", `${itemId}${templateId}`);
       invalidateItem(`${itemId}${templateId}`);
       queryClient.invalidateQueries({ queryKey: ["items"] });
     },

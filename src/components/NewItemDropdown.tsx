@@ -24,7 +24,6 @@ export const NewItemDropdown: React.FC<{
   setDropdownIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   templateId: templates | undefined;
 }> = ({ dropdownIsOpen, setDropdownIsOpen, templateId }) => {
-	console.log("templateId in newitemdropdown:", templateId);
   return (
     <DropdownMenu open={dropdownIsOpen} onOpenChange={setDropdownIsOpen}>
       <DropdownMenuTrigger asChild>
