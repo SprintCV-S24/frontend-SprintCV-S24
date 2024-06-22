@@ -261,8 +261,18 @@ export function sanitize(str: string): string {
     "]": "\\textrbrack{}",
   };
 
-  return Array.from(str)
-    .map((char) => symbolMap[char] || char)
+  const regex = /{{(.*?)}}|./g;
+
+  return Array.from(str.matchAll(regex))
+    .map((match) => {
+      if (match[1]) {
+        // Return the unescaped part
+        return match[1];
+      } else {
+        // Sanitize the character
+        return symbolMap[match[0]] || match[0];
+      }
+    })
     .join("");
 }
 
@@ -284,10 +294,10 @@ export const generateHeaderLatex = (activityObj: HeadingsType): string => {
     "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
     "\\usepackage[top=.3in, left=1in, right=1in, bottom=1in]{geometry}",
   );
-	headerLatex = headerLatex.replace(
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.3in"
-	);
+  headerLatex = headerLatex.replace(
+    "\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
+    "\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.3in",
+  );
   headerLatex += `\\begin{document}\n`;
 
   headerLatex += generateHeaderLatexHelper(activityObj as HeadingsType);
@@ -394,8 +404,8 @@ export const generateExperienceLatex = (activityObj: ExperienceType) => {
 
 export const generateExperienceLatexHelper = (activityObj: ExperienceType) => {
   let latexString = `\n\\resumeSubheading{${sanitize(
-    activityObj.subtitle,
-  )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.title)}}{${sanitize(
+    activityObj.title,
+  )}}{${sanitize(activityObj.year)}}{${sanitize(activityObj.subtitle)}}{${sanitize(
     activityObj.location,
   )}}
     `;
@@ -553,14 +563,14 @@ export const generateSectionHeadingLatex = (
   activityObj: SectionHeadingsType,
 ) => {
   let latexString = getLatexContentSizedPreamble();
-	latexString = latexString.replace(
+  latexString = latexString.replace(
     "\\usepackage[top=0in, left=1in, right=1in, bottom=1in]{geometry}",
     "\\usepackage[top=.05in, left=1in, right=1in, bottom=1in]{geometry}",
   );
-	latexString = latexString.replace(
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
-		"\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.05in"
-	);
+  latexString = latexString.replace(
+    "\\pdfpageheight=\\dimexpr\\ht0+\\dimen0",
+    "\\pdfpageheight=\\dimexpr\\ht0+\\dimen0+.05in",
+  );
 
   latexString += `\\begin{document}`;
 
