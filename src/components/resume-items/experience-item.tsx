@@ -57,8 +57,8 @@ export function ExperienceItem({
     formSubmissionTypes | undefined
   >(undefined);
 
-  const defaultCompany = original?.subtitle || "";
-  const defaultTitle = original?.title || "";
+  const defaultCompany = original?.title || "";
+  const defaultTitle = original?.subtitle || "";
   const defaultItemName = original?.itemName || "";
   const defaultLocation = original?.location || "";
   const defaultDate = original?.year || "";
