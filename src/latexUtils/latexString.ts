@@ -261,7 +261,7 @@ export function sanitize(str: string): string {
     "]": "\\textrbrack{}",
   };
 
-  const regex = /{{(.*?)}}|./g;
+  const regex = /{tex}(.*?){tex}|./g;
 
   return Array.from(str.matchAll(regex))
     .map((match) => {
